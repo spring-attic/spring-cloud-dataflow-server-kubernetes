@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  labels:
+    spring-cloud-service: redis
+spec:
+# If you are not running k8s on a local dev box, use LoadBalancer to expose the (changing) Redis pod to the k8s API
+#  type: LoadBalancer
+  ports:
+    - port: 6379
+  selector:
+    name: redis

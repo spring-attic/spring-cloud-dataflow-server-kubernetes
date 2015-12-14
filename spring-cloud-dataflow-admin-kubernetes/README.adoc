@@ -1,5 +1,3 @@
-=== Spring Cloud Data Flow - Kubernetes image:https://build.spring.io/plugins/servlet/buildStatusImage/SCD-K8SBMASTER[Build Status, link=https://build.spring.io/browse/SCD-K8SBMASTER] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-admin-kubernetes.svg?label=ready&title=Ready[Stories in Ready, link=http://waffle.io/spring-cloud/spring-cloud-dataflow-admin-kubernetes] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-admin-kubernetes.svg?label=In%20Progress&title=In%20Progress[Stories in Progress, link=http://waffle.io/spring-cloud/spring-cloud-dataflow-admin-kubernetes]
-=======
 SPI implementation for deploying Spring Cloud Stream modules to http://http://kubernetes.io/[Kubernetes].
 
 ### Setup a Kubernetes Cluster
@@ -30,108 +28,107 @@ proper access to the cluster.
 ### Run the Kubernetes Deployer
 
 1. Checkout the code:
-+
-```
-$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-admin-kubernetes
-$ cd spring-cloud-dataflow-admin-kubernetes
-```
-+
-1. Start the Kubernetes infrastructure as described above.
-+
-1. Start the Redis server within your Kubernetes cluster:
-+
-```
-$ kubectl create -f src/etc/kubernetes/redis-controller.yml
-$ kubectl create -f src/etc/kubernetes/redis-service.yml
-```
-+
-You should now be able to resolve your Redis instance running in Kubernetes.
-+
-```
-$ nslookup redis.default.svc.cluster.local
-```
-+
-Try to connect as well:
-+
-```
-$ redis-cli -h redis.default.svc.cluster.local
-$ redis.default.svc.cluster.local:6379> keys *
-	 (empty list or set)
-```
-+
-1. Run integration tests (optional)
-+
-```
-$ mvn clean integration-test
-```
-+
-1. Run admin:
-+
-```
-$ mvn clean package
-$ java -jar spring-cloud-dataflow-admin-kubernetes/target/spring-cloud-dataflow-admin-kubernetes-1.0.0.BUILD-SNAPSHOT.jar
-```
-+
-1. Run Spring Cloud Data Flow Shell:
-+
-```
-# In Spring Cloud Dataflow clone directory
-$ java -jar spring-cloud-dataflow-shell/target/spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
-```
-+
-1. Deploy your first stream to Kubernetes
-+
-```
-dataflow:> stream create --name deployment1 --definition "http | log"  --deploy
-```
-+
-You can now check the status:
-+
-```
-dataflow:>stream list
-Stream Name  Stream Definition              Status
------------  -----------------------------  ---------
-deployment1  http --server.port=9999 | log  deploying
-```
-+
-The first deployment may take some time as Kubernetes needs to fetch the base image
-for running Spring Cloud Stream modules from DockerHub. Once the status is `deployed`
-you can test the stream.
-+
-Send a log message to the http endpoint that was created by the stream:
-+
-```
-$ curl -v -XPOST -H "Content-Type: text/plain" http://deployment1-http.default.svc.cluster.local:<port>/messages -d "foobar123"
-```
-+
-Check the log output:
-+
-```
-$ kubectl get pods -l scsm-label=log
-NAME                    READY     STATUS    RESTARTS   AGE
-deployment1-log-tacrf   1/1       Running   0          7m
 
-$ kubectl logs deployment1-log-tacrf
-```
-+
-The last line should say "foobar123". This means the stream is working correctly.
-+
-Also you check the status via Kubernetes `kubectl`:
-+
-```
-$ kubectl get service,rc,pods
-```
-+
-You will see a bunch of new resources being deployed.
+   ```
+   $ git clone https://github.com/frosenberg/spring-cloud-dataflow
+   $ cd spring-cloud-dataflow
+   ```
+
+1. Start the Kubernetes infrastructure as described above.
+
+1. Start the Redis server within your Kubernetes cluster:
+
+   ```
+   $ kubectl create -f src/main/kubernetes/redis-controller.yml
+   $ kubectl create -f src/main/kubernetes/redis-service.yml
+   ```
+
+   Try to connect as well:
+
+   You should now be able to resolve your Redis instance running in Kubernetes.
+   ```
+   $ nslookup redis.default.svc.cluster.local
+   ```
+
+   Try to connect as well:
+   ```
+   $ redis-cli -h redis.default.svc.cluster.local
+   $ redis.default.svc.cluster.local:6379> keys *
+		 (empty list or set)
+   ```
+
+1. Run integration tests (optional)
+
+	 ```
+	 $ cd spring-cloud-dataflow-module-deployers/spring-cloud-dataflow-module-deployer-kubernetes
+	 $ mvn clean integration-test
+	 ```
+
+1. Run admin:
+
+	 ```
+	 $ cd ../.. # in case your ran the integration tests
+	 $ mvn clean package
+	 $ export SPRING_REDIS_HOST=redis.default.svc.cluster.local
+	 $ java -jar spring-cloud-dataflow-admin/target/spring-cloud-dataflow-admin-1.0.0.BUILD-SNAPSHOT.jar --spring.profiles.active=kubernetes
+	 ```
+
+1. Run Spring Cloud Data Flow Shell:
+
+   ```
+   $ java -jar spring-cloud-dataflow-shell/target/spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
+   ```
+
+
+1. Deploy your first stream to Kubernetes
+
+   ```
+   dataflow:> stream create --name deployment1 --definition "http --server.port=9999 | log"  --deploy
+   ```
+
+   You can now check the status:
+
+   ```
+   dataflow:>stream list
+   Stream Name  Stream Definition              Status
+   -----------  -----------------------------  ---------
+   deployment1  http --server.port=9999 | log  deploying
+   ```
+
+   The first deployment may take some time as Kubernetes needs to fetch the base image
+   for running Spring Cloud Stream modules from DockerHub. Once the status is `deployed`
+   you can test the stream.
+
+   Send a log message to the http endpoint that was created by the stream:
+
+   ```
+   $ curl -v -XPOST -H"Content-Type: text/plain" http://deployment1-http.default.svc.cluster.local:9999/messages -d "foobar123"
+   ```
+
+   Check the log output:
+   ```
+	 $ kubectl get pods -l scsm-label=log
+	 NAME                    READY     STATUS    RESTARTS   AGE
+	 deployment1-log-tacrf   1/1       Running   0          7m
+
+	 $ kubectl logs deployment1-log-tacrf
+   ```
+
+   The last line should say "foobar123". This means the stream is working correctly.
+
+	Also you check the status via Kubernetes `kubectl`:
+	 ```
+	 $ kubectl get service,rc,pods
+	 ```
+
+	 You will see a bunch of new resources being deployed.
 
 
 ### Configuration settings
 
-Internally the Kubernetes Deployer uses the https://github.com/fabric8io/kubernetes-client[Kubernetes Client API].
+Internally the Kubernetes Deployer uses the excellent https://github.com/fabric8io/kubernetes-client[Kubernetes Client API].
 
-If you have a working `kubectl` installation that points to an exsting Kubernetes cluster, the Spring Admin + the
-Kubernetes deployer will pick up the configuration automatically (in most cases). If not, see the configuration
-options below.
+If you have a working `kubectl` installation that points to an exsting Kubernetes cluster, the Spring Admin + the Kubernetes deployer will pick up the configuration automatically (in most cases). If not, see the configuration options below.
 
 If you want to use your own base image you can set the following arguments when starting the Spring Admin:
 
