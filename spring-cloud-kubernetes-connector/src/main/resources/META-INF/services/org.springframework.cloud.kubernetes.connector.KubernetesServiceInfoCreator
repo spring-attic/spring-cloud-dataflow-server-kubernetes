@@ -1,2 +1,0 @@
-org.springframework.cloud.kubernetes.connector.RedisServiceInfoCreator
-org.springframework.cloud.kubernetes.connector.RabbitmqServiceInfoCreator
