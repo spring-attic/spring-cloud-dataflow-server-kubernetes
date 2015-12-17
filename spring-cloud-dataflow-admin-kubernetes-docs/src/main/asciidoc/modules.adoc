@@ -1,0 +1,6 @@
+[[modules]]
+= Modules
+
+include::{scsm-asciidoc}/sources.adoc[]
+include::{scsm-asciidoc}/processors.adoc[]
+include::{scsm-asciidoc}/sinks.adoc[]

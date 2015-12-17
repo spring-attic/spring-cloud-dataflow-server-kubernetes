@@ -14,6 +14,7 @@
 
 	<modules>
 		<module>spring-cloud-dataflow-admin-kubernetes</module>
+		<module>spring-cloud-dataflow-admin-kubernetes-docs</module>
 	</modules>
 
 	<properties>
