@@ -79,7 +79,6 @@ public class KubernetesModuleInstanceStatus implements ModuleInstanceStatus {
 		result.put("host_ip", pod.getStatus().getHostIP());
 		result.put("container_restart_count", ""+ containerStatus.getRestartCount());
 
-		// TODO add more useful stuff
 		return result;
 	}
 }
