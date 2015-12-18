@@ -10,4 +10,6 @@ services:
 install: true
 script:
   - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || ./mvnw package -Pfull -U -Dmaven.test.redirectTestOutputToFile=false'
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] || ./mvnw package -DskipTests -U -Dmaven.test.redirectTestOutputToFile=false'
+
 
