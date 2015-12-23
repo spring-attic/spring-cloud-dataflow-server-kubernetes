@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-dataflow-admin-kubernetes</artifactId>
+	<version>1.0.0.BUILD-SNAPSHOT</version>
 	<packaging>jar</packaging>
+	<name>spring-cloud-dataflow-admin-kubernetes</name>
 	<description>Data Flow Admin for Kubernetes</description>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
@@ -10,7 +13,6 @@
 		<version>1.0.0.M2</version>
 		<relativePath/>  <!-- lookup parent from repository -->
 	</parent>
-	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
 		<start-class>org.springframework.cloud.dataflow.admin.AdminApplication</start-class>
