@@ -11,14 +11,14 @@
 		<version>1.0.0.M2</version>
 		<relativePath />  <!-- lookup parent from repository -->
 	</parent>
-
+ 
 	<modules>
 		<module>spring-cloud-dataflow-admin-kubernetes</module>
 		<module>spring-cloud-dataflow-admin-kubernetes-docs</module>
 	</modules>
 
 	<properties>
-		<kubernetes-connector.client.version>1.0.0.BUILD-SNAPSHOT</kubernetes-connector.client.version>
+		<kubernetes-connector.client.version>1.0.0.M1</kubernetes-connector.client.version>
 	</properties>
 
 	<dependencies>
