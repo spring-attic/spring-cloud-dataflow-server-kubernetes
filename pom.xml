@@ -17,16 +17,4 @@
 		<module>spring-cloud-dataflow-admin-kubernetes-docs</module>
 	</modules>
 
-	<properties>
-		<kubernetes-connector.client.version>1.0.0.M1</kubernetes-connector.client.version>
-	</properties>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-kubernetes-connector</artifactId>
-			<version>${kubernetes-connector.client.version}</version>
-		</dependency>
-	</dependencies>
-
 </project>
