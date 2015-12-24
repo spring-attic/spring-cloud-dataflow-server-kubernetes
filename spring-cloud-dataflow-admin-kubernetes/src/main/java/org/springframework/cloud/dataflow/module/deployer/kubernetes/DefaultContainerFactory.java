@@ -11,6 +11,8 @@ import io.fabric8.kubernetes.api.model.HTTPGetActionBuilder;
 import io.fabric8.kubernetes.api.model.Probe;
 import io.fabric8.kubernetes.api.model.ProbeBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
@@ -25,6 +27,9 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
  * @author Florian Rosenberg
  */
 public class DefaultContainerFactory implements ContainerFactory {
+
+
+	private static Logger log = LoggerFactory.getLogger(DefaultContainerFactory.class);
 
 	private static final String HEALTH_ENDPOINT = "/health";
 
@@ -105,6 +110,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 			cmdArgs.add(String.format("--%s=%s", bashEscape(entry.getKey()),
 					bashEscape(entry.getValue())));
 		}
+		log.info("command args: " + cmdArgs);
 		return cmdArgs;
 	}
 
