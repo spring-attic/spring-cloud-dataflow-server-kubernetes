@@ -72,6 +72,13 @@ $ mvn clean package
 $ java -jar spring-cloud-dataflow-admin-kubernetes/target/spring-cloud-dataflow-admin-kubernetes-1.0.0.BUILD-SNAPSHOT.jar
 ```
 +
+If any of the default module deployer properties need to be overridden then those properties can be passed as program arguments here.
+For example, if the memory, cpu for a Pod need to be changed from the defaults, then we can override as below. Also, sincethe module deployer uses Spring Cloud Stream's Module Launcher, we can pass module launcher properties as well:
++
+```
+$ java -jar spring-cloud-dataflow-admin-kubernetes/target/spring-cloud-dataflow-admin-kubernetes-1.0.0.BUILD-SNAPSHOT.jar --kubernetes.memory=1024Mi --kubernetes.cpu=500m --kubernetes.launcherProperties.remoteRepositories=repo1,repo2
+```
++
 1. Run Spring Cloud Data Flow Shell:
 +
 ```
