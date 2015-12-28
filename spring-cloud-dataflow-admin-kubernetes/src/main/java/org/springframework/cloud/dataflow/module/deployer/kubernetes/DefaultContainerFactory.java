@@ -33,7 +33,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 
 	private static final String HEALTH_ENDPOINT = "/health";
 
-	private static final String CONNECTOR_DEPENDENCY = "org.springframework.cloud:spring-cloud-kubernetes-connector:1.0.0.BUILD-SNAPSHOT";
+	private static final String CONNECTOR_DEPENDENCY = "org.springframework.cloud:spring-cloud-kubernetes-connector:1.0.0.M1";
 
 	@Autowired
 	protected KubernetesModuleDeployerProperties properties;
