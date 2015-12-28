@@ -22,7 +22,7 @@ $ cd spring-cloud-dataflow-admin-kubernetes
 $ kubectl create -f src/etc/kubernetes/redis-controller.yml
 $ kubectl create -f src/etc/kubernetes/redis-service.yml
 ```
-Note that it can take a minute or so until there is an external IP address for the redis server.  Use the command `kubectl get services` to check on the state of the service.  Use the command `kubectl delete service redis` to clean up afterwards.
+You can use the command `kubectl get pods` to verify that the controller is running.  Note that it can take a minute or so until there is an external IP address for the redis server.  Use the command `kubectl get services` to check on the state of the service and look for when there is a value under the EXTERNAL_IP column. The command `kubectl delete service redis` to clean up afterwards.
 +
 . Determine the location of your Kubernetes Master URL, for example:
 +
@@ -91,8 +91,19 @@ ticktock-time-r65cn   0/1       Running   3          1m
 Look at the logs for the pod deployed for the log sink.
 +
 ```
-$ kubectl logs ticktock-log-qnk72
+$ kubectl logs -f ticktock-log-qnk72
+...
+2015-12-28 18:50:02.897  INFO 1 --- [           main] o.s.c.s.module.log.LogSinkApplication    : Started LogSinkApplication in 10.973 seconds (JVM running for 50.055)
+2015-12-28 18:50:08.561  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:08
+2015-12-28 18:50:09.556  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:09
+2015-12-28 18:50:10.557  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:10
+2015-12-28 18:50:11.558  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:11
 ```
 A useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options ``--prvious` to view last terminated container log.
-
++
+. Destroy the stream
+```
+dataflow:>stream destroy --name ticktock
+```
+NOTE: If you stop and restart the admin server after streams are deployed, you will not be able to destroy them.  This is abug that is being addressed in a future release.
 
