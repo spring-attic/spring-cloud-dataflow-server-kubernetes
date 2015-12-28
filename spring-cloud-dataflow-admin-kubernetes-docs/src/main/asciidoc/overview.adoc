@@ -1,7 +1,7 @@
 [[overview]]
-= Spring Cloud Data Flow Kubernetes Documentation
 
-This project provide support for deploying Spring Cloud Stream modules to Kubernetes.
+include::{dataflow-asciidoc}/spring-cloud-dataflow-overview.adoc[]
+
 
 
 

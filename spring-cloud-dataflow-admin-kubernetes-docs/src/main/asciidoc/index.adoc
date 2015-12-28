@@ -1,5 +1,5 @@
 = Spring Cloud Data Flow Admin for Kubernetes
-Eric Bottard, Florian Rosenberg
+Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Dave Syer, David Turanski, Janne Valkealahti
 :doctype: book
 :toc:
 :toclevels: 4
@@ -41,7 +41,11 @@ Eric Bottard, Florian Rosenberg
 :attributes: allow-uri-read
 // ======================================================================================
 
+include::introduction.adoc[]
+
 include::overview.adoc[]
+
+include::getting-started.adoc[]
 
 include::modules.adoc[]
 

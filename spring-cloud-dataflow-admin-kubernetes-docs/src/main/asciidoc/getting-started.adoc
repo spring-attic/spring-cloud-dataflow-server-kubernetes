@@ -1,0 +1,98 @@
+= Getting Started
+
+== Deploying Streams on Kubernetes
+
+In this getting started guide, the Admin server is run as a standalone application outside the kubernetes cluster.  This also requires running a local instance of Redis to store available modules.  A future version will allow the admin server itself to run on kubernetes.
+
+. Deploy a Kubernetes cluster.
++ 
+The http://kubernetes.io/gettingstarted/[Kubernetes getting started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using.  Of note, the https://github.com/olmoser/docker-compose-kubernetes[docker-compose-kubernetes] is not among those options but was used by the developers of this project to run a local Kubernetes cluster using Docker Compose.  
++
+The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line.
++
+. Create a redis service on the Kubernetes cluster.
++
+The redis service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-admin-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.  
++
+If you are deploying a Kubernetes cluster outside your local machine, setting the service to be a LoadBalancer type will give you an external IP address to connect to the redis instance.  
++ 
+```
+$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-admin-kubernetes
+$ cd spring-cloud-dataflow-admin-kubernetes
+$ kubectl create -f src/etc/kubernetes/redis-controller.yml
+$ kubectl create -f src/etc/kubernetes/redis-service.yml
+```
+Note that it can take a minute or so until there is an external IP address for the redis server.  Use the command `kubectl get services` to check on the state of the service.  Use the command `kubectl delete service redis` to clean up afterwards.
++
+. Determine the location of your Kubernetes Master URL, for example:
++
+```
+$ kubectl cluster-info
+
+Kubernetes master is running at https://104.154.90.44
+
+   ...other output omitted...
+```
+. Export environment variables to connect to Kubernetes.
++
+The admin server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  It can be configured using system properites, environment variables, and the Kube config file.  In testing using the https://cloud.google.com/container-engine/docs/[Google Container Engine], only setting the environment variables `KUBERNETES_MASTER` and `KUBERNETES_NAMESPACE` were required.  Other configuration values were read from the Kube config file.
++
+```
+$ export KUBERNETES_MASTER=https://104.154.90.44/
+$ export KUBERNETES_NAMESPACE=default
+```
++
+This approach supports using one admin server instance per Kubernetes namespace.
++
+. Run a local redis-server.
++
+```
+$ redis-sever
+```
++
+This is used by the locally running admin server to store the state of available module versions for stream definitions.
++
+NOTE: If you are switching between milestone and snapshot versions of the admin server, flush the redis keys that contain the module's version information.  Calling `flushdb` is indiscriminate but a handy way to start from a clean redis state.
++
+. Download and run the Spring Cloud Dataflow Admin server for Kubernetes.
++
+```
+$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-admin-kubernetes/1.0.0.M1/spring-cloud-dataflow-admin-kubernetes-1.0.0.M1.jar
+
+$ java -jar spring-cloud-dataflow-admin-kubernetes-1.0.0.M1.jar
+```
++
+Ensure that the admin is running in the same terminal session that has the Kubernetes environment variables set.
++
+. Download and run the Spring Cloud Dataflow shell.
++
+```
+$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.M2/spring-cloud-dataflow-shell-1.0.0.M2.jar
+
+$ java -jar spring-cloud-dataflow-shell-1.0.0.M2.jar
+```
++
+. Deploy a simple stream in the shell
++
+```
+dataflow:>stream create --name ticktock --definition "time | log" --deploy
+```
++
+You can use the command `kubectl get pods` to check on the state of the pods corresponding to this stream.  
++
+```
+$ kubectl get pods
+NAME                  READY     STATUS    RESTARTS   AGE
+redis-d207a           1/1       Running   0          50m
+ticktock-log-qnk72    0/1       Running   2          1m
+ticktock-time-r65cn   0/1       Running   3          1m
+```
++
+Look at the logs for the pod deployed for the log sink.
++
+```
+$ kubectl logs ticktock-log-qnk72
+```
+A useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options ``--prvious` to view last terminated container log.
+
+
