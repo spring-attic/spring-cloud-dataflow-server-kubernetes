@@ -54,7 +54,7 @@ This is used by the locally running admin server to store the state of available
 +
 NOTE: If you are switching between milestone and snapshot versions of the admin server, flush the redis keys that contain the module's version information.  Calling `flushdb` is indiscriminate but a handy way to start from a clean redis state.
 +
-. Download and run the Spring Cloud Dataflow Admin server for Kubernetes.
+. Download and run the Spring Cloud Data Flow Admin server for Kubernetes.
 +
 ```
 $ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-admin-kubernetes/1.0.0.M1/spring-cloud-dataflow-admin-kubernetes-1.0.0.M1.jar
@@ -64,7 +64,7 @@ $ java -jar spring-cloud-dataflow-admin-kubernetes-1.0.0.M1.jar
 +
 Ensure that the admin is running in the same terminal session that has the Kubernetes environment variables set.
 +
-. Download and run the Spring Cloud Dataflow shell.
+. Download and run the Spring Cloud Data Flow shell.
 +
 ```
 $ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.M2/spring-cloud-dataflow-shell-1.0.0.M2.jar
@@ -99,11 +99,11 @@ $ kubectl logs -f ticktock-log-qnk72
 2015-12-28 18:50:10.557  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:10
 2015-12-28 18:50:11.558  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:11
 ```
-A useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options ``--prvious` to view last terminated container log.
+A useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options ``--previous` to view last terminated container log.
 +
 . Destroy the stream
 ```
 dataflow:>stream destroy --name ticktock
 ```
-NOTE: If you stop and restart the admin server after streams are deployed, you will not be able to destroy them.  This is abug that is being addressed in a future release.
+NOTE: If you stop and restart the admin server after streams are deployed, you will not be able to destroy them.  This is a bug that is being addressed in a future release.
 
