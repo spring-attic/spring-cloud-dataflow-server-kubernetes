@@ -85,6 +85,19 @@ public class KubernetesModuleDeployerProperties {
 	 */
 	private Map<String, String> launcherProperties = new HashMap<>();
 
+	/**
+	 * The list of additional libraries to include at runtime.
+	 */
+	private String includes;
+
+	public String getIncludes() {
+		return includes;
+	}
+
+	public void setIncludes(String includes) {
+		this.includes = includes;
+	}
+
 	public Map<String, String> getLauncherProperties() {
 		return launcherProperties;
 	}
