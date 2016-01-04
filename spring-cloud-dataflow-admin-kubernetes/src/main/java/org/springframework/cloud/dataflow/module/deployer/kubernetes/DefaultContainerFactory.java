@@ -14,6 +14,7 @@ import io.fabric8.kubernetes.api.model.ProbeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.dataflow.admin.config.AdminProperties;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.deployer.ModuleArgumentQualifier;
@@ -37,6 +38,9 @@ public class DefaultContainerFactory implements ContainerFactory {
 
 	@Autowired
 	protected KubernetesModuleDeployerProperties properties;
+
+	@Autowired
+	private AdminProperties adminProperties;
 
 	@Override
 	public Container create(ModuleDeploymentRequest request, int port) {
@@ -87,7 +91,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 	protected List<String> createCommandArgs(ModuleDeploymentRequest request) {
 		Map<String, String> args = new HashMap<>();
 		args.put("modules", request.getCoordinates().toString());
-		args.putAll(properties.getLauncherProperties());
+		args.putAll(adminProperties.asStringProperties());
 
 		Map<String, String> argsToQualify = new HashMap<>();
 		argsToQualify.putAll(request.getDefinition().getParameters());
