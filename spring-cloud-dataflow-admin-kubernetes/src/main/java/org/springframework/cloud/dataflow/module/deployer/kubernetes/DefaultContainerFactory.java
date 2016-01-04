@@ -33,8 +33,6 @@ public class DefaultContainerFactory implements ContainerFactory {
 
 	private static final String HEALTH_ENDPOINT = "/health";
 
-	private static final String CONNECTOR_DEPENDENCY = "org.springframework.cloud:spring-cloud-kubernetes-connector:1.0.0.M1";
-
 	@Autowired
 	protected KubernetesModuleDeployerProperties properties;
 
@@ -97,9 +95,9 @@ public class DefaultContainerFactory implements ContainerFactory {
 
 		String includes = argsToQualify.get("includes");
 		if (includes != null) {
-			includes += "," + CONNECTOR_DEPENDENCY;
+			includes += "," + properties.getIncludes();
 		} else {
-			includes = CONNECTOR_DEPENDENCY;
+			includes = properties.getIncludes();
 		}
 		argsToQualify.put("includes", includes);
 		argsToQualify.put("spring.profiles.active", "cloud"); // This triggers the use of the kubernetes connector
