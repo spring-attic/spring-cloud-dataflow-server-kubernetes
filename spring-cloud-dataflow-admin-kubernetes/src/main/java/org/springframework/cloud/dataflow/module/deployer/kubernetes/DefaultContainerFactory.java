@@ -10,10 +10,9 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.HTTPGetActionBuilder;
 import io.fabric8.kubernetes.api.model.Probe;
 import io.fabric8.kubernetes.api.model.ProbeBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.cloud.dataflow.admin.config.AdminProperties;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
@@ -26,9 +25,9 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
  * approach that pulls the required module from a Maven repository.
  *
  * @author Florian Rosenberg
+ * @author Eric Bottard
  */
 public class DefaultContainerFactory implements ContainerFactory {
-
 
 	private static Logger log = LoggerFactory.getLogger(DefaultContainerFactory.class);
 
@@ -36,11 +35,14 @@ public class DefaultContainerFactory implements ContainerFactory {
 
 	private static final String CONNECTOR_DEPENDENCY = "org.springframework.cloud:spring-cloud-kubernetes-connector:1.0.0.M1";
 
-	@Autowired
-	protected KubernetesModuleDeployerProperties properties;
+	protected final KubernetesModuleDeployerProperties properties;
 
-	@Autowired
-	private AdminProperties adminProperties;
+	private final AdminProperties adminProperties;
+
+	public DefaultContainerFactory(KubernetesModuleDeployerProperties properties, AdminProperties adminProperties) {
+		this.properties = properties;
+		this.adminProperties = adminProperties;
+	}
 
 	@Override
 	public Container create(ModuleDeploymentRequest request, int port) {
