@@ -5,23 +5,33 @@ import static org.springframework.cloud.dataflow.module.deployer.kubernetes.Kube
 import java.util.HashMap;
 import java.util.Map;
 
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodSpecBuilder;
+import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ResourceRequirements;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.ModuleStatus;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 
-import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-
 
 /**
  * Implements a deployer for the Google Kubernetes project. 
  * 
  * @author Florian Rosenberg
+ * @author Eric Bottard
  */
 public class KubernetesModuleDeployer implements ModuleDeployer {
 
@@ -45,17 +55,13 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 	@Autowired
 	private ContainerFactory containerFactory;
 	
-	private KubernetesModuleDeployerProperties properties;
+	private final KubernetesModuleDeployerProperties properties;
 
 	public KubernetesModuleDeployer(
 			KubernetesModuleDeployerProperties properties) {
 		this.properties = properties;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#deploy(org.springframework.cloud.dataflow.core.ModuleDeploymentRequest)
-	 */
 	@Override
 	public ModuleDeploymentId deploy(ModuleDeploymentRequest request) {
 		ModuleDeploymentId id = ModuleDeploymentId.fromModuleDefinition(request.getDefinition());
@@ -76,10 +82,6 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 		return id;	
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#undeploy(org.springframework.cloud.dataflow.core.ModuleDeploymentId)
-	 */
 	@Override
 	public void undeploy(ModuleDeploymentId id) {
 		String name = createKubernetesName(id);
@@ -96,10 +98,6 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#status(org.springframework.cloud.dataflow.core.ModuleDeploymentId)
-	 */
 	@Override
 	public ModuleStatus status(ModuleDeploymentId id) {
 		String name = createKubernetesName(id);
@@ -117,10 +115,6 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#status()
-	 */
 	@Override
 	public Map<ModuleDeploymentId, ModuleStatus> status() {
 		Map<ModuleDeploymentId, ModuleStatus> result = new HashMap<>();

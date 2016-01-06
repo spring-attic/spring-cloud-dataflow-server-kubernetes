@@ -15,9 +15,6 @@
  */
 package org.springframework.cloud.dataflow.module.deployer.kubernetes;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -79,19 +76,6 @@ public class KubernetesModuleDeployerProperties {
 	 * CPU to allocate for a Pod (quarter of a CPU).
 	 */
 	private String cpu = "250m";
-
-	/**
-	 * Additional properties to be passed to the ModuleLauncher itself.
-	 */
-	private Map<String, String> launcherProperties = new HashMap<>();
-
-	public Map<String, String> getLauncherProperties() {
-		return launcherProperties;
-	}
-
-	public void setLauncherProperties(Map<String, String> launcherProperties) {
-		this.launcherProperties = launcherProperties;
-	}
 
 	public String getModuleLauncherImage() {
 		return moduleLauncherImage;

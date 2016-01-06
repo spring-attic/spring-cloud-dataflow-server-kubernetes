@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudFactory;
+import org.springframework.cloud.dataflow.admin.config.AdminProperties;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.kubernetes.ContainerFactory;
 import org.springframework.cloud.dataflow.module.deployer.kubernetes.DefaultContainerFactory;
@@ -21,10 +22,12 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 /**
  * Spring Bean configuration for the {@link KubernetesModuleDeployer}.
+ *
  * @author Florian Rosenberg
+ * @author Eric Bottard
  */
 @Configuration
-@EnableConfigurationProperties(KubernetesModuleDeployerProperties.class)
+@EnableConfigurationProperties({KubernetesModuleDeployerProperties.class, AdminProperties.class})
 public class KubernetesModuleDeployerConfiguration {
 	
 	@Autowired
@@ -46,8 +49,8 @@ public class KubernetesModuleDeployerConfiguration {
 	}
 
 	@Bean
-	public ContainerFactory containerFactory() {
-		return new DefaultContainerFactory();
+	public ContainerFactory containerFactory(AdminProperties adminProperties) {
+		return new DefaultContainerFactory(properties, adminProperties);
 	}
 
 	@Profile("cloud")
