@@ -29,18 +29,20 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
  */
 public class DefaultContainerFactory implements ContainerFactory {
 
-
 	private static Logger log = LoggerFactory.getLogger(DefaultContainerFactory.class);
 
 	private static final String HEALTH_ENDPOINT = "/health";
 
 	private static final String CONNECTOR_DEPENDENCY = "org.springframework.cloud:spring-cloud-kubernetes-connector:1.0.0.M1";
 
-	@Autowired
-	protected KubernetesModuleDeployerProperties properties;
+	private final KubernetesModuleDeployerProperties properties;
 
-	@Autowired
-	private AdminProperties adminProperties;
+	private final AdminProperties adminProperties;
+
+	public DefaultContainerFactory(AdminProperties adminProperties, KubernetesModuleDeployerProperties properties) {
+		this.adminProperties = adminProperties;
+		this.properties = properties;
+	}
 
 	@Override
 	public Container create(ModuleDeploymentRequest request, int port) {
