@@ -67,9 +67,9 @@ Ensure that the admin is running in the same terminal session that has the Kuber
 . Download and run the Spring Cloud Data Flow shell.
 +
 ```
-$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.M2/spring-cloud-dataflow-shell-1.0.0.M2.jar
+$ wget http://repo.spring.io/snapshot/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.BUILD-SNAPSHOT/spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
 
-$ java -jar spring-cloud-dataflow-shell-1.0.0.M2.jar
+$ java -jar spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
 ```
 +
 . Deploy a simple stream in the shell
