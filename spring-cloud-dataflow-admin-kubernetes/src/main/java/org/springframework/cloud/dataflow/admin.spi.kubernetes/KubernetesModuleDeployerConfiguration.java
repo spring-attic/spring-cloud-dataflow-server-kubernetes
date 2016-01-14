@@ -32,13 +32,9 @@ public class KubernetesModuleDeployerConfiguration {
 	private KubernetesModuleDeployerProperties properties;
 
 	@Bean
-	public ModuleDeployer processModuleDeployer() {
-		return new KubernetesModuleDeployer(properties);
-	}
-
-	@Bean
-	public ModuleDeployer taskModuleDeployer() {
-		return processModuleDeployer();
+	public ModuleDeployer processModuleDeployer(KubernetesClient kubernetesClient,
+												ContainerFactory containerFactory) {
+		return new KubernetesModuleDeployer(kubernetesClient, containerFactory, properties);
 	}
 
 	@Bean

@@ -38,24 +38,21 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 	private static final String SERVER_PORT_KEY = "server.port";
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	@Autowired
-	private KubernetesClient kubernetesClient;
 
-	@Autowired
-	private ContainerFactory containerFactory;
-	
-	private KubernetesModuleDeployerProperties properties;
+	private final KubernetesClient kubernetesClient;
 
-	public KubernetesModuleDeployer(
-			KubernetesModuleDeployerProperties properties) {
-		this.properties = properties;
+	private final ContainerFactory containerFactory;
+	
+	private final KubernetesModuleDeployerProperties moduleDeployerProperties;
+
+	public KubernetesModuleDeployer(KubernetesClient kubernetesClient,
+									ContainerFactory containerFactory,
+									KubernetesModuleDeployerProperties moduleDeployerProperties) {
+		this.kubernetesClient = kubernetesClient;
+		this.containerFactory = containerFactory;
+		this.moduleDeployerProperties = moduleDeployerProperties;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#deploy(org.springframework.cloud.dataflow.core.ModuleDeploymentRequest)
-	 */
 	@Override
 	public ModuleDeploymentId deploy(ModuleDeploymentRequest request) {
 		ModuleDeploymentId id = ModuleDeploymentId.fromModuleDefinition(request.getDefinition());
@@ -76,10 +73,6 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 		return id;	
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#undeploy(org.springframework.cloud.dataflow.core.ModuleDeploymentId)
-	 */
 	@Override
 	public void undeploy(ModuleDeploymentId id) {
 		String name = createKubernetesName(id);
@@ -96,10 +89,6 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#status(org.springframework.cloud.dataflow.core.ModuleDeploymentId)
-	 */
 	@Override
 	public ModuleStatus status(ModuleDeploymentId id) {
 		String name = createKubernetesName(id);
@@ -117,10 +106,6 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.cloud.dataflow.module.deployer.ModuleDeployer#status()
-	 */
 	@Override
 	public Map<ModuleDeploymentId, ModuleStatus> status() {
 		Map<ModuleDeploymentId, ModuleStatus> result = new HashMap<>();
@@ -176,8 +161,8 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 		PodSpecBuilder podSpec = new PodSpecBuilder();
 
 		// Add image secrets if set
-		if (properties.getImagePullSecret() != null) {
-			podSpec.addNewImagePullSecret(properties.getImagePullSecret());
+		if (moduleDeployerProperties.getImagePullSecret() != null) {
+			podSpec.addNewImagePullSecret(moduleDeployerProperties.getImagePullSecret());
 		}
 
 		Container container = containerFactory.create(request, port);
@@ -236,11 +221,11 @@ public class KubernetesModuleDeployer implements ModuleDeployer {
 	private Map<String, Quantity> deduceResourceLimits(ModuleDeploymentRequest request) {
 		String memOverride = request.getDeploymentProperties().get("kubernetes.memory");
 		if (memOverride == null)
-			memOverride = properties.getMemory();
+			memOverride = moduleDeployerProperties.getMemory();
 
 		String cpuOverride = request.getDeploymentProperties().get("kubernetes.cpu");
 		if (cpuOverride == null)
-			cpuOverride = properties.getCpu();
+			cpuOverride = moduleDeployerProperties.getCpu();
 
 
 		Map<String,Quantity> limits = new HashMap<String,Quantity>();
