@@ -32,13 +32,16 @@ public class KubernetesModuleDeployerConfiguration {
 	private KubernetesModuleDeployerProperties properties;
 
 	@Bean
-	public ModuleDeployer processModuleDeployer() {
-		return new KubernetesModuleDeployer(properties);
+	public ModuleDeployer processModuleDeployer(KubernetesClient kubernetesClient,
+												ContainerFactory containerFactory) {
+		return new KubernetesModuleDeployer(kubernetesClient, containerFactory, properties);
 	}
 
 	@Bean
-	public ModuleDeployer taskModuleDeployer() {
-		return processModuleDeployer();
+	public ModuleDeployer taskModuleDeployer(KubernetesClient kubernetesClient,
+	                                         ContainerFactory containerFactory) {
+		// Return same instance for now, to satisfy admin application wiring
+		return processModuleDeployer(kubernetesClient, containerFactory);
 	}
 
 	@Bean
