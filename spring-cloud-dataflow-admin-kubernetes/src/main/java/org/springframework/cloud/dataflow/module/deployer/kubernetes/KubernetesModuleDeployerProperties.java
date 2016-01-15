@@ -77,6 +77,11 @@ public class KubernetesModuleDeployerProperties {
 	 */
 	private String cpu = "250m";
 
+	/**
+	 * The list of additional libraries to include at runtime.
+	 */
+	private String includes;
+
 	public String getModuleLauncherImage() {
 		return moduleLauncherImage;
 	}
@@ -139,6 +144,14 @@ public class KubernetesModuleDeployerProperties {
 
 	public void setCpu(String cpu) {
 		this.cpu = cpu;
+	}
+
+	public String getIncludes() {
+		return includes;
+	}
+
+	public void setIncludes(String includes) {
+		this.includes = includes;
 	}
 
 }
