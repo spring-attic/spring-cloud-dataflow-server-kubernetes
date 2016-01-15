@@ -2,7 +2,11 @@ server:
   port: 9393
 management:
   contextPath: /management
-
+info:
+  app:
+    name: "@project.artifactId@"
+    description: "@project.description@"
+    version: "@project.version@"
 security:
   basic:
     enabled: false
