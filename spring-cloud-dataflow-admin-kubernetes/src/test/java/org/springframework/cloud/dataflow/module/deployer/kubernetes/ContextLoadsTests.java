@@ -18,11 +18,11 @@ package org.springframework.cloud.dataflow.module.deployer.kubernetes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.cloud.dataflow.admin.spi.kubernetes.KubernetesModuleDeployerConfiguration;
+import org.springframework.cloud.dataflow.admin.spi.kubernetes.KubernetesAutoConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = KubernetesModuleDeployerConfiguration.class)
+@SpringApplicationConfiguration(classes = org.springframework.cloud.dataflow.admin.AdminApplication.class)
 public class ContextLoadsTests {
 
     @Test

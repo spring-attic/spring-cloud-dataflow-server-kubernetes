@@ -77,6 +77,7 @@
 				<filtering>true</filtering>
 				<includes>
 					<include>admin.yml</include>
+					<include>META-INF/spring.factories</include>
 				</includes>
 			</resource>
 		</resources>

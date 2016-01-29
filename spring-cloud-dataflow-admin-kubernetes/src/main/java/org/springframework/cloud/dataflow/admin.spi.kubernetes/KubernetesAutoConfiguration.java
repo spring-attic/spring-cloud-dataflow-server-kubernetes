@@ -26,7 +26,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
  */
 @Configuration
 @EnableConfigurationProperties({KubernetesModuleDeployerProperties.class, AdminProperties.class})
-public class KubernetesModuleDeployerConfiguration {
+public class KubernetesAutoConfiguration {
 	
 	@Autowired
 	private KubernetesModuleDeployerProperties properties;

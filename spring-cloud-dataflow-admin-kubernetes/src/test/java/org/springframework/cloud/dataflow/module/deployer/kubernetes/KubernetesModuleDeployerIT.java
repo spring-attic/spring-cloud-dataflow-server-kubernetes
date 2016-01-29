@@ -3,22 +3,16 @@ package org.springframework.cloud.dataflow.module.deployer.kubernetes;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import static io.fabric8.utils.Asserts.assertAssertionError;
+
 import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
 import static com.jayway.awaitility.Awaitility.*;
 import org.junit.After;
@@ -27,11 +21,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.cloud.dataflow.admin.spi.kubernetes.KubernetesModuleDeployerConfiguration;
+import org.springframework.cloud.dataflow.admin.spi.kubernetes.KubernetesAutoConfiguration;
 import org.springframework.cloud.dataflow.core.ArtifactCoordinates;
 import org.springframework.cloud.dataflow.core.ModuleDefinition;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
@@ -42,7 +34,7 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = KubernetesModuleDeployerConfiguration.class)
+@SpringApplicationConfiguration(classes = KubernetesAutoConfiguration.class)
 public class KubernetesModuleDeployerIT {
 
 	@Autowired
