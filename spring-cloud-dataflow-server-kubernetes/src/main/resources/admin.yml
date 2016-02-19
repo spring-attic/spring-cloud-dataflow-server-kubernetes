@@ -13,7 +13,7 @@ security:
 
 spring:
   application:
-    name: spring-cloud-dataflow-admin-kubernetes
+    name: spring-cloud-dataflow-server-kubernetes
   cloud:
     config:
       uri: http://localhost:8888
