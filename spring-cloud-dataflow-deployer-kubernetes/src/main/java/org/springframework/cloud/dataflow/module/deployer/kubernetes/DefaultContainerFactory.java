@@ -13,12 +13,11 @@ import io.fabric8.kubernetes.api.model.ProbeBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.dataflow.admin.config.AdminProperties;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.deployer.ModuleArgumentQualifier;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
+import org.springframework.cloud.dataflow.server.config.DataFlowServerProperties;
 
 /**
  * Create a Kubernetes {@link Container} that will be started as part of a
@@ -35,10 +34,10 @@ public class DefaultContainerFactory implements ContainerFactory {
 
 	private final KubernetesModuleDeployerProperties properties;
 
-	private final AdminProperties adminProperties;
+	private final DataFlowServerProperties serverProperties;
 
-	public DefaultContainerFactory(AdminProperties adminProperties, KubernetesModuleDeployerProperties properties) {
-		this.adminProperties = adminProperties;
+	public DefaultContainerFactory(DataFlowServerProperties serverProperties, KubernetesModuleDeployerProperties properties) {
+		this.serverProperties = serverProperties;
 		this.properties = properties;
 	}
 
@@ -91,7 +90,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 	protected List<String> createCommandArgs(ModuleDeploymentRequest request) {
 		Map<String, String> args = new HashMap<>();
 		args.put("modules", request.getCoordinates().toString());
-		args.putAll(adminProperties.asStringProperties());
+		args.putAll(serverProperties.asStringProperties());
 
 		Map<String, String> argsToQualify = new HashMap<>();
 		argsToQualify.putAll(request.getDefinition().getParameters());

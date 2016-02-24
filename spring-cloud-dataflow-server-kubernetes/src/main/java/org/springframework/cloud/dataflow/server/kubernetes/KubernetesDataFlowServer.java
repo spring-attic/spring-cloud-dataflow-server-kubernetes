@@ -17,7 +17,7 @@
 package org.springframework.cloud.dataflow.server.kubernetes;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.cloud.dataflow.admin.EnableDataFlowServer;
+import org.springframework.cloud.dataflow.server.EnableDataFlowServer;
 
 /**
  * Bootstrap class for the Kubernetes Spring Cloud Data Flow Server.

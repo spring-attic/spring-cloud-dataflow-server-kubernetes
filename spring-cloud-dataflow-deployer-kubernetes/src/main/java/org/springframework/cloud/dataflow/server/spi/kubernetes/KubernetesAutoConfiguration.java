@@ -1,4 +1,4 @@
-package org.springframework.cloud.dataflow.admin.spi.kubernetes;
+package org.springframework.cloud.dataflow.server.spi.kubernetes;
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudFactory;
-import org.springframework.cloud.dataflow.admin.config.AdminProperties;
+import org.springframework.cloud.dataflow.server.config.DataFlowServerProperties;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.kubernetes.ContainerFactory;
 import org.springframework.cloud.dataflow.module.deployer.kubernetes.DefaultContainerFactory;
@@ -25,7 +25,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
  * @author Florian Rosenberg
  */
 @Configuration
-@EnableConfigurationProperties({KubernetesModuleDeployerProperties.class, AdminProperties.class})
+@EnableConfigurationProperties({KubernetesModuleDeployerProperties.class, DataFlowServerProperties.class})
 public class KubernetesAutoConfiguration {
 	
 	@Autowired
@@ -40,7 +40,7 @@ public class KubernetesAutoConfiguration {
 	@Bean
 	public ModuleDeployer taskModuleDeployer(KubernetesClient kubernetesClient,
 	                                         ContainerFactory containerFactory) {
-		// Return same instance for now, to satisfy admin application wiring
+		// Return same instance for now, to satisfy server application wiring
 		return processModuleDeployer(kubernetesClient, containerFactory);
 	}
 
@@ -50,8 +50,8 @@ public class KubernetesAutoConfiguration {
 	}
 
 	@Bean
-	public ContainerFactory containerFactory(AdminProperties adminProperties) {
-		return new DefaultContainerFactory(adminProperties, properties);
+	public ContainerFactory containerFactory(DataFlowServerProperties serverProperties) {
+		return new DefaultContainerFactory(serverProperties, properties);
 	}
 
 	@Profile("cloud")

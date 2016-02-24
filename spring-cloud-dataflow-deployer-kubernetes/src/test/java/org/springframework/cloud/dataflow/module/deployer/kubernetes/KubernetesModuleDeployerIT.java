@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.cloud.dataflow.admin.spi.kubernetes.KubernetesAutoConfiguration;
+import org.springframework.cloud.dataflow.server.spi.kubernetes.KubernetesAutoConfiguration;
 import org.springframework.cloud.dataflow.core.ArtifactCoordinates;
 import org.springframework.cloud.dataflow.core.ModuleDefinition;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;

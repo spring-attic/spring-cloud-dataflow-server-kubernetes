@@ -8,7 +8,7 @@
 	<description>Kubernetes Data Flow Server</description>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
-		<artifactId>spring-cloud-dataflow-admin-kubernetes-parent</artifactId>
+		<artifactId>spring-cloud-dataflow-server-kubernetes-parent</artifactId>
 		<version>1.0.0.BUILD-SNAPSHOT</version>
 	</parent>
 	<properties>
@@ -28,7 +28,7 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<includes>
-					<include>admin.yml</include>
+					<include>dataflow-server.yml</include>
 				</includes>
 			</resource>
 		</resources>

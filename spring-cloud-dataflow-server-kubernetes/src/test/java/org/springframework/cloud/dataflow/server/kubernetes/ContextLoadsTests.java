@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.dataflow.module.deployer.kubernetes;
+package org.springframework.cloud.dataflow.server.kubernetes;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.cloud.dataflow.admin.spi.kubernetes.KubernetesAutoConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = org.springframework.cloud.dataflow.admin.AdminApplication.class)
+@SpringApplicationConfiguration(classes = org.springframework.cloud.dataflow.server.kubernetes.KubernetesDataFlowServer.class)
 public class ContextLoadsTests {
 
     @Test
