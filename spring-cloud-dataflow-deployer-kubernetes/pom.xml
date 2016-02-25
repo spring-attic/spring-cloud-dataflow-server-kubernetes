@@ -8,7 +8,6 @@
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-dataflow-server-kubernetes-parent</artifactId>
 		<version>1.0.0.BUILD-SNAPSHOT</version>
-		<relativePath />  <!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
