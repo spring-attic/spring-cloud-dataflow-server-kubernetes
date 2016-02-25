@@ -14,8 +14,8 @@
 	</parent>
  
 	<modules>
-		<module>spring-cloud-dataflow-admin-kubernetes-docs</module>
 		<module>spring-cloud-dataflow-deployer-kubernetes</module>
+		<module>spring-cloud-dataflow-server-kubernetes-docs</module>
 		<module>spring-cloud-dataflow-server-kubernetes</module>
 		<module>spring-cloud-starter-dataflow-server-kubernetes</module>
 	</modules>

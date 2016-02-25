@@ -9,7 +9,7 @@ kubernetes.memory=512Mi
 kubernetes.cpu=500m
 ```
 
-See https://github.com/spring-cloud/spring-cloud-dataflow-admin-kubernetes/blob/master/spring-cloud-dataflow-admin-kubernetes/src/main/java/org/springframework/cloud/dataflow/module/deployer/kubernetes/KubernetesModuleDeployerProperties.java[KubernetesModuleDeployerProperties] for more of the supported options.
+See https://github.com/spring-cloud/spring-cloud-dataflow-server-kubernetes/blob/master/spring-cloud-dataflow-server-kubernetes/src/main/java/org/springframework/cloud/dataflow/module/deployer/kubernetes/KubernetesModuleDeployerProperties.java[KubernetesModuleDeployerProperties] for more of the supported options.
 
-Admin Server properties that are common across all of the Data Flow Admin Server implementations that concern maven repository settings can also be set in a similar manner.  See the section on Common Admin Server Properties for more information.
+Data Flow Server properties that are common across all of the Data Flow Server implementations that concern maven repository settings can also be set in a similar manner.  See the section on Common Data Flow Server Properties for more information.
 

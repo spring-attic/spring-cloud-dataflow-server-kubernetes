@@ -2,7 +2,7 @@
 
 == Deploying Streams on Kubernetes
 
-In this getting started guide, the Admin server is run as a standalone application outside the kubernetes cluster.  This also requires running a local instance of Redis to store available modules.  A future version will allow the admin server itself to run on kubernetes.
+In this getting started guide, the Data Flow Server is run as a standalone application outside the Kubernetes cluster.  This also requires running a local instance of Redis to store available modules.  A future version will allow the Data Flow Server itself to run on Kubernetes.
 
 . Deploy a Kubernetes cluster.
 + 
@@ -12,13 +12,13 @@ The rest of this getting started guide assumes that you have a working Kubernete
 +
 . Create a redis service on the Kubernetes cluster.
 +
-The redis service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-admin-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.  
+The redis service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
 +
 If you are deploying a Kubernetes cluster outside your local machine, setting the service to be a LoadBalancer type will give you an external IP address to connect to the redis instance.  
 + 
 ```
-$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-admin-kubernetes
-$ cd spring-cloud-dataflow-admin-kubernetes
+$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-server-kubernetes
+$ cd spring-cloud-dataflow-server-kubernetes
 $ kubectl create -f src/etc/kubernetes/redis-controller.yml
 $ kubectl create -f src/etc/kubernetes/redis-service.yml
 ```
@@ -35,14 +35,14 @@ Kubernetes master is running at https://104.154.90.44
 ```
 . Export environment variables to connect to Kubernetes.
 +
-The admin server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  It can be configured using system properites, environment variables, and the Kube config file.  In testing using the https://cloud.google.com/container-engine/docs/[Google Container Engine], only setting the environment variables `KUBERNETES_MASTER` and `KUBERNETES_NAMESPACE` were required.  Other configuration values were read from the Kube config file.
+The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  It can be configured using system properites, environment variables, and the Kube config file.  In testing using the https://cloud.google.com/container-engine/docs/[Google Container Engine], only setting the environment variables `KUBERNETES_MASTER` and `KUBERNETES_NAMESPACE` were required.  Other configuration values were read from the Kube config file.
 +
 ```
 $ export KUBERNETES_MASTER=https://104.154.90.44/
 $ export KUBERNETES_NAMESPACE=default
 ```
 +
-This approach supports using one admin server instance per Kubernetes namespace.
+This approach supports using one Data Flow Server instance per Kubernetes namespace.
 +
 . Run a local redis-server.
 +
@@ -50,19 +50,19 @@ This approach supports using one admin server instance per Kubernetes namespace.
 $ redis-sever
 ```
 +
-This is used by the locally running admin server to store the state of available module versions for stream definitions.
+This is used by the locally running Data Flow Server to store the state of available module versions for stream definitions.
 +
-NOTE: If you are switching between milestone and snapshot versions of the admin server, flush the redis keys that contain the module's version information.  Calling `flushdb` is indiscriminate but a handy way to start from a clean redis state.
+NOTE: If you are switching between milestone and snapshot versions of the Data Flow Server, flush the redis keys that contain the module's version information.  Calling `flushdb` is indiscriminate but a handy way to start from a clean redis state.
 +
-. Download and run the Spring Cloud Data Flow Admin server for Kubernetes.
+. Download and run the Spring Cloud Data Flow Server for Kubernetes.
 +
 ```
-$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-admin-kubernetes/1.0.0.M1/spring-cloud-dataflow-admin-kubernetes-1.0.0.M1.jar
+$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-kubernetes/1.0.0.M1/spring-cloud-dataflow-server-kubernetes-1.0.0.M1.jar
 
-$ java -jar spring-cloud-dataflow-admin-kubernetes-1.0.0.M1.jar
+$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M1.jar
 ```
 +
-Ensure that the admin is running in the same terminal session that has the Kubernetes environment variables set.
+Ensure that the Data Flow Server is running in the same terminal session that has the Kubernetes environment variables set.
 +
 . Download and run the Spring Cloud Data Flow shell.
 +
@@ -105,5 +105,5 @@ A useful command to help in troubleshooting issues, such as a container that has
 ```
 dataflow:>stream destroy --name ticktock
 ```
-NOTE: If you stop and restart the admin server after streams are deployed, you will not be able to destroy them.  This is a bug that is being addressed in a future release.
+NOTE: If you stop and restart the Data Flow Server server after streams are deployed, you will not be able to destroy them.  This is a bug that is being addressed in a future release.
 

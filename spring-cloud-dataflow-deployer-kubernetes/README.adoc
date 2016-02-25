@@ -64,13 +64,13 @@ proper access to the cluster.
 	 $ mvn clean integration-test
 	 ```
 
-1. Run admin:
+1. Run Data Flow Server:
 
 	 ```
 	 $ cd ../.. # in case your ran the integration tests
 	 $ mvn clean package
 	 $ export SPRING_REDIS_HOST=redis.default.svc.cluster.local
-	 $ java -jar spring-cloud-dataflow-admin/target/spring-cloud-dataflow-admin-1.0.0.BUILD-SNAPSHOT.jar --spring.profiles.active=kubernetes
+	 $ java -jar spring-cloud-dataflow-server/target/spring-cloud-dataflow-server-1.0.0.BUILD-SNAPSHOT.jar --spring.profiles.active=kubernetes
 	 ```
 
 1. Run Spring Cloud Data Flow Shell:
@@ -128,9 +128,9 @@ proper access to the cluster.
 
 Internally the Kubernetes Deployer uses the excellent https://github.com/fabric8io/kubernetes-client[Kubernetes Client API].
 
-If you have a working `kubectl` installation that points to an exsting Kubernetes cluster, the Spring Admin + the Kubernetes deployer will pick up the configuration automatically (in most cases). If not, see the configuration options below.
+If you have a working `kubectl` installation that points to an exsting Kubernetes cluster, the Spring Cloud Data Flow Server + the Kubernetes deployer will pick up the configuration automatically (in most cases). If not, see the configuration options below.
 
-If you want to use your own base image you can set the following arguments when starting the Spring Admin:
+If you want to use your own base image you can set the following arguments when starting the Spring Cloud Data Flow Server:
 
 ```
 --kubernetes.imagePullSecret=mysecret
