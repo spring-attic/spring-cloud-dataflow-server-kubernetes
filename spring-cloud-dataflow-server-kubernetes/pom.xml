@@ -13,6 +13,7 @@
 	</parent>
 	<properties>
 		<start-class>org.springframework.cloud.dataflow.server.kubernetes.KubernetesDataFlowServer</start-class>
+		<!-- The following kubernetes connector version property is inserted in dataflow-server.yml -->
 		<spring.cloud.kubernetes.connector.version>1.0.0.BUILD-SNAPSHOT</spring.cloud.kubernetes.connector.version>
 	</properties>
 	<dependencies>
