@@ -27,7 +27,7 @@ public class KubernetesModuleDeployerProperties {
 	 * Use the default spring image. Override with --kubernetes.moduleLauncherImage
 	 * as a Spring Admin parameter to use a different one.
 	 */
-	private static final String DEFAULT_IMAGE_NAME = "springcloud/stream-module-launcher";
+	private static final String DEFAULT_IMAGE_NAME = "springcloud/dataflow-app-launcher";
 
 	/**
 	 * The Docker image containing the Spring Cloud Stream module launcher.
