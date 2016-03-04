@@ -75,7 +75,7 @@ public class KubernetesModuleDeployerProperties {
 	/**
 	 * CPU to allocate for a Pod (quarter of a CPU).
 	 */
-	private String cpu = "250m";
+	private String cpu = "500m";
 
 	/**
 	 * The list of additional libraries to include at runtime.
