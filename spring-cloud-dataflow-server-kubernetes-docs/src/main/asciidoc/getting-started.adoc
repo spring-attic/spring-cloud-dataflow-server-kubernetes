@@ -2,23 +2,25 @@
 
 == Deploying Streams on Kubernetes
 
-In this getting started guide, the Data Flow Server is run as a standalone application outside the Kubernetes cluster.  This also requires running a local instance of Redis to store available modules.  A future version will allow the Data Flow Server itself to run on Kubernetes.
+In this getting started guide, the Data Flow Server is run as a standalone application outside the Kubernetes cluster.  A future version will allow the Data Flow Server itself to run on Kubernetes.
 
 . Deploy a Kubernetes cluster.
 + 
-The http://kubernetes.io/gettingstarted/[Kubernetes getting started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using.  Of note, the https://github.com/olmoser/docker-compose-kubernetes[docker-compose-kubernetes] is not among those options but was used by the developers of this project to run a local Kubernetes cluster using Docker Compose.  
+The http://kubernetes.io/docs/getting-started-guides/[Kubernetes getting started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
++
+Of note, the https://github.com/olmoser/docker-compose-kubernetes[docker-compose-kubernetes] is not among those options, but it was also used by the developers of this project to run a local Kubernetes cluster using Docker Compose.  
 +
 The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line.
 +
 . Create a redis service on the Kubernetes cluster.
 +
-The redis service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
+The redis service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-admin-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
 +
 If you are deploying a Kubernetes cluster outside your local machine, setting the service to be a LoadBalancer type will give you an external IP address to connect to the redis instance.  
 + 
 ```
-$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-server-kubernetes
-$ cd spring-cloud-dataflow-server-kubernetes
+$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-admin-kubernetes
+$ cd spring-cloud-dataflow-admin-kubernetes
 $ kubectl create -f src/etc/kubernetes/redis-controller.yml
 $ kubectl create -f src/etc/kubernetes/redis-service.yml
 ```
@@ -29,7 +31,7 @@ You can use the command `kubectl get pods` to verify that the controller is runn
 ```
 $ kubectl cluster-info
 
-Kubernetes master is running at https://104.154.90.44
+Kubernetes master is running at https://10.245.1.2
 
    ...other output omitted...
 ```
@@ -38,26 +40,29 @@ Kubernetes master is running at https://104.154.90.44
 The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  It can be configured using system properites, environment variables, and the Kube config file.  In testing using the https://cloud.google.com/container-engine/docs/[Google Container Engine], only setting the environment variables `KUBERNETES_MASTER` and `KUBERNETES_NAMESPACE` were required.  Other configuration values were read from the Kube config file.
 +
 ```
-$ export KUBERNETES_MASTER=https://104.154.90.44/
+$ export KUBERNETES_MASTER=https://10.245.1.2/
 $ export KUBERNETES_NAMESPACE=default
 ```
 +
 This approach supports using one Data Flow Server instance per Kubernetes namespace.
 +
-. Run a local redis-server.
+. Run a local Redis server.
 +
 ```
-$ redis-sever
+$ cd <redis-install-dir> 
+$ ./src/redis-server
 ```
 +
 This is used by the locally running Data Flow Server to store the state of available module versions for stream definitions.
++
+NOTE: You could potentially use the Redis service deployed in Kubernetes as long as it is deployed with service type `LoadBalancer` and the node that it is running on is reachable from your system. You should be able to provide the IP address of the node and the nodePort used using arguments for the Redis connection like `--spring.redis.host=10.245.1.3 --spring.redis.port=31986` with the server startup command below.
 +
 NOTE: If you are switching between milestone and snapshot versions of the Data Flow Server, flush the redis keys that contain the module's version information.  Calling `flushdb` is indiscriminate but a handy way to start from a clean redis state.
 +
 . Download and run the Spring Cloud Data Flow Server for Kubernetes.
 +
 ```
-$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-kubernetes/1.0.0.M1/spring-cloud-dataflow-server-kubernetes-1.0.0.M1.jar
+$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-admin-kubernetes/1.0.0.M1/spring-cloud-dataflow-server-kubernetes-1.0.0.M1.jar
 
 $ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M1.jar
 ```
@@ -84,8 +89,8 @@ You can use the command `kubectl get pods` to check on the state of the pods cor
 $ kubectl get pods
 NAME                  READY     STATUS    RESTARTS   AGE
 redis-d207a           1/1       Running   0          50m
-ticktock-log-qnk72    0/1       Running   2          1m
-ticktock-time-r65cn   0/1       Running   3          1m
+ticktock-log-qnk72    1/1       Running   0          2m
+ticktock-time-r65cn   1/1       Running   0          2m
 ```
 +
 Look at the logs for the pod deployed for the log sink.
@@ -99,9 +104,15 @@ $ kubectl logs -f ticktock-log-qnk72
 2015-12-28 18:50:10.557  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:10
 2015-12-28 18:50:11.558  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:11
 ```
-A useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options ``--previous` to view last terminated container log.
++
+A useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options `--previous` to view last terminated container log. You can also get more detailed information about the pods by using the `kubctl describe` like:
++
+```
+kubectl describe pods/ticktock-log-qnk72
+```
 +
 . Destroy the stream
++
 ```
 dataflow:>stream destroy --name ticktock
 ```
