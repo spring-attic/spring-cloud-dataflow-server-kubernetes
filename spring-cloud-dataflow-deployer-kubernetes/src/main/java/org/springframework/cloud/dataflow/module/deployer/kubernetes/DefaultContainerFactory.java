@@ -10,14 +10,14 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.HTTPGetActionBuilder;
 import io.fabric8.kubernetes.api.model.Probe;
 import io.fabric8.kubernetes.api.model.ProbeBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.cloud.dataflow.app.resolver.MavenProperties;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.deployer.ModuleArgumentQualifier;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
-import org.springframework.cloud.dataflow.server.config.DataFlowServerProperties;
 
 /**
  * Create a Kubernetes {@link Container} that will be started as part of a
@@ -34,10 +34,10 @@ public class DefaultContainerFactory implements ContainerFactory {
 
 	private final KubernetesModuleDeployerProperties properties;
 
-	private final DataFlowServerProperties serverProperties;
+	private final MavenProperties mavenProperties;
 
-	public DefaultContainerFactory(DataFlowServerProperties serverProperties, KubernetesModuleDeployerProperties properties) {
-		this.serverProperties = serverProperties;
+	public DefaultContainerFactory(MavenProperties mavenProperties, KubernetesModuleDeployerProperties properties) {
+		this.mavenProperties = mavenProperties;
 		this.properties = properties;
 	}
 
@@ -90,7 +90,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 	protected List<String> createCommandArgs(ModuleDeploymentRequest request) {
 		Map<String, String> args = new HashMap<>();
 		args.put("modules", request.getCoordinates().toString());
-		args.putAll(serverProperties.asStringProperties());
+		args.putAll(mavenProperties.asStringProperties());
 
 		Map<String, String> argsToQualify = new HashMap<>();
 		argsToQualify.putAll(request.getDefinition().getParameters());

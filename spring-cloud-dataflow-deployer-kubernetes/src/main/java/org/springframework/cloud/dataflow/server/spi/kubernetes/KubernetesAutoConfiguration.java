@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudFactory;
-import org.springframework.cloud.dataflow.server.config.DataFlowServerProperties;
+import org.springframework.cloud.dataflow.app.resolver.MavenProperties;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.kubernetes.ContainerFactory;
 import org.springframework.cloud.dataflow.module.deployer.kubernetes.DefaultContainerFactory;
@@ -25,7 +25,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
  * @author Florian Rosenberg
  */
 @Configuration
-@EnableConfigurationProperties({KubernetesModuleDeployerProperties.class, DataFlowServerProperties.class})
+@EnableConfigurationProperties({KubernetesModuleDeployerProperties.class, MavenProperties.class})
 public class KubernetesAutoConfiguration {
 	
 	@Autowired
@@ -50,8 +50,8 @@ public class KubernetesAutoConfiguration {
 	}
 
 	@Bean
-	public ContainerFactory containerFactory(DataFlowServerProperties serverProperties) {
-		return new DefaultContainerFactory(serverProperties, properties);
+	public ContainerFactory containerFactory(MavenProperties mavenProperties) {
+		return new DefaultContainerFactory(mavenProperties, properties);
 	}
 
 	@Profile("cloud")
