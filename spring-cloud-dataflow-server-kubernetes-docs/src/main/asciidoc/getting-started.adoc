@@ -19,7 +19,7 @@ The redis service will be used for messaging between modules in the stream.  The
 If you are deploying a Kubernetes cluster outside your local machine, setting the service to be a LoadBalancer type will give you an external IP address to connect to the redis instance.  
 + 
 ```
-$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-server-kubernetes
+$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-admin-kubernetes
 $ cd spring-cloud-dataflow-server-kubernetes
 $ kubectl create -f src/etc/kubernetes/redis-controller.yml
 $ kubectl create -f src/etc/kubernetes/redis-service.yml
