@@ -6,7 +6,7 @@ In this getting started guide, the Data Flow Server is run as a standalone appli
 
 . Deploy a Kubernetes cluster.
 + 
-The http://kubernetes.io/gettingstarted/[Kubernetes getting started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
+The http://kubernetes.io/docs/getting-started-guides/[Kubernetes getting started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
 +
 Of note, the https://github.com/olmoser/docker-compose-kubernetes[docker-compose-kubernetes] is not among those options, but it was also used by the developers of this project to run a local Kubernetes cluster using Docker Compose.  
 +
