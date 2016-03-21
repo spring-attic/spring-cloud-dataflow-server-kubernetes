@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.Cloud;
@@ -18,6 +19,7 @@ import org.springframework.cloud.dataflow.module.deployer.kubernetes.KubernetesM
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.Ordered;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 /**
@@ -26,6 +28,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
  */
 @Configuration
 @EnableConfigurationProperties({KubernetesModuleDeployerProperties.class, MavenProperties.class})
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class KubernetesAutoConfiguration {
 	
 	@Autowired
