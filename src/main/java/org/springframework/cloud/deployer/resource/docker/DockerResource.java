@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 /**
  * A {@link Resource} implementation for resolving a Docker image.
  *
- * Note: {@link #getInputStream()} returns null.
+ * Note: {@link #getInputStream()} throws {@code UnsupportedOperationException}.
  *
  * @author Thomas Risberg
  */
@@ -65,11 +65,11 @@ public class DockerResource extends AbstractResource {
 	}
 
 	/**
-	 * This implementation currently return {code null}
+	 * This implementation currently throws {@code UnsupportedOperationException}
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
-		return null;
+		throw new UnsupportedOperationException("getInputStream not supported");
 	}
 
 	@Override
