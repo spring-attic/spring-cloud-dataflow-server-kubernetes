@@ -15,6 +15,10 @@ spring:
   application:
     name: spring-cloud-dataflow-server-kubernetes
   cloud:
+    dataflow:
+      registry:
+        populator:
+          locations: classpath:META-INF/kafka-applications.properties
     config:
       uri: http://localhost:8888
 
