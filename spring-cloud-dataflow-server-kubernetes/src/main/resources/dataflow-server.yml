@@ -17,15 +17,35 @@ spring:
   cloud:
     config:
       uri: http://localhost:8888
+    dataflow:
+      registry:
+        populator:
+          locations: classpath:META-INF/applications.properties
 
-kubernetes:
-  includes: org.springframework.cloud:spring-cloud-kubernetes-connector:@spring.cloud.kubernetes.connector.version@
+---
+# Configuration options when using Kafka binder:
+spring:
+  cloud:
+    deployer:
+      kubernetes:
+        createLoadBalancer: true
+        environmentVariables: 'SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=${KAFKA_SERVICE_HOST}:${KAFKA_SERVICE_PORT},SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=${ZK_SERVICE_HOST}:${ZK_SERVICE_PORT}'
+
+# Configuration options when using RabbitMQ binder:
+#spring:
+#  cloud:
+#    deployer:
+#      kubernetes:
+#        createLoadBalancer: true
+#        environmentVariables: 'SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}'
+
 
 # If you prefer to use Eureka to locate the Config Server, you can do that by setting
 # spring.cloud.config.discovery.enabled=true (default "false"). The net result of that is 
 # that client apps all need a bootstrap.yml (or an environment variable) with the Eureka 
 # server address, e.g. in eureka.client.serviceUrl.defaultZone
-#
+#---
+#spring:
 #  cloud:
 #     config:
 #        discovery:
