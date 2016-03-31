@@ -81,14 +81,14 @@ public class KubernetesAppDeployer implements AppDeployer {
 	@Override
 	public String deploy(AppDeploymentRequest request) {
 
-		Map<String, String> idMap = createIdMap(request);
+		String appId = createDeploymentId(request);
+		Map<String, String> idMap = createIdMap(appId, request);
 
-		String appName = request.getDefinition().getName();
-		logger.debug("Deploying app: {}", KubernetesUtils.createKubernetesName(appName));
+		logger.debug("Deploying app: {}", appId);
 
-		AppStatus status = status(appName);
+		AppStatus status = status(appId);
 		if (!status.getState().equals(DeploymentState.unknown)) {
-			throw new IllegalStateException(String.format("App '%s' is already deployed", appName));
+			throw new IllegalStateException(String.format("App '%s' is already deployed", appId));
 		}
 
 		int externalPort = 8080;
@@ -96,23 +96,24 @@ public class KubernetesAppDeployer implements AppDeployer {
 		if (parameters.containsKey(SERVER_PORT_KEY)) {
 			externalPort = Integer.valueOf(parameters.get(SERVER_PORT_KEY));
 		}
-		logger.debug("Creating service: {} on {}", KubernetesUtils.createKubernetesName(appName), externalPort);
-		createService(appName, idMap, externalPort);
+		logger.debug("Creating service: {} on {}", appId, externalPort);
+		createService(appId, idMap, externalPort);
 
-		logger.debug("Creating repl controller: {} on {}", KubernetesUtils.createKubernetesName(appName), externalPort);
-		createReplicationController(appName, request, idMap, externalPort);
+		logger.debug("Creating repl controller: {} on {}", appId, externalPort);
+		createReplicationController(appId, request, idMap, externalPort);
 
-		return KubernetesUtils.createKubernetesName(appName);
+		return appId;
 	}
 
 
 	@Override
 	public void undeploy(String id) {
 
-		logger.debug("Undeploying module: {}", id);
+		String appId = fixKubeId(id);
+		logger.debug("Undeploying module: {}", appId);
 
 		Map<String, String> selector = new HashMap<>();
-		selector.put(SPRING_APP_KEY, id);
+		selector.put(SPRING_APP_KEY, appId);
 		try {
 			client.services().withLabels(selector).delete();
 			client.replicationControllers().withLabels(selector).delete();
@@ -126,23 +127,24 @@ public class KubernetesAppDeployer implements AppDeployer {
 	@Override
 	public AppStatus status(String id) {
 
+		String appId = fixKubeId(id);
 		Map<String, String> selector = new HashMap<>();
-		selector.put(SPRING_APP_KEY, id);
+		selector.put(SPRING_APP_KEY, appId);
 		PodList list = client.pods().withLabels(selector).list();
-		AppStatus status = buildModuleStatus(id, list);
-		logger.debug("Status for app: {} is {}", id, status);
+		AppStatus status = buildModuleStatus(appId, list);
+		logger.debug("Status for app: {} is {}", appId, status);
 
 		return status;
 	}
 
 	private ReplicationController createReplicationController(
-			String id, AppDeploymentRequest request,
+			String appId, AppDeploymentRequest request,
 			Map<String, String> idMap, int externalPort) {
 		String countProperty = request.getDefinition().getProperties().get(COUNT_PROPERTY_KEY);
 		int count = (countProperty != null) ? Integer.parseInt(countProperty) : 1;
 		ReplicationController rc = new ReplicationControllerBuilder()
 				.withNewMetadata()
-				.withName(KubernetesUtils.createKubernetesName(id)) // does not allow . in the name
+				.withName(appId)
 				.withLabels(idMap)
 				.addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE)
 				.endMetadata()
@@ -154,7 +156,7 @@ public class KubernetesAppDeployer implements AppDeployer {
 				.withLabels(idMap)
 				.addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE)
 				.endMetadata()
-				.withSpec(createPodSpec(request, externalPort))
+				.withSpec(createPodSpec(appId, request, externalPort))
 				.endTemplate()
 				.endSpec()
 				.build();
@@ -162,7 +164,7 @@ public class KubernetesAppDeployer implements AppDeployer {
 		return client.replicationControllers().create(rc);
 	}
 
-	private PodSpec createPodSpec(AppDeploymentRequest request, int port) {
+	private PodSpec createPodSpec(String appId, AppDeploymentRequest request, int port) {
 		PodSpecBuilder podSpec = new PodSpecBuilder();
 
 		// Add image secrets if set
@@ -170,7 +172,7 @@ public class KubernetesAppDeployer implements AppDeployer {
 			podSpec.addNewImagePullSecret(properties.getImagePullSecret());
 		}
 
-		Container container = containerFactory.create(request, port);
+		Container container = containerFactory.create(appId, request, port);
 
 		// add memory and cpu resource limits
 		ResourceRequirements req = new ResourceRequirements();
@@ -181,10 +183,10 @@ public class KubernetesAppDeployer implements AppDeployer {
 		return podSpec.build();
 	}
 
-	private void createService(String id, Map<String, String> idMap, int externalPort) {
+	private void createService(String appId, Map<String, String> idMap, int externalPort) {
 		client.services().inNamespace(client.getNamespace()).createNew()
 				.withNewMetadata()
-					.withName(KubernetesUtils.createKubernetesName(id)) // does not allow . in the name
+					.withName(appId)
 					.withLabels(idMap)
 					.addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE)
 					.endMetadata()
@@ -201,15 +203,20 @@ public class KubernetesAppDeployer implements AppDeployer {
 	 * Creates a map of labels for a given ID. This will allow Kubernetes services
 	 * to "select" the right ReplicationControllers.
 	 */
-	private Map<String, String> createIdMap(AppDeploymentRequest request) {
+	private Map<String, String> createIdMap(String appId, AppDeploymentRequest request) {
 		//TODO: handling of app and group ids
 		Map<String, String> map = new HashMap<>();
-		String appId = KubernetesUtils.createKubernetesName(request.getDefinition().getName());
 		map.put(SPRING_APP_KEY, appId);
 		String groupId = request.getEnvironmentProperties().get(GROUP_PROPERTY_KEY);
 		if (groupId != null) {
 			map.put(SPRING_GROUP_KEY, groupId);
 		}
+		map.put(SPRING_DEPLOYMENT_KEY, createDeploymentId(request));
+		return map;
+	}
+
+	private String createDeploymentId(AppDeploymentRequest request) {
+		String groupId = request.getEnvironmentProperties().get(GROUP_PROPERTY_KEY);
 		String deploymentId;
 		if (groupId == null) {
 			deploymentId = String.format("%s", request.getDefinition().getName());
@@ -217,8 +224,12 @@ public class KubernetesAppDeployer implements AppDeployer {
 		else {
 			deploymentId = String.format("%s-%s", groupId, request.getDefinition().getName());
 		}
-		map.put(SPRING_DEPLOYMENT_KEY, deploymentId);
-		return map;
+		return fixKubeId(deploymentId);
+	}
+
+	private String fixKubeId(String id) {
+		// Kubernetes does not allow . in the name
+		return id.replace('.', '-');
 	}
 
 	private AppStatus buildModuleStatus(String id, PodList list) {

@@ -51,7 +51,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 	}
 
 	@Override
-	public Container create(AppDeploymentRequest request, int port) {
+	public Container create(String appId, AppDeploymentRequest request, int port) {
 		ContainerBuilder container = new ContainerBuilder();
 		String image = null;
 		//TODO: what's the proper format for a Docker URI?
@@ -61,7 +61,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 			throw new IllegalArgumentException("Unable to get URI for " + request.getResource(), e);
 		}
 		logger.info("Using Docker image: " + image);
-		container.withName(KubernetesUtils.createKubernetesName(request.getDefinition().getName()))
+		container.withName(appId)
 				.withImage(image)
 				.withArgs(createCommandArgs(request))
 				.addNewPort()
