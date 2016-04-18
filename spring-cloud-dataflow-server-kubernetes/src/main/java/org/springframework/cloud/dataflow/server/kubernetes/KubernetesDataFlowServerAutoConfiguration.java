@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.cloud.deployer.resource.docker.DockerResourceLoader;
-import org.springframework.cloud.deployer.resource.maven.MavenResourceLoader;
 import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +37,7 @@ import org.springframework.core.io.ResourceLoader;
 public class KubernetesDataFlowServerAutoConfiguration {
 
 	@Bean
-	public DelegatingResourceLoader delegatingResourceLoader(MavenResourceLoader mavenResourceLoader) {
+	public DelegatingResourceLoader delegatingResourceLoader() {
 		DockerResourceLoader dockerLoader = new DockerResourceLoader();
 		Map<String, ResourceLoader> loaders = new HashMap<>();
 		loaders.put("docker", dockerLoader);
