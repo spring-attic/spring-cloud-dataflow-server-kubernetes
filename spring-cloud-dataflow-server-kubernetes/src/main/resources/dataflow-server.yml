@@ -17,10 +17,6 @@ spring:
   cloud:
     config:
       uri: http://localhost:8888
-    dataflow:
-      registry:
-        populator:
-          locations: classpath:META-INF/applications.properties
 
 ---
 # Configuration options when using Kafka binder:
