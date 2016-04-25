@@ -111,18 +111,10 @@ public class DefaultContainerFactory implements ContainerFactory {
 		Map<String, String> args = request.getDefinition().getProperties();
 		List<String> cmdArgs = new LinkedList<String>();
 		for (Map.Entry<String, String> entry : args.entrySet()) {
-			cmdArgs.add(String.format("--%s=%s", bashEscape(entry.getKey()),
-					bashEscape(entry.getValue())));
+			cmdArgs.add(String.format("--%s=%s", entry.getKey(), entry.getValue()));
 		}
 		logger.debug("Using command args: " + cmdArgs);
 		return cmdArgs;
 	}
 
-	/**
-	 * Escape arguments
-	 */
-	protected String bashEscape(String original) {
-		// Adapted from http://ruby-doc.org/stdlib-1.9.3/libdoc/shellwords/rdoc/Shellwords.html#method-c-shellescape
-		return original.replaceAll("([^A-Za-z0-9_\\-.,:\\/@\\n])", "\\\\$1").replaceAll("\n", "'\\\\n'");
-	}
 }
