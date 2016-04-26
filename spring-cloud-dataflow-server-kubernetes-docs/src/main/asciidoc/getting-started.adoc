@@ -6,25 +6,23 @@ In this getting started guide, the Data Flow Server is run as a standalone appli
 
 . Deploy a Kubernetes cluster.
 + 
-The http://kubernetes.io/docs/getting-started-guides/[Kubernetes getting started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
+The http://kubernetes.io/docs/getting-started-guides/[Kubernetes Getting Started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
 +
 Of note, the https://github.com/olmoser/docker-compose-kubernetes[docker-compose-kubernetes] is not among those options, but it was also used by the developers of this project to run a local Kubernetes cluster using Docker Compose.  
 +
 The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line.
 +
-. Create a redis service on the Kubernetes cluster.
+. Create a Kafka service on the Kubernetes cluster.
 +
-The redis service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-admin-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
-+
-If you are deploying a Kubernetes cluster outside your local machine, setting the service to be a LoadBalancer type will give you an external IP address to connect to the redis instance.  
+The Kafka service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
 + 
 ```
-$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-admin-kubernetes
-$ cd spring-cloud-dataflow-admin-kubernetes
-$ kubectl create -f src/etc/kubernetes/redis-controller.yml
-$ kubectl create -f src/etc/kubernetes/redis-service.yml
+$ git clone https://github.com/spring-cloud/spring-cloud-dataflow-server-kubernetes
+$ cd spring-cloud-dataflow-server-kubernetes
+$ kubectl create -f src/etc/kubernetes/kafka-controller.yml
+$ kubectl create -f src/etc/kubernetes/kafka-service.yml
 ```
-You can use the command `kubectl get pods` to verify that the controller is running.  Note that it can take a minute or so until there is an external IP address for the redis server.  Use the command `kubectl get services` to check on the state of the service and look for when there is a value under the EXTERNAL_IP column. The command `kubectl delete service redis` to clean up afterwards.
+You can use the command `kubectl get pods` to verify that the controller is running.  Note that it can take a minute or so until there is an external IP address for the kafka server.  Use the command `kubectl get services` to check on the state of the service and look for when there is a value under the EXTERNAL_IP column. Use the commands `kubectl delete svc kafka` and `kubectl delete rc kafka` to clean up afterwards.
 +
 . Determine the location of your Kubernetes Master URL, for example:
 +
@@ -37,7 +35,7 @@ Kubernetes master is running at https://10.245.1.2
 ```
 . Export environment variables to connect to Kubernetes.
 +
-The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  It can be configured using system properites, environment variables, and the Kube config file.  In testing using the https://cloud.google.com/container-engine/docs/[Google Container Engine], only setting the environment variables `KUBERNETES_MASTER` and `KUBERNETES_NAMESPACE` were required.  Other configuration values were read from the Kube config file.
+The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  It can be configured using system properties, environment variables, and the Kube config file.  In testing using the https://cloud.google.com/container-engine/docs/[Google Container Engine], only setting the environment variables `KUBERNETES_MASTER` and `KUBERNETES_NAMESPACE` were required.  Other configuration values were read from the Kube config file.
 +
 ```
 $ export KUBERNETES_MASTER=https://10.245.1.2/
@@ -53,18 +51,20 @@ $ cd <redis-install-dir>
 $ ./src/redis-server
 ```
 +
-This is used by the locally running Data Flow Server to store the state of available module versions for stream definitions.
-+
-NOTE: You could potentially use the Redis service deployed in Kubernetes as long as it is deployed with service type `LoadBalancer` and the node that it is running on is reachable from your system. You should be able to provide the IP address of the node and the nodePort used using arguments for the Redis connection like `--spring.redis.host=10.245.1.3 --spring.redis.port=31986` with the server startup command below.
-+
-NOTE: If you are switching between milestone and snapshot versions of the Data Flow Server, flush the redis keys that contain the module's version information.  Calling `flushdb` is indiscriminate but a handy way to start from a clean redis state.
+This is used by the locally running Data Flow Server to store the state of registered stream app module URIs to be used for stream definitions.
 +
 . Download and run the Spring Cloud Data Flow Server for Kubernetes.
 +
 ```
-$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-admin-kubernetes/1.0.0.M1/spring-cloud-dataflow-server-kubernetes-1.0.0.M1.jar
+$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-kubernetes/1.0.0.M2/spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar
 
-$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M1.jar
+$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar
+```
++
+If you are running Kubernetes using vagrant locally you might need to increase the CPU for the deployed apps using the following startup command:
++
+```
+$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar --spring.cloud.deployer.kubernetes.cpu=1
 ```
 +
 Ensure that the Data Flow Server is running in the same terminal session that has the Kubernetes environment variables set.
@@ -72,9 +72,16 @@ Ensure that the Data Flow Server is running in the same terminal session that ha
 . Download and run the Spring Cloud Data Flow shell.
 +
 ```
-$ wget http://repo.spring.io/snapshot/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.BUILD-SNAPSHOT/spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
+$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.M3/spring-cloud-dataflow-shell-1.0.0.M3.jar
 
-$ java -jar spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
+$ java -jar spring-cloud-dataflow-shell-1.0.0.M3.jar
+```
++
+. Register the Kafka version of the `time` and `log` app modules using the shell
++
+```
+dataflow:>module register --type source --name time --uri docker:springcloudstream/time-source-kafka
+dataflow:>module register --type sink --name log --uri docker:springcloudstream/log-sink-kafka
 ```
 +
 . Deploy a simple stream in the shell
@@ -88,7 +95,7 @@ You can use the command `kubectl get pods` to check on the state of the pods cor
 ```
 $ kubectl get pods
 NAME                  READY     STATUS    RESTARTS   AGE
-redis-d207a           1/1       Running   0          50m
+kafka-d207a           1/1       Running   0          50m
 ticktock-log-qnk72    1/1       Running   0          2m
 ticktock-time-r65cn   1/1       Running   0          2m
 ```
