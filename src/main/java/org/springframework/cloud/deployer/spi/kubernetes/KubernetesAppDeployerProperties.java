@@ -69,7 +69,7 @@ public class KubernetesAppDeployerProperties {
 	/**
 	 * Memory to allocate for a Pod.
 	 */
-	private String memory = "512Mi";
+	private String memory = "768Mi";
 
 	/**
 	 * CPU to allocate for a Pod.
@@ -85,6 +85,11 @@ public class KubernetesAppDeployerProperties {
 	 * Create a "LoadBalancer" for the service created for each app. This facilitates assignment of external IP to app.
 	 */
 	private boolean createLoadBalancer = false;
+
+	/**
+	 * Time to wait for load balancer to be available before attempting delete of service (in minutes).
+	 */
+	private int minutesToWaitForLoadBalancer = 5;
 
 	/**
 	 * Maximum allowed restarts for app that fails due to an error or excessive resource use.
@@ -169,6 +174,22 @@ public class KubernetesAppDeployerProperties {
 		this.environmentVariables = environmentVariables;
 	}
 
+	public boolean isCreateLoadBalancer() {
+		return createLoadBalancer;
+	}
+
+	public void setCreateLoadBalancer(boolean createLoadBalancer) {
+		this.createLoadBalancer = createLoadBalancer;
+	}
+
+	public int getMinutesToWaitForLoadBalancer() {
+		return minutesToWaitForLoadBalancer;
+	}
+
+	public void setMinutesToWaitForLoadBalancer(int minutesToWaitForLoadBalancer) {
+		this.minutesToWaitForLoadBalancer = minutesToWaitForLoadBalancer;
+	}
+
 	public int getMaxTerminatedErrorRestarts() {
 		return maxTerminatedErrorRestarts;
 	}
@@ -183,13 +204,5 @@ public class KubernetesAppDeployerProperties {
 
 	public void setMaxCrashLoopBackOffRestarts(int maxCrashLoopBackOffRestarts) {
 		this.maxCrashLoopBackOffRestarts = maxCrashLoopBackOffRestarts;
-	}
-
-	public boolean isCreateLoadBalancer() {
-		return createLoadBalancer;
-	}
-
-	public void setCreateLoadBalancer(boolean createLoadBalancer) {
-		this.createLoadBalancer = createLoadBalancer;
 	}
 }
