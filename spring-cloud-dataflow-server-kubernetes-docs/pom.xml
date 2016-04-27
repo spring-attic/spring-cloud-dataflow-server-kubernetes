@@ -74,7 +74,7 @@
 									<doctype>book</doctype>
 									<attributes>
 										<docinfo>true</docinfo>
-										<spring-boot-version>${project.version}</spring-boot-version>
+										<spring-cloud-dataflow-server-kubernetes-version>${project.version}</spring-cloud-dataflow-server-kubernetes-version>
 										<spring-boot-docs-version>${project.version}</spring-boot-docs-version>
 										<spring-boot-repo>${spring-boot-repo}</spring-boot-repo>
 										<spring-docs-version>${spring.version}</spring-docs-version>
