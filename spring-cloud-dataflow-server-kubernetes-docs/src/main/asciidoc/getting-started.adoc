@@ -58,14 +58,12 @@ This is used by the locally running Data Flow Server to store the state of regis
 ```
 $ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-kubernetes/1.0.0.M2/spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar
 
-$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar
+$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar --spring.cloud.deployer.kubernetes.memory=768Mi
 ```
 +
-If you are running Kubernetes using vagrant locally you might need to increase the CPU for the deployed apps using the following startup command:
+NOTE: We haven't tuned the memory use of the OOTB apps yet, so to be on the safe side we are increasing the memory for the pods by providing the following property: `--spring.cloud.deployer.kubernetes.memory=768Mi`
 +
-```
-$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar --spring.cloud.deployer.kubernetes.cpu=1
-```
+NOTE: If you are running Kubernetes using vagrant locally, then you might need to increase the CPU for the deployed apps using the following property: `--spring.cloud.deployer.kubernetes.cpu=1`
 +
 Ensure that the Data Flow Server is running in the same terminal session that has the Kubernetes environment variables set.
 +
@@ -90,10 +88,11 @@ dataflow:>module register --type sink --name log --uri docker:springcloudstream/
 dataflow:>stream create --name ticktock --definition "time | log" --deploy
 ```
 +
-You can use the command `kubectl get pods` to check on the state of the pods corresponding to this stream.  
+You can use the command `kubectl get pods` to check on the state of the pods corresponding to this stream. We can run this from the shell by running it as an OS command by adding a "!" before the command.
 +
 ```
-$ kubectl get pods
+dataflow:>! kubectl get pods
+command is:kubectl get pods
 NAME                  READY     STATUS    RESTARTS   AGE
 kafka-d207a           1/1       Running   0          50m
 ticktock-log-qnk72    1/1       Running   0          2m
@@ -112,6 +111,54 @@ $ kubectl logs -f ticktock-log-qnk72
 2015-12-28 18:50:11.558  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:11
 ```
 +
+NOTE: If you need to be able to connect from outside of the Kubernetes cluster to an app that you deploy, like the `http-source`, then you can provide a deployment property of `spring.cloud.deployer.kubernetes.createLoadBalancer=true` for the app module to specify that you want to have a LoadBalancer with an external IP address created for your app's service. 
++
+To register the `http-source`, deploy it so you can post data to it you can use the following commands:
++
+```
+dataflow:>module register --type source --name http --uri docker:springcloudstream/http-source-kafka
+dataflow:>stream create --name test --definition "http | log"
+dataflow:>stream deploy test --properties "module.http.spring.cloud.deployer.kubernetes.createLoadBalancer=true"
+```
++
+Now, look up the external IP address for the `http` app (it can sometimes take a minute or two for the external IP to get assigned):
++
+```
+dataflow:>! kubectl get service
+command is:kubectl get service
+NAME         CLUSTER-IP       EXTERNAL-IP      PORT(S)    AGE
+kafka        10.103.240.92    <none>           9092/TCP   7m
+kubernetes   10.103.240.1     <none>           443/TCP    4h
+test-http    10.103.251.157   130.211.200.96   8080/TCP   58s
+test-log     10.103.240.28    <none>           8080/TCP   59s
+zk           10.103.247.25    <none>           2181/TCP   7m
+```
++
+Next, post some data to the `test-http` app:
++
+```
+dataflow:>http post --target http://130.211.200.96:8080 --data "Hello"
+```
++
+Finally, look at the logs for the `test-log` pod:
++
+```
+dataflow:>! kubectl get pods
+command is:kubectl get pods
+NAME              READY     STATUS             RESTARTS   AGE
+kafka-o20qq       1/1       Running            0          9m
+test-http-9obkq   1/1       Running            0          2m
+test-log-ysiz3    1/1       Running            0          2m
+dataflow:>! kubectl logs test-log-ysiz3
+command is:kubectl logs test-log-ysiz3
+...
+2016-04-27 16:54:29.789  INFO 1 --- [           main] o.s.c.s.b.k.KafkaMessageChannelBinder$3  : started inbound.test.http.test
+2016-04-27 16:54:29.799  INFO 1 --- [           main] o.s.c.support.DefaultLifecycleProcessor  : Starting beans in phase 0
+2016-04-27 16:54:29.799  INFO 1 --- [           main] o.s.c.support.DefaultLifecycleProcessor  : Starting beans in phase 2147482647
+2016-04-27 16:54:29.895  INFO 1 --- [           main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 8080 (http)
+2016-04-27 16:54:29.896  INFO 1 --- [  kafka-binder-] log.sink                                 : Hello
+```
++
 A useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options `--previous` to view last terminated container log. You can also get more detailed information about the pods by using the `kubctl describe` like:
 +
 ```
@@ -123,5 +170,5 @@ kubectl describe pods/ticktock-log-qnk72
 ```
 dataflow:>stream destroy --name ticktock
 ```
-NOTE: If you stop and restart the Data Flow Server server after streams are deployed, you will not be able to destroy them.  This is a bug that is being addressed in a future release.
+WARNING: If you stop and restart the Data Flow Server when streams are deployed, you will not be able to destroy them via shell commands. You would have to destroy the services and replication containers using the `kubectl` command.  This is a bug that is being addressed in a future release.
 
