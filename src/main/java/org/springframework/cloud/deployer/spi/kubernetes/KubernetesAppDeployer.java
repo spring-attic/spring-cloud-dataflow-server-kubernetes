@@ -113,8 +113,7 @@ public class KubernetesAppDeployer implements AppDeployer {
 		logger.debug("Undeploying module: {}", appId);
 
 		try {
-			if (!status(appId).getState().equals(DeploymentState.failed) &&
-					"LoadBalancer".equals(client.services().withName(appId).get().getSpec().getType())) {
+			if ("LoadBalancer".equals(client.services().withName(appId).get().getSpec().getType())) {
 				Service svc = client.services().withName(appId).get();
 				int tries = 0;
 				int maxWait = properties.getMinutesToWaitForLoadBalancer() * 6; // we check 6 times per minute

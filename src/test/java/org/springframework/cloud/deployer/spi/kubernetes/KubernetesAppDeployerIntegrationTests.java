@@ -69,6 +69,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 
 	@Test
 	public void testFailedDeploymentWithLoadBalancer() {
+		log.info("Testing {}...", "FailedDeploymentWithLoadBalancer");
 		KubernetesAppDeployerProperties lbProperties = new KubernetesAppDeployerProperties();
 		lbProperties.setCreateLoadBalancer(true);
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
@@ -95,6 +96,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 
 	@Test
 	public void testGoodDeploymentWithLoadBalancer() {
+		log.info("Testing {}...", "GoodDeploymentWithLoadBalancer");
 		KubernetesAppDeployerProperties lbProperties = new KubernetesAppDeployerProperties();
 		lbProperties.setCreateLoadBalancer(true);
 		lbProperties.setMinutesToWaitForLoadBalancer(1);
@@ -115,6 +117,42 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		lbAppDeployer.undeploy(deploymentId);
 		assertThat(deploymentId, eventually(hasStatusThat(
 				Matchers.<AppStatus>hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
+	}
+
+	@Override
+	public void testUnknownDeployment() {
+		log.info("Testing {}...", "UnknownDeployment");
+		super.testUnknownDeployment();
+	}
+
+	@Override
+	public void testSimpleDeployment() {
+		log.info("Testing {}...", "SimpleDeployment");
+		super.testSimpleDeployment();
+	}
+
+	@Override
+	public void testRedeploy() {
+		log.info("Testing {}...", "Redeploy");
+		super.testRedeploy();
+	}
+
+	@Override
+	public void testDeployingStateCalculationAndCancel() {
+		log.info("Testing {}...", "DeployingStateCalculationAndCancel");
+		super.testDeployingStateCalculationAndCancel();
+	}
+
+	@Override
+	public void testFailedDeployment() {
+		log.info("Testing {}...", "FailedDeployment");
+		super.testFailedDeployment();
+	}
+
+	@Override
+	public void testParameterPassing() {
+		log.info("Testing {}...", "ParameterPassing");
+		super.testParameterPassing();
 	}
 
 	@Override

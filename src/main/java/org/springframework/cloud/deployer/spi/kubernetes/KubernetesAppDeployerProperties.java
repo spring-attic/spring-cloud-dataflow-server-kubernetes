@@ -69,7 +69,7 @@ public class KubernetesAppDeployerProperties {
 	/**
 	 * Memory to allocate for a Pod.
 	 */
-	private String memory = "768Mi";
+	private String memory = "512Mi";
 
 	/**
 	 * CPU to allocate for a Pod.
