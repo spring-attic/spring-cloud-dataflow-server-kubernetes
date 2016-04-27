@@ -49,8 +49,6 @@ include::getting-started.adoc[]
 
 include::server.adoc[]
 
-include::modules.adoc[]
-
 include::appendix.adoc[]
 
 
