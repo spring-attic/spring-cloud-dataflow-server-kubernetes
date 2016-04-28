@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-deployer-spi-test</artifactId>
-			<version>${project.version}</version>
+			<version>${spring-cloud-deployer-spi.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
