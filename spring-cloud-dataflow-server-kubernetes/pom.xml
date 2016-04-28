@@ -18,6 +18,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-dataflow-server-kubernetes</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
