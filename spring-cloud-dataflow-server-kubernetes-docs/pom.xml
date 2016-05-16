@@ -187,7 +187,7 @@
 												<include name="**/*.pdf" />
 											</fileset>
 										</copy>
-										<move file="${basedir}/target/contents/reference/pdf/index.pdf" tofile="${basedir}/target/contents/reference/pdf/spring-cloud-stream-reference.pdf" />
+										<move file="${basedir}/target/contents/reference/pdf/index.pdf" tofile="${basedir}/target/contents/reference/pdf/spring-cloud-dataflow-server-kubernetes-reference.pdf" />
 									</postProcess>
 								</configuration>
 							</execution>
