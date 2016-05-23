@@ -16,4 +16,10 @@ Clone the repo and type
 $ ./mvnw clean install 
 ----
 
+To build the docker image for the Data Flow Server
+
+----
+$ ./mvnw package docker:build -pl :spring-cloud-dataflow-server-kubernetes
+----
+
 For more information on building, see this https://github.com/spring-cloud/spring-cloud-dataflow/blob/master/spring-cloud-dataflow-docs/src/main/asciidoc/appendix-building.adoc[link].
