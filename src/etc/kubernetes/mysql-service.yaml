@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
   labels:
-    spring-cloud-service: redis
+    name: mysql
+  name: mysql
 spec:
 # Use "LoadBalancer" if you want an external IP for your service to connect from external tools
-#  type: LoadBalancer
+  type: LoadBalancer
   ports:
-    - port: 6379
+    - port: 3306
   selector:
-    name: redis
+    name: mysql
