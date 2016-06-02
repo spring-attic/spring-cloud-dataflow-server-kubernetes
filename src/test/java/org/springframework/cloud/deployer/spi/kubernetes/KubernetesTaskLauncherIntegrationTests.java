@@ -16,15 +16,11 @@
 
 package org.springframework.cloud.deployer.spi.kubernetes;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.springframework.cloud.deployer.spi.task.LaunchState.complete;
-import static org.springframework.cloud.deployer.spi.task.LaunchState.failed;
-import static org.springframework.cloud.deployer.spi.test.EventuallyMatcher.eventually;
-
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -46,7 +42,11 @@ import org.springframework.cloud.deployer.spi.task.TaskStatus;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.springframework.cloud.deployer.spi.task.LaunchState.complete;
+import static org.springframework.cloud.deployer.spi.task.LaunchState.failed;
+import static org.springframework.cloud.deployer.spi.test.EventuallyMatcher.eventually;
 
 /**
  * Integration tests for {@link KubernetesTaskLauncher}.
