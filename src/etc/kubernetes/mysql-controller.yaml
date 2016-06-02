@@ -26,6 +26,7 @@ spec:
       volumes:
         - name: mysql-persistent-storage
           gcePersistentDisk:
-            # This disk must already exist.
+            # This disk must already exist. Can be created using the following command:
+            # $ gcloud compute disks create mysql-disk --size 200 --type pd-standard
             pdName: mysql-disk
             fsType: ext4
