@@ -2,7 +2,7 @@
 
 == Deploying Streams on Kubernetes
 
-In this getting started guide, the Data Flow Server is run as a standalone application outside the Kubernetes cluster.  A future version will allow the Data Flow Server itself to run on Kubernetes.
+In this getting started guide, the Data Flow Server is deployed to the Kubernetes cluster.  This means that we need to make available an RDBMS service for storing app, stream and task repositories plus a transport option of either Kafka or Rabbit MQ.
 
 . Deploy a Kubernetes cluster.
 + 
@@ -14,7 +14,7 @@ The rest of this getting started guide assumes that you have a working Kubernete
 +
 . Create a Kafka service on the Kubernetes cluster.
 +
-The Kafka service will be used for messaging between modules in the stream.  There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
+The Kafka service will be used for messaging between modules in the stream.  You can instead use Rabbit MQ, but, in order to simplify, we only show the Kafka configurations in this guide. There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
 + 
 ```
 $ git clone https://github.com/spring-cloud/spring-cloud-dataflow-server-kubernetes
@@ -22,7 +22,29 @@ $ cd spring-cloud-dataflow-server-kubernetes
 $ kubectl create -f src/etc/kubernetes/kafka-controller.yml
 $ kubectl create -f src/etc/kubernetes/kafka-service.yml
 ```
-You can use the command `kubectl get pods` to verify that the controller is running.  Note that it can take a minute or so until there is an external IP address for the kafka server.  Use the command `kubectl get services` to check on the state of the service and look for when there is a value under the EXTERNAL_IP column. Use the commands `kubectl delete svc kafka` and `kubectl delete rc kafka` to clean up afterwards.
+You can use the command `kubectl get pods` to verify that the controller and service is running.  Use the command `kubectl get services` to check on the state of the service. Use the commands `kubectl delete svc kafka` and `kubectl delete rc kafka` to clean up afterwards.
++
+. Create a MySQL service on the Kubernetes cluster.
++
+We are using MySQL for this guide, but you could use Postgres or H2 database instead. We include JDBC drivers for all three of these databases, you would just have to adjust the database URL and driver class name settings.
++
+Before creating the MySQL service we need to create a persistent disk and modify the password in the config file. To create a persistent disk you can use the following command:
++
+```
+$ gcloud compute disks create mysql-disk --size 200 --type pd-standard
+```
++
+Modify the password in the `src/etc/kubernetes/mysql-controller.yaml` file inside the `spring-cloud-dataflow-server-kubernetes` repository. Then run the following commands to start the database service:
++
+```
+$ kubectl create -f src/etc/kubernetes/mysql-controller.yml
+$ kubectl create -f src/etc/kubernetes/mysql-service.yml
+```
+Again, you can use the command `kubectl get pods` to verify that the controller is running.  Note that it can take a minute or so until there is an external IP address for the MySQL server.  Use the command `kubectl get services` to check on the state of the service and look for when there is a value under the EXTERNAL_IP column. Use the commands `kubectl delete svc mysql` and `kubectl delete rc mysql` to clean up afterwards. Use the EXTERNAL_IP address to connect to the database and create a `test` database that we can use for our testing. Use your favorit SQL developer tool for this:
++
+```
+CREATE DATABASE test;
+```
 +
 . Determine the location of your Kubernetes Master URL, for example:
 +
@@ -33,53 +55,69 @@ Kubernetes master is running at https://10.245.1.2
 
    ...other output omitted...
 ```
-. Export environment variables to connect to Kubernetes.
+. Update configuration files with values needed to connect to Kubernetes and MySQL.
 +
-The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  It can be configured using system properties, environment variables, and the Kube config file.  In testing using the https://cloud.google.com/container-engine/docs/[Google Container Engine], only setting the environment variables `KUBERNETES_MASTER` and `KUBERNETES_NAMESPACE` were required.  Other configuration values were read from the Kube config file.
-+
-```
-$ export KUBERNETES_MASTER=https://10.245.1.2/
-$ export KUBERNETES_NAMESPACE=default
-```
+The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. The settings are specified in the `src/etc/kubernetes/scdf-controller.yml` file. Modify the `\<<URL-for-Kubernetes-master>>` setting to match your output from the command above. Also modify `\<<mysql-password>>` to match what you used when creating the service.
 +
 This approach supports using one Data Flow Server instance per Kubernetes namespace.
 +
-. Run a local Redis server.
+. Deploy the Spring Cloud Data Flow Server for Kubernetes using the Docker image and the configuration settings you just modified.
 +
 ```
-$ cd <redis-install-dir> 
-$ ./src/redis-server
+$ kubectl create -f src/etc/kubernetes/scdf-controller.yml
+$ kubectl create -f src/etc/kubernetes/scdf-service.yml
 ```
 +
-This is used by the locally running Data Flow Server to store the state of registered stream app module URIs to be used for stream definitions.
+NOTE: We haven't tuned the memory use of the OOTB apps yet, so to be on the safe side we are increasing the memory for the pods by providing the following property: `spring.cloud.deployer.kubernetes.memory=640Mi`
 +
-. Download and run the Spring Cloud Data Flow Server for Kubernetes.
+Use the `kubectl get svc` command to locate the EXTERNAL_IP address assigned to `scdf`, we use that to connect from the shell.
 +
 ```
-$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-kubernetes/1.0.0.M2/spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar
-
-$ java -jar spring-cloud-dataflow-server-kubernetes-1.0.0.M2.jar --spring.cloud.deployer.kubernetes.memory=768Mi
+$ kubectl get svc
+NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
+kafka        10.103.248.211   <none>            9092/TCP   14d
+kubernetes   10.103.240.1     <none>            443/TCP    16d
+mysql        10.103.251.179   104.154.246.220   3306/TCP   10d
+scdf         10.103.246.82    130.211.203.246   9393/TCP   4m
+zk           10.103.243.29    <none>            2181/TCP   14d
 ```
-+
-NOTE: We haven't tuned the memory use of the OOTB apps yet, so to be on the safe side we are increasing the memory for the pods by providing the following property: `--spring.cloud.deployer.kubernetes.memory=768Mi`
-+
-NOTE: If you are running Kubernetes using vagrant locally, then you might need to increase the CPU for the deployed apps using the following property: `--spring.cloud.deployer.kubernetes.cpu=1`
-+
-Ensure that the Data Flow Server is running in the same terminal session that has the Kubernetes environment variables set.
 +
 . Download and run the Spring Cloud Data Flow shell.
 +
 ```
-$ wget http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.M3/spring-cloud-dataflow-shell-1.0.0.M3.jar
+$ wget http://repo.spring.io/snapshot/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.BUILD-SNAPSHOT/spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
 
-$ java -jar spring-cloud-dataflow-shell-1.0.0.M3.jar
+$ java -jar spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
 ```
 +
-. Register the Kafka version of the `time` and `log` app modules using the shell
+Configure the Data Flow server URI with the following command (use the IP address from previous step and at the moment we are using port 9393):
 +
 ```
-dataflow:>module register --type source --name time --uri docker:springcloudstream/time-source-kafka
-dataflow:>module register --type sink --name log --uri docker:springcloudstream/log-sink-kafka
+  ____                              ____ _                __
+ / ___| _ __  _ __(_)_ __   __ _   / ___| | ___  _   _  __| |
+ \___ \| '_ \| '__| | '_ \ / _` | | |   | |/ _ \| | | |/ _` |
+  ___) | |_) | |  | | | | | (_| | | |___| | (_) | |_| | (_| |
+ |____/| .__/|_|  |_|_| |_|\__, |  \____|_|\___/ \__,_|\__,_|
+  ____ |_|    _          __|___/                 __________
+ |  _ \  __ _| |_ __ _  |  ___| | _____      __  \ \ \ \ \ \
+ | | | |/ _` | __/ _` | | |_  | |/ _ \ \ /\ / /   \ \ \ \ \ \
+ | |_| | (_| | || (_| | |  _| | | (_) \ V  V /    / / / / / /
+ |____/ \__,_|\__\__,_| |_|   |_|\___/ \_/\_/    /_/_/_/_/_/
+
+1.0.0.BUILD-SNAPSHOT
+
+Welcome to the Spring Cloud Data Flow shell. For assistance hit TAB or type "help".
+server-unknown:>dataflow config server --uri http://130.211.203.246:9393
+Successfully targeted http://130.211.203.246:9393
+dataflow:>
+```
++
+. Register the Kafka version of the `time` and `log` apps using the shell and also register the `timestamp` app.
++
+```
+dataflow:>app register --type source --name time --uri docker:springcloudstream/time-source-kafka:latest
+dataflow:>app register --type sink --name log --uri docker:springcloudstream/log-sink-kafka:latest
+dataflow:>app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:latest
 ```
 +
 . Deploy a simple stream in the shell
@@ -116,7 +154,7 @@ NOTE: If you need to be able to connect from outside of the Kubernetes cluster t
 To register the `http-source`, deploy it so you can post data to it you can use the following commands:
 +
 ```
-dataflow:>module register --type source --name http --uri docker:springcloudstream/http-source-kafka
+dataflow:>app register --type source --name http --uri docker:springcloudstream/http-source-kafka:latest
 dataflow:>stream create --name test --definition "http | log"
 dataflow:>stream deploy test --properties "module.http.spring.cloud.deployer.kubernetes.createLoadBalancer=true"
 ```
@@ -170,5 +208,37 @@ kubectl describe pods/ticktock-log-qnk72
 ```
 dataflow:>stream destroy --name ticktock
 ```
-WARNING: If you stop and restart the Data Flow Server when streams are deployed, you will not be able to destroy them via shell commands. You would have to destroy the services and replication containers using the `kubectl` command.  This is a bug that is being addressed in a future release.
++
+. Create a task and launch it
++
+Let's create a simple task definition and launch it.
++
+```
+dataflow:>task create task1 --definition "timestamp"
+dataflow:>task launch task1
+```
++
+We can now list the tasks and executions using these commands:
++
+```
+dataflow:>task list
+╔═════════╤═══════════════╤═══════════╗
+║Task Name│Task Definition│Task Status║
+╠═════════╪═══════════════╪═══════════╣
+║task1    │timestamp      │running    ║
+╚═════════╧═══════════════╧═══════════╝
+
+dataflow:>task execution list 
+╔═════════╤══╤════════════════════════════╤════════════════════════════╤═════════╗
+║Task Name│ID│         Start Time         │          End Time          │Exit Code║
+╠═════════╪══╪════════════════════════════╪════════════════════════════╪═════════╣
+║task1    │1 │Fri Jun 03 18:12:05 EDT 2016│Fri Jun 03 18:12:05 EDT 2016│0        ║
+╚═════════╧══╧════════════════════════════╧════════════════════════════╧═════════╝
+```
++
+. Destroy the task
++
+```
+dataflow:>task destroy --name task1
+```
 
