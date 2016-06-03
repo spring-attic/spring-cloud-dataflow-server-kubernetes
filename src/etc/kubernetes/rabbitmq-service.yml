@@ -5,7 +5,7 @@ metadata:
     spring-cloud-service: rabbitmq
   name: rabbitmq
 spec:
-# If you are not running k8s on a local dev box, use LoadBalancer to expose the (changing) Redis pod to the k8s API
+# Use "LoadBalancer" if you want an external IP for your service to connect from external tools
 #  type: LoadBalancer
   ports:
   - port: 5672
