@@ -39,6 +39,14 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 :dataflow-asciidoc: https://raw.githubusercontent.com/spring-cloud/spring-cloud-dataflow/master/spring-cloud-dataflow-docs/src/main/asciidoc
 :scstas-asciidoc: https://raw.githubusercontent.com/spring-cloud/spring-cloud-stream-app-starters/master/spring-cloud-stream-app-starters-docs/src/main/asciidoc
 :attributes: allow-uri-read
+
+// Since the core projects will be at different release cadences, the following tokens need changed at the time of every release
+:scdf-core-version: current-SNAPSHOT
+:scst-core-version: current-SNAPSHOT
+:sct-core-version: current-SNAPSHOT
+:scst-starters-core-version: current-SNAPSHOT
+:sct-starters-core-version: current-SNAPSHOT
+
 // ======================================================================================
 
 include::introduction.adoc[]
