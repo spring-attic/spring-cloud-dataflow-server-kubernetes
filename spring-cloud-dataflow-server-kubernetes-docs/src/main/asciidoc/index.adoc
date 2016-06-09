@@ -7,45 +7,19 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 :numbered:
 :icons: font
 :hide-uri-scheme:
-:spring-cloud-dataflow-repo: snapshot
-:github-tag: master
-:spring-cloud-dataflow-docs-version: current
-:spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{spring-cloud-dataflow-docs-version}/reference
-:spring-cloud-dataflow-docs-current: http://docs.spring.io/spring-cloud-dataflow/docs/current-SNAPSHOT/reference/html/
-:github-repo: spring-projects/spring-cloud-dataflow
-:github-raw: http://raw.github.com/{github-repo}/{github-tag}
-:github-code: http://github.com/{github-repo}/tree/{github-tag}
-:github-wiki: http://github.com/{github-repo}/wiki
-:github-master-code: http://github.com/{github-repo}/tree/master
-:sc-ext: java
-:sc-spring-boot: {github-code}/spring-boot/src/main/java/org/springframework/boot
-:dc-ext: html
-:dc-root: http://docs.spring.io/spring-cloud-dataflow/docs/{spring-cloud-dataflow-docs-version}/api
-:dc-spring-boot: {dc-root}/org/springframework/boot
-:dependency-management-plugin: https://github.com/spring-gradle-plugins/dependency-management-plugin
-:dependency-management-plugin-documentation: {dependency-management-plugin}/blob/master/README.md
-:spring-boot-maven-plugin-site: http://docs.spring.io/spring-boot/docs/{spring-boot-docs-version}/maven-plugin
-:spring-reference: http://docs.spring.io/spring/docs/{spring-docs-version}/spring-framework-reference/htmlsingle
-:spring-security-reference: http://docs.spring.io/spring-security/site/docs/{spring-security-docs-version}/reference/htmlsingle
-:spring-javadoc: http://docs.spring.io/spring/docs/{spring-docs-version}/javadoc-api/org/springframework
-:spring-amqp-javadoc: http://docs.spring.io/spring-amqp/docs/current/api/org/springframework/amqp
-:spring-data-javadoc: http://docs.spring.io/spring-data/jpa/docs/current/api/org/springframework/data/jpa
-:spring-data-commons-javadoc: http://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data
-:spring-data-mongo-javadoc: http://docs.spring.io/spring-data/mongodb/docs/current/api/org/springframework/data/mongodb
-:spring-data-rest-javadoc: http://docs.spring.io/spring-data/rest/docs/current/api/org/springframework/data/rest
-:gradle-userguide: http://www.gradle.org/docs/current/userguide
-:propdeps-plugin: https://github.com/spring-projects/gradle-plugins/tree/master/propdeps-plugin
-:ant-manual: http://ant.apache.org/manual
-:dataflow-asciidoc: https://raw.githubusercontent.com/spring-cloud/spring-cloud-dataflow/master/spring-cloud-dataflow-docs/src/main/asciidoc
-:scstas-asciidoc: https://raw.githubusercontent.com/spring-cloud/spring-cloud-stream-app-starters/master/spring-cloud-stream-app-starters-docs/src/main/asciidoc
 :attributes: allow-uri-read
 
 // Since the core projects will be at different release cadences, the following tokens need changed at the time of every release
 :scdf-core-version: current-SNAPSHOT
 :scst-core-version: current-SNAPSHOT
 :sct-core-version: current-SNAPSHOT
-:scst-starters-core-version: current-SNAPSHOT
+:scst-starters-core-versio: current-SNAPSHOT
 :sct-starters-core-version: current-SNAPSHOT
+
+:spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
+:github-repo: spring-cloud/spring-cloud-dataflow-server-kubernetes
+:github-code: http://github.com/{github-repo}
+:dataflow-asciidoc: https://raw.githubusercontent.com/spring-cloud/spring-cloud-dataflow/master/spring-cloud-dataflow-docs/src/main/asciidoc
 
 // ======================================================================================
 
