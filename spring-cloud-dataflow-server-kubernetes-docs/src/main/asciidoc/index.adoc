@@ -29,6 +29,12 @@ include::overview.adoc[]
 
 include::getting-started.adoc[]
 
+include::{dataflow-asciidoc}/streams.adoc[]
+
+include::{dataflow-asciidoc}/tasks.adoc[]
+
+include::{dataflow-asciidoc}/dashboard.adoc[]
+
 include::server.adoc[]
 
 include::appendix.adoc[]
