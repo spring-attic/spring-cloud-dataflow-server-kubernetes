@@ -50,7 +50,7 @@
 					<plugin>
 						<groupId>org.asciidoctor</groupId>
 						<artifactId>asciidoctor-maven-plugin</artifactId>
-						<version>1.5.0</version>
+						<version>1.5.3</version>
 						<dependencies>
 						  <dependency>
 						    <!-- Needed to resolve URI includes -->
