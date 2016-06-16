@@ -84,11 +84,12 @@ zk           10.103.243.29    <none>            2181/TCP   14d
 +
 . Download and run the Spring Cloud Data Flow shell.
 +
-```
-$ wget http://repo.spring.io/snapshot/org/springframework/cloud/spring-cloud-dataflow-shell/1.0.0.BUILD-SNAPSHOT/spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
+[source,subs="attributes"]
+----
+$ wget {spring-repo}/org/springframework/cloud/spring-cloud-dataflow-shell/{shell-repo-version}/spring-cloud-dataflow-shell-{shell-repo-version}.jar
 
-$ java -jar spring-cloud-dataflow-shell-1.0.0.BUILD-SNAPSHOT.jar
-```
+$ java -jar spring-cloud-dataflow-shell-{shell-repo-version}.jar
+----
 +
 Configure the Data Flow server URI with the following command (use the IP address from previous step and at the moment we are using port 9393):
 +
@@ -156,9 +157,12 @@ $ kubectl logs -f ticktock-log-qnk72
 2015-12-28 18:50:11.558  INFO 1 --- [hannel-adapter1] log.sink                                 : 2015-12-28 18:50:11
 ```
 +
+NOTE: If you need to specify any of the app specific configuration properties then you must use "long-form" of them including the app specific prefix like `--jdbc.tableName=TEST_DATA`. This is due to the server not being able to access the metadata for the Docker based starter apps. You will also not see the configuration properties listed when using the `app info` command or in the Dashboard GUI.
++
++
 NOTE: If you need to be able to connect from outside of the Kubernetes cluster to an app that you deploy, like the `http-source`, then you can provide a deployment property of `spring.cloud.deployer.kubernetes.createLoadBalancer=true` for the app module to specify that you want to have a LoadBalancer with an external IP address created for your app's service. 
 +
-To register the `http-source`, deploy it so you can post data to it you can use the following commands:
+To register the `http-source` and use it in a stream where you can post data to it, you can use the following commands:
 +
 ```
 dataflow:>app register --type source --name http --uri docker:springcloudstream/http-source-kafka:latest
