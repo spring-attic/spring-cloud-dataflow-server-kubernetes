@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-dataflow-server-kubernetes-parent</artifactId>
-		<version>1.0.0.BUILD-SNAPSHOT</version>
+		<version>1.0.0.RC1</version>
 	</parent>
 	<properties>
 		<start-class>org.springframework.cloud.dataflow.server.kubernetes.KubernetesDataFlowServer</start-class>
@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-dataflow-server-kubernetes</artifactId>
-			<version>1.0.0.BUILD-SNAPSHOT</version>
+			<version>1.0.0.RC1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
