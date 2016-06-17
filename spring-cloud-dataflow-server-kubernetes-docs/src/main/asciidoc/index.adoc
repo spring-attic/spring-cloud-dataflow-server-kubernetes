@@ -13,7 +13,7 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 :scdf-core-version: 1.0.0.RC1
 :scst-core-version: 1.0.2.RELEASE
 :sct-core-version: 1.0.0.RC1
-:scst-starters-core-versio: current-SNAPSHOT
+:scst-starters-core-version: current-SNAPSHOT
 :sct-starters-core-version: current-SNAPSHOT
 
 // Also modify these for proper download links
