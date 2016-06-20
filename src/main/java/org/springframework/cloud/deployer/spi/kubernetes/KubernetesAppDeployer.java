@@ -16,9 +16,14 @@
 
 package org.springframework.cloud.deployer.spi.kubernetes;
 
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.deployer.spi.app.AppDeployer;
+import org.springframework.cloud.deployer.spi.app.AppStatus;
+import org.springframework.cloud.deployer.spi.app.DeploymentState;
+import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -30,19 +35,13 @@ import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.deployer.spi.app.AppDeployer;
-import org.springframework.cloud.deployer.spi.app.AppStatus;
-import org.springframework.cloud.deployer.spi.app.DeploymentState;
-import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 
 /**
  * A deployer that targets Kubernetes.
  *
  * @author Florian Rosenberg
  * @author Thomas Risberg
+ * @author Mark Fisher
  */
 public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements AppDeployer {
 
@@ -157,7 +156,7 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 	private ReplicationController createReplicationController(
 			String appId, AppDeploymentRequest request,
 			Map<String, String> idMap, int externalPort) {
-		String countProperty = request.getEnvironmentProperties().get(COUNT_PROPERTY_KEY);
+		String countProperty = request.getDeploymentProperties().get(COUNT_PROPERTY_KEY);
 		int count = (countProperty != null) ? Integer.parseInt(countProperty) : 1;
 		ReplicationController rc = new ReplicationControllerBuilder()
 				.withNewMetadata()
@@ -203,7 +202,7 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 	private void createService(String appId, AppDeploymentRequest request, Map<String, String> idMap, int externalPort) {
 		ServiceSpecBuilder spec = new ServiceSpecBuilder();
 		boolean isCreateLoadBalancer = false;
-		String createLoadBalancer = request.getEnvironmentProperties().get("spring.cloud.deployer.kubernetes.createLoadBalancer");
+		String createLoadBalancer = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.createLoadBalancer");
 		if (createLoadBalancer == null) {
 			isCreateLoadBalancer = properties.isCreateLoadBalancer();
 		}

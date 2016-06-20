@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.deployer.spi.kubernetes;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
-import org.springframework.cloud.deployer.spi.task.TaskStatus;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -37,6 +35,7 @@ import io.fabric8.kubernetes.api.model.Quantity;
  *
  * @author Florian Rosenberg
  * @author Thomas Risberg
+ * @author Mark Fisher
  */
 public class AbstractKubernetesDeployer {
 
@@ -56,7 +55,7 @@ public class AbstractKubernetesDeployer {
 		//TODO: handling of app and group ids
 		Map<String, String> map = new HashMap<>();
 		map.put(SPRING_APP_KEY, appId);
-		String groupId = request.getEnvironmentProperties().get(AppDeployer.GROUP_PROPERTY_KEY);
+		String groupId = request.getDeploymentProperties().get(AppDeployer.GROUP_PROPERTY_KEY);
 		if (groupId != null) {
 			map.put(SPRING_GROUP_KEY, groupId);
 		}
@@ -65,7 +64,7 @@ public class AbstractKubernetesDeployer {
 	}
 
 	String createDeploymentId(AppDeploymentRequest request) {
-		String groupId = request.getEnvironmentProperties().get(AppDeployer.GROUP_PROPERTY_KEY);
+		String groupId = request.getDeploymentProperties().get(AppDeployer.GROUP_PROPERTY_KEY);
 		String deploymentId;
 		if (groupId == null) {
 			deploymentId = String.format("%s", request.getDefinition().getName());
@@ -91,11 +90,11 @@ public class AbstractKubernetesDeployer {
 	}
 
 	Map<String, Quantity> deduceResourceLimits(KubernetesDeployerProperties properties, AppDeploymentRequest request) {
-		String memOverride = request.getEnvironmentProperties().get("spring.cloud.deployer.kubernetes.memory");
+		String memOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.memory");
 		if (memOverride == null)
 			memOverride = properties.getMemory();
 
-		String cpuOverride = request.getEnvironmentProperties().get("spring.cloud.deployer.kubernetes.cpu");
+		String cpuOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.cpu");
 		if (cpuOverride == null)
 			cpuOverride = properties.getCpu();
 
