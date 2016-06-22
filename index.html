@@ -60,7 +60,7 @@ microservices running as streaming and batch data pipelines in Kubernetes.
 
 ## Quick Start
 
-Step 1 - [Download, Configure and Deploy](http://docs.spring.io/spring-cloud-dataflow-server-kubernetes/docs/current-SNAPSHOT/reference/htmlsingle/#_deploying_streams_on_kubernetes) Spring Cloud Data Flow's Kubernetes Server and Shell Applications
+Step 1 - [Download, Configure and Deploy](http://docs.spring.io/spring-cloud-dataflow-server-kubernetes/docs/current-SNAPSHOT/reference/htmlsingle/#_getting_started) Spring Cloud Data Flow's Kubernetes Server and Shell Applications
 
 Step 2 - Create **‘ticktock’** Stream
 ```
@@ -69,7 +69,7 @@ dataflow:>stream create --name ticktock --definition "time | log" --deploy
 
 Step 3 - Verify **‘ticktock’** Results using `kubectl logs` command
 
-Step 4 - Launch Dashboard at: http://localhost:9393/dashboard
+Step 4 - Launch Dashboard at: http://{SERVER-EXTERNAL-IP}:9393/dashboard
 
 {% endcapture %}
 
