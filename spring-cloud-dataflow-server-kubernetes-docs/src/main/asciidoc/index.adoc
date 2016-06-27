@@ -41,6 +41,8 @@ include::{dataflow-asciidoc}/dashboard.adoc[]
 
 include::server.adoc[]
 
+include::{dataflow-asciidoc}/howto.adoc[]
+
 include::appendix.adoc[]
 
 
