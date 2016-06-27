@@ -84,15 +84,16 @@ zk           10.103.243.29    <none>            2181/TCP   14d
 +
 . Download and run the Spring Cloud Data Flow shell.
 +
-[source,subs="attributes"]
-----
-$ wget {spring-repo}/org/springframework/cloud/spring-cloud-dataflow-shell/{shell-repo-version}/spring-cloud-dataflow-shell-{shell-repo-version}.jar
+[subs=attributes]
+```
+wget http://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework/cloud/spring-cloud-dataflow-shell/{dataflow-project-version}/spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 
-$ java -jar spring-cloud-dataflow-shell-{shell-repo-version}.jar
-----
+$ java -jar spring-cloud-dataflow-shell-{dataflow-project-version}.jar
+```
 +
 Configure the Data Flow server URI with the following command (use the IP address from previous step and at the moment we are using port 9393):
 +
+[subs=attributes]
 ```
   ____                              ____ _                __
  / ___| _ __  _ __(_)_ __   __ _   / ___| | ___  _   _  __| |
@@ -105,7 +106,7 @@ Configure the Data Flow server URI with the following command (use the IP addres
  | |_| | (_| | || (_| | |  _| | | (_) \ V  V /    / / / / / /
  |____/ \__,_|\__\__,_| |_|   |_|\___/ \_/\_/    /_/_/_/_/_/
 
-1.0.0.BUILD-SNAPSHOT
+{dataflow-project-version}
 
 Welcome to the Spring Cloud Data Flow shell. For assistance hit TAB or type "help".
 server-unknown:>dataflow config server --uri http://130.211.203.246:9393
