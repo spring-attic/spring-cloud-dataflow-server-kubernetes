@@ -10,15 +10,11 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 :attributes: allow-uri-read
 
 // Since the core projects will be at different release cadences, the following tokens need changed at the time of every release
-:scdf-core-version: 1.0.0.RC1
-:scst-core-version: 1.0.2.RELEASE
-:sct-core-version: 1.0.0.RC1
+:scdf-core-version: {dataflow-project-version}
+:scst-core-version: current-SNAPSHOT
+:sct-core-version: current-SNAPSHOT
 :scst-starters-core-version: current-SNAPSHOT
 :sct-starters-core-version: current-SNAPSHOT
-
-// Also modify these for proper download links
-:spring-repo: http://repo.spring.io/milestone
-:shell-repo-version: 1.0.0.RC1
 
 :spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
 :github-repo: spring-cloud/spring-cloud-dataflow-server-kubernetes
