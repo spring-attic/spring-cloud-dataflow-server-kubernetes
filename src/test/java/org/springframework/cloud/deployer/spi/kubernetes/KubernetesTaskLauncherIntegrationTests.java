@@ -170,7 +170,7 @@ public class KubernetesTaskLauncherIntegrationTests {
 
 	//	@Override
 	protected Resource integrationTestTask() {
-		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:1.0.0.RC1");
+		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:latest");
 	}
 
 	protected Timeout launchTimeout() {

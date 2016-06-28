@@ -168,6 +168,6 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 
 	@Override
 	protected Resource integrationTestProcessor() {
-		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:1.0.0.RC1");
+		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:latest");
 	}
 }
