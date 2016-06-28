@@ -21,7 +21,7 @@
 
 	<properties>
 		<spring-cloud-dataflow.version>1.0.0.BUILD-SNAPSHOT</spring-cloud-dataflow.version>
-		<spring-cloud-deployer-kubernetes.version>1.0.0.RC1</spring-cloud-deployer-kubernetes.version>
+		<spring-cloud-deployer-kubernetes.version>1.0.0.BUILD-SNAPSHOT</spring-cloud-deployer-kubernetes.version>
 	</properties>
 
 	<dependencyManagement>
