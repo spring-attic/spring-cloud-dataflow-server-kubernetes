@@ -31,6 +31,8 @@ import io.fabric8.kubernetes.api.model.ProbeBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.util.Assert;
 
@@ -56,10 +58,8 @@ public class DefaultContainerFactory implements ContainerFactory {
 	}
 
 	@Override
-	public Container create(String appId, AppDeploymentRequest request, Integer port) {
-		ContainerBuilder container = new ContainerBuilder();
+	public Container create(String appId, AppDeploymentRequest request, Integer port, Integer instanceIndex) {
 		String image = null;
-		//TODO: what's the proper format for a Docker URI?
 		try {
 			image = request.getResource().getURI().getSchemeSpecificPart();
 		} catch (IOException e) {
@@ -73,8 +73,14 @@ public class DefaultContainerFactory implements ContainerFactory {
 			Assert.isTrue(strings.length == 2, "Invalid environment variable declared: " + envVar);
 			envVars.add(new EnvVar(strings[0], strings[1], null));
 		}
+		if (instanceIndex != null) {
+			envVars.add(new EnvVar(AppDeployer.INSTANCE_INDEX_PROPERTY_KEY, instanceIndex.toString(), null));
+		}
 
-		container.withName(appId)
+		String appInstanceId = instanceIndex == null ? appId : appId + "-" + instanceIndex;
+
+		ContainerBuilder container = new ContainerBuilder();
+		container.withName(appInstanceId)
 				.withImage(image)
 				.withEnv(envVars)
 				.withArgs(createCommandArgs(request));
