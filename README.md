@@ -1,1 +1,1 @@
-# spring-cloud-kubernetes-deployer
+# spring-cloud-deployer-kubernetes
