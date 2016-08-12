@@ -18,10 +18,9 @@
 		<module>spring-cloud-starter-dataflow-server-kubernetes</module>
 	</modules>
 
-
 	<properties>
 		<spring-cloud-dataflow.version>1.0.0.RELEASE</spring-cloud-dataflow.version>
-		<spring-cloud-deployer-kubernetes.version>1.0.2.RELEASE</spring-cloud-deployer-kubernetes.version>
+		<spring-cloud-deployer-kubernetes.version>1.0.3.BUILD-SNAPSHOT</spring-cloud-deployer-kubernetes.version>
 	</properties>
 
 	<dependencyManagement>
