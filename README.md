@@ -22,7 +22,12 @@ To start the Minikube cluster run:
 minikube start
 ```
 
-You should see a message saying ``. 
+You should see a message saying 
+
+```
+Starting local Kubernetes cluster...
+Kubectl is now configured to use the cluster.
+``` 
 
 #### Running the tests
 
