@@ -31,10 +31,19 @@ Kubectl is now configured to use the cluster.
 
 #### Running the tests
 
-Once the Minikube is up and running, you can run all integration tests against it with:
+Once the Minikube is up and running, you can run all integration tests.
+
+First determine the master address using `kubectl cluster-info` command which should show something like:
 
 ```
-export KUBERNETES_MASTER=$(kubectl cluster-info | grep master | cut -d' ' -f6)
+Kubernetes master is running at https://192.168.99.100:8443
+kubernetes-dashboard is running at https://192.168.99.100:8443/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
+```
+
+Now set `KUBERNETES_MASTER` to point to the master address shown above and run the tests:
+
+```
+export KUBERNETES_MASTER=https://192.168.99.100:8443
 export KUBERNETES_NAMESPACE=default
 $ ./mvnw test
 ```
@@ -52,10 +61,22 @@ gcloud container clusters get-credentials spring-test
 
 #### Running the tests
 
-Run the tests using:
+Once the test cluster has been created, you can run all integration tests.
+
+First determine the master address using `kubectl cluster-info` command which should show something like:
 
 ```
-export KUBERNETES_MASTER=$(kubectl cluster-info | grep master | cut -d' ' -f6)
+Kubernetes master is running at https://104.197.162.59
+GLBCDefaultBackend is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/default-http-backend
+Heapster is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/heapster
+KubeDNS is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/kube-dns
+kubernetes-dashboard is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
+```
+
+Now set `KUBERNETES_MASTER` to point to the master address shown above and run the tests:
+
+```
+export KUBERNETES_MASTER=https://104.197.162.59
 export KUBERNETES_NAMESPACE=default
 $ ./mvnw test
 ```
