@@ -82,7 +82,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 				.withArgs(createCommandArgs(request));
 		if (port != null) {
 			container.addNewPort()
-					.withContainerPort(port)
+						.withContainerPort(port)
 					.endPort()
 					.withReadinessProbe(
 							createProbe(port, properties.getReadinessProbePath(), properties.getReadinessProbeTimeout(),
