@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hamcrest.Matchers;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -39,9 +40,8 @@ import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.test.AbstractAppDeployerIntegrationTests;
+import org.springframework.cloud.deployer.spi.test.Timeout;
 import org.springframework.core.io.Resource;
-
-import io.fabric8.kubernetes.client.KubernetesClient;
 
 /**
  * Integration tests for {@link KubernetesAppDeployer}.
@@ -79,7 +79,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
-		Resource resource = integrationTestProcessor();
+		Resource resource = testApplication();
 		Map<String, String> props = new HashMap<>();
 		// setting to small memory value will cause app to fail to be deployed
 		props.put("spring.cloud.deployer.kubernetes.memory", "8Mi");
@@ -107,7 +107,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
-		Resource resource = integrationTestProcessor();
+		Resource resource = testApplication();
 		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource);
 
 		log.info("Deploying {}...", request.getDefinition().getName());
@@ -183,7 +183,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	}
 
 	@Override
-	protected Resource integrationTestProcessor() {
+	protected Resource testApplication() {
 		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:latest");
 	}
 }
