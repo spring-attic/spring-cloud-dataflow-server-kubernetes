@@ -19,6 +19,8 @@ spec:
         - containerPort: 9393
         env:
         - name: KUBERNETES_NAMESPACE
-          value: 'default'
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
         - name: SPRING_APPLICATION_JSON
           value: '{"spring.datasource.url":"jdbc:mysql://${MYSQL_SERVICE_HOST}:${MYSQL_SERVICE_PORT}/test","spring.datasource.driverClassName":"org.mariadb.jdbc.Driver","spring.datasource.username":"<<mysql-username>>","spring.datasource.password":"<<mysql-password>>","spring.datasource.testOnBorrow":true,"spring.datasource.validationQuery":"SELECT 1","spring.cloud.deployer.kubernetes.memory":"640Mi"}'
