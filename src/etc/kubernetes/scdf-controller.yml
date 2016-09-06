@@ -18,8 +18,6 @@ spec:
         ports:
         - containerPort: 9393
         env:
-        - name: KUBERNETES_MASTER
-          value: '<<URL-for-Kubernetes-master>>'
         - name: KUBERNETES_NAMESPACE
           value: 'default'
         - name: SPRING_APPLICATION_JSON
