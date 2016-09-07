@@ -206,7 +206,7 @@ public class KubernetesTaskLauncher extends AbstractKubernetesDeployer implement
 		}
 
 		//ToDo: needs tweaking if we launch multiple pods per task
-		if (jobStatus.getSucceeded().intValue() == list.getItems().size()) {
+		if (jobStatus.getSucceeded() != null && jobStatus.getSucceeded().intValue() == list.getItems().size()) {
 			return new TaskStatus(id, LaunchState.complete, new HashMap<>());
 		}
 		else {
