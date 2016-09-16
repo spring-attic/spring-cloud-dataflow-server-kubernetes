@@ -45,19 +45,9 @@ Again, you can use the command `kubectl get pods` to verify that the controller 
 ```
 CREATE DATABASE test;
 ```
-+
-. Determine the location of your Kubernetes Master URL, for example:
-+
-```
-$ kubectl cluster-info
-
-Kubernetes master is running at https://10.245.1.2
-
-   ...other output omitted...
-```
 . Update configuration files with values needed to connect to Kubernetes and MySQL.
 +
-The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. The settings are specified in the `src/etc/kubernetes/scdf-controller.yml` file. Modify the `\<<URL-for-Kubernetes-master>>` setting to match your output from the command above. Also modify `\<<mysql-username>>`,  `\<<mysql-password>>` and DB schema name to match what you used when creating the service.
+The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. The settings are specified in the `src/etc/kubernetes/scdf-controller.yml` file. Modify `\<<mysql-username>>`,  `\<<mysql-password>>` and DB schema name to match what you used when creating the service.
 +
 This approach supports using one Data Flow Server instance per Kubernetes namespace.
 +
