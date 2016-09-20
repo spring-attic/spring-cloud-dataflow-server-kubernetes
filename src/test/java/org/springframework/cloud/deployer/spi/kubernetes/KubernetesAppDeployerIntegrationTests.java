@@ -40,7 +40,6 @@ import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.test.AbstractAppDeployerIntegrationTests;
-import org.springframework.cloud.deployer.spi.test.Timeout;
 import org.springframework.core.io.Resource;
 
 /**
@@ -79,7 +78,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
-		Resource resource = testApplication();
+		Resource resource = integrationTestProcessor();
 		Map<String, String> props = new HashMap<>();
 		// setting to small memory value will cause app to fail to be deployed
 		props.put("spring.cloud.deployer.kubernetes.memory", "8Mi");
@@ -107,7 +106,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
-		Resource resource = testApplication();
+		Resource resource = integrationTestProcessor();
 		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource);
 
 		log.info("Deploying {}...", request.getDefinition().getName());
@@ -154,21 +153,9 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	}
 
 	@Override
-	public void testApplicationPropertiesPassing() {
+	public void testParameterPassing() {
 		log.info("Testing {}...", "ApplicationPropertiesPassing");
-		super.testApplicationPropertiesPassing();
-	}
-
-	@Override
-	public void testCommandLineArgumentsPassing() {
-		log.info("Testing {}...", "CommandLineArgumentsPassing");
-		super.testCommandLineArgumentsPassing();
-	}
-
-	@Override
-	public void testMultipleInstancesDeploymentAndPartialState() {
-		log.info("Testing {}...", "MultipleInstancesDeploymentAndPartialState");
-		super.testMultipleInstancesDeploymentAndPartialState();
+		super.testParameterPassing();
 	}
 
 	@Override
@@ -183,7 +170,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	}
 
 	@Override
-	protected Resource testApplication() {
+	protected Resource integrationTestProcessor() {
 		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:latest");
 	}
 }
