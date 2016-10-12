@@ -16,22 +16,29 @@
 
 package org.springframework.cloud.deployer.spi.kubernetes;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.deployer.resource.docker.DockerResource;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link DefaultContainerFactory}.
@@ -68,6 +75,69 @@ public class DefaultContainerFactoryTest {
 		assertEquals("KUBERNETES_NAMESPACE", envVar2.getName());
 		assertEquals("test-space", envVar2.getValue());
 	}
+
+	@Test
+	public void createWithContainerCommand() {
+		KubernetesDeployerProperties kubernetesDeployerProperties = new KubernetesDeployerProperties();
+		DefaultContainerFactory defaultContainerFactory = new DefaultContainerFactory(
+				kubernetesDeployerProperties);
+
+		AppDefinition definition = new AppDefinition("app-test", null);
+		Resource resource = getResource();
+		Map<String, String> props = new HashMap<>();
+		props.put("spring.cloud.deployer.kubernetes.containerCommand",
+				"echo arg1 'arg2'");
+		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(definition,
+				resource, props);
+
+		Container container = defaultContainerFactory.create("app-test",
+				appDeploymentRequest, null, null);
+		assertNotNull(container);
+		assertThat(container.getCommand(), is(Arrays.asList("echo", "arg1", "arg2")));
+	}
+
+	@Test
+	public void createWithPorts() {
+		KubernetesDeployerProperties kubernetesDeployerProperties = new KubernetesDeployerProperties();
+		DefaultContainerFactory defaultContainerFactory = new DefaultContainerFactory(
+				kubernetesDeployerProperties);
+
+		AppDefinition definition = new AppDefinition("app-test", null);
+		Resource resource = getResource();
+		Map<String, String> props = new HashMap<>();
+		props.put("spring.cloud.deployer.kubernetes.containerPorts",
+				"8081, 8082, 65535");
+		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(definition,
+				resource, props);
+
+		Container container = defaultContainerFactory.create("app-test",
+				appDeploymentRequest, null, null);
+		assertNotNull(container);
+		List<ContainerPort> containerPorts = container.getPorts();
+		assertNotNull(containerPorts);
+		assertTrue("There should be three ports set", containerPorts.size() == 3);
+		assertTrue(8081 == containerPorts.get(0).getContainerPort());
+		assertTrue(8082 == containerPorts.get(1).getContainerPort());
+		assertTrue(65535 == containerPorts.get(2).getContainerPort());
+	}
+
+    @Test(expected = NumberFormatException.class)
+    public void createWithInvalidPort() {
+        KubernetesDeployerProperties kubernetesDeployerProperties = new KubernetesDeployerProperties();
+        DefaultContainerFactory defaultContainerFactory = new DefaultContainerFactory(
+                kubernetesDeployerProperties);
+
+        AppDefinition definition = new AppDefinition("app-test", null);
+        Resource resource = getResource();
+        Map<String, String> props = new HashMap<>();
+        props.put("spring.cloud.deployer.kubernetes.containerPorts",
+                "8081, 8082, invalid, 9212");
+        AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(definition,
+                resource, props);
+
+		//Attempting to create with an invalid integer set for a port should cause an exception to bubble up.
+        defaultContainerFactory.create("app-test", appDeploymentRequest, null, null);
+    }
 
 	private Resource getResource() {
 		return new DockerResource(
