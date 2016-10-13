@@ -11,10 +11,10 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 
 // Since the core projects will be at different release cadences, the following tokens need changed at the time of every release
 :scdf-core-version: {dataflow-project-version}
-:scdf-core-git: v{scdf-core-version}
-:scst-core-version: 1.0.2.RELEASE
-:sct-core-version: 1.0.2.RELEASE
-:scst-starters-core-version: 1.0.2.RELEASE
+:scdf-core-git: master
+:scst-core-version: Brooklyn.RELEASE
+:sct-core-version: 1.1.0.M2
+:scst-starters-core-version: 1.0.4.RELEASE
 :sct-starters-core-version: 1.0.1.RELEASE
 
 :spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
