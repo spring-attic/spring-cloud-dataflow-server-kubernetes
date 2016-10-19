@@ -23,4 +23,10 @@ spec:
             fieldRef:
               fieldPath: "metadata.namespace"
         - name: SPRING_APPLICATION_JSON
-          value: '{"spring.datasource.url":"jdbc:mysql://${MYSQL_SERVICE_HOST}:${MYSQL_SERVICE_PORT}/test","spring.datasource.driverClassName":"org.mariadb.jdbc.Driver","spring.datasource.username":"<<mysql-username>>","spring.datasource.password":"<<mysql-password>>","spring.datasource.testOnBorrow":true,"spring.datasource.validationQuery":"SELECT 1","spring.cloud.deployer.kubernetes.memory":"640Mi"}'
+          value: '{"spring.cloud.deployer.kubernetes.memory":"640Mi"}'
+        - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
+          value: 'true'
+        - name: SPRING_CLOUD_KUBERNETES_SECRETS_NAME
+          value: scdf-secrets
+        - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
+          value: scdf-config
