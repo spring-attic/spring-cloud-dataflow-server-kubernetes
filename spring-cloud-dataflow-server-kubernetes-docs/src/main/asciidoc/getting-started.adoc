@@ -47,15 +47,18 @@ CREATE DATABASE test;
 ```
 . Update configuration files with values needed to connect to Kubernetes and MySQL.
 +
-The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. The settings are specified in the `src/etc/kubernetes/scdf-controller.yml` file. Modify `\<<mysql-username>>`,  `\<<mysql-password>>` and DB schema name to match what you used when creating the service.
+The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
+The ConfigMap settings are specified in the `src/etc/kubernetes/scdf-config.yml` file and the Secrets in the `src/etc/kubernetes/scdf-secrets.yml` file. Modify the password for MySQL in the latter if you changed it. It has to be provided encoded as base64.
 +
 This approach supports using one Data Flow Server instance per Kubernetes namespace.
 +
 . Deploy the Spring Cloud Data Flow Server for Kubernetes using the Docker image and the configuration settings you just modified.
 +
 ```
-$ kubectl create -f src/etc/kubernetes/scdf-controller.yml
+$ kubectl create -f src/etc/kubernetes/scdf-config.yml
+$ kubectl create -f src/etc/kubernetes/scdf-secrets.yml
 $ kubectl create -f src/etc/kubernetes/scdf-service.yml
+$ kubectl create -f src/etc/kubernetes/scdf-controller.yml
 ```
 +
 NOTE: We haven't tuned the memory use of the OOTB apps yet, so to be on the safe side we are increasing the memory for the pods by providing the following property: `spring.cloud.deployer.kubernetes.memory=640Mi`
