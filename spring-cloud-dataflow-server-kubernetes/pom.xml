@@ -38,6 +38,7 @@
 					<include>META-INF/*.properties</include>
 					<include>META-INF/spring.factories</include>
 					<include>dataflow-server.yml</include>
+					<include>banner.txt</include>
 				</includes>
 			</resource>
 		</resources>
