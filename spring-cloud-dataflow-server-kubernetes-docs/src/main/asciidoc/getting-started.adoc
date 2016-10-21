@@ -55,7 +55,7 @@ This approach supports using one Data Flow Server instance per Kubernetes namesp
 . Deploy the Spring Cloud Data Flow Server for Kubernetes using the Docker image and the configuration settings you just modified.
 +
 ```
-$ kubectl create -f src/etc/kubernetes/scdf-config.yml
+$ kubectl create -f src/etc/kubernetes/scdf-config-kafka.yml
 $ kubectl create -f src/etc/kubernetes/scdf-secrets.yml
 $ kubectl create -f src/etc/kubernetes/scdf-service.yml
 $ kubectl create -f src/etc/kubernetes/scdf-controller.yml

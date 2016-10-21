@@ -19,22 +19,14 @@ spring:
       uri: http://localhost:8888
 
 ---
-# Configuration options when using Kafka binder:
+# Configuration options for the deployer. The "environmentVariables" property should be set in
+# the server's ConfigMap when the server is deployed:
 spring:
   cloud:
     deployer:
       kubernetes:
         createLoadBalancer: false
-        environmentVariables: 'SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=${KAFKA_SERVICE_HOST}:${KAFKA_SERVICE_PORT},SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=${ZK_SERVICE_HOST}:${ZK_SERVICE_PORT}'
-
-# Configuration options when using RabbitMQ binder:
-#spring:
-#  cloud:
-#    deployer:
-#      kubernetes:
-#        createLoadBalancer: false
-#        environmentVariables: 'SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}'
-
+        environmentVariables: ''
 
 # If you prefer to use Eureka to locate the Config Server, you can do that by setting
 # spring.cloud.config.discovery.enabled=true (default "false"). The net result of that is 
