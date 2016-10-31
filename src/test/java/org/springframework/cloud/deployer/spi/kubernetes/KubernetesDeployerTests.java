@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.deployer.spi.kubernetes;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
@@ -29,6 +30,8 @@ import java.util.Map;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import io.fabric8.kubernetes.api.model.Quantity;
+
 /**
  * Unit test for {@link AbstractKubernetesDeployer}.
  *
@@ -36,23 +39,113 @@ import static org.junit.Assert.assertThat;
  */
 public class KubernetesDeployerTests {
 
-    private AbstractKubernetesDeployer kubernetesDeployer;
-    private AppDeploymentRequest deploymentRequest;
-    private Map<String, String> deploymentProperties;
-    private KubernetesDeployerProperties serverProperties;
+	private AbstractKubernetesDeployer kubernetesDeployer;
+	private AppDeploymentRequest deploymentRequest;
+	private Map<String, String> deploymentProperties;
+	private KubernetesDeployerProperties serverProperties;
 
-    @Before
-    public void setUp() throws Exception {
-        kubernetesDeployer = new AbstractKubernetesDeployer();
-        deploymentProperties = new HashMap<String, String>();
-        deploymentRequest = new AppDeploymentRequest(new AppDefinition("foo", Collections.emptyMap()), new FileSystemResource(""), deploymentProperties);
-        serverProperties = new KubernetesDeployerProperties();
-    }
+	@Before
+	public void setUp() throws Exception {
+		kubernetesDeployer = new AbstractKubernetesDeployer();
+		deploymentProperties = new HashMap<String, String>();
+		deploymentRequest = new AppDeploymentRequest(new AppDefinition("foo", Collections.emptyMap()), new FileSystemResource(""), deploymentProperties);
+		serverProperties = new KubernetesDeployerProperties();
+	}
 
-    @Test
-    public void deduceImagePullPolicy_fallsBackToAlwaysIfOverrideNotParseable() throws Exception {
-        deploymentProperties.put("spring.cloud.deployer.kubernetes.imagePullPolicy", "not-a-real-value");
-        ImagePullPolicy pullPolicy = kubernetesDeployer.deduceImagePullPolicy(serverProperties, deploymentRequest);
-        assertThat(pullPolicy, is(ImagePullPolicy.Always));
-    }
+	@Test
+	public void deduceImagePullPolicy_fallsBackToAlwaysIfOverrideNotParseable() throws Exception {
+		deploymentProperties.put("spring.cloud.deployer.kubernetes.imagePullPolicy", "not-a-real-value");
+		ImagePullPolicy pullPolicy = kubernetesDeployer.deduceImagePullPolicy(serverProperties, deploymentRequest);
+		assertThat(pullPolicy, is(ImagePullPolicy.Always));
+	}
+
+	@Test
+	public void limitCpu_noDeploymentProperty_deprecatedServerProperty_usesServerProperty() throws Exception {
+		serverProperties.setCpu("500m");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("cpu"), is(new Quantity("500m")));
+	}
+
+	@Test
+	public void limitCpu_noDeploymentProperty_serverProperty_usesServerProperty() throws Exception {
+		serverProperties.getLimits().setCpu("400m");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("cpu"), is(new Quantity("400m")));
+	}
+
+	@Test
+	public void limitMemory_noDeploymentProperty_deprecatedServerProperty_usesServerProperty() throws Exception {
+		serverProperties.setMemory("640Mi");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("memory"), is(new Quantity("640Mi")));
+	}
+
+	@Test
+	public void limitMemory_noDeploymentProperty_serverProperty_usesServerProperty() throws Exception {
+		serverProperties.getLimits().setMemory("540Mi");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("memory"), is(new Quantity("540Mi")));
+	}
+
+	@Test
+	public void limitCpu_deploymentProperty_deprecatedKey_usesDeploymentProperty() throws Exception {
+		serverProperties.getLimits().setCpu("100m");
+		deploymentProperties.put("spring.cloud.deployer.kubernetes.cpu", "300m");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("cpu"), is(new Quantity("300m")));
+	}
+
+	@Test
+	public void limitCpu_deploymentProperty_usesDeploymentProperty() throws Exception {
+		serverProperties.getLimits().setCpu("100m");
+		deploymentProperties.put("spring.cloud.deployer.kubernetes.limits.cpu", "400m");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("cpu"), is(new Quantity("400m")));
+	}
+
+	@Test
+	public void limitMemory_deploymentProperty_deprecatedKey_usesDeploymentProperty() throws Exception {
+		serverProperties.getLimits().setMemory("640Mi");
+		deploymentProperties.put("spring.cloud.deployer.kubernetes.memory", "1024Mi");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("memory"), is(new Quantity("1024Mi")));
+	}
+
+	@Test
+	public void limitMemory_deploymentProperty_usesDeploymentProperty() throws Exception {
+		serverProperties.getLimits().setMemory("640Mi");
+		deploymentProperties.put("spring.cloud.deployer.kubernetes.limits.memory", "256Mi");
+		Map<String, Quantity> limits = kubernetesDeployer.deduceResourceLimits(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(limits.get("memory"), is(new Quantity("256Mi")));
+	}
+
+	@Test
+	public void requestCpu_noDeploymentProperty_serverProperty_usesServerProperty() throws Exception {
+		serverProperties.getRequests().setCpu("400m");
+		Map<String, Quantity> requests = kubernetesDeployer.deduceResourceRequests(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(requests.get("cpu"), is(new Quantity("400m")));
+	}
+
+	@Test
+	public void requestMemory_noDeploymentProperty_serverProperty_usesServerProperty() throws Exception {
+		serverProperties.getRequests().setMemory("120Mi");
+		Map<String, Quantity> requests = kubernetesDeployer.deduceResourceRequests(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(requests.get("memory"), is(new Quantity("120Mi")));
+	}
+
+	@Test
+	public void requestCpu_deploymentProperty_usesDeploymentProperty() throws Exception {
+		serverProperties.getRequests().setCpu("1000m");
+		deploymentProperties.put("spring.cloud.deployer.kubernetes.requests.cpu", "461m");
+		Map<String, Quantity> requests = kubernetesDeployer.deduceResourceRequests(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(requests.get("cpu"), is(new Quantity("461m")));
+	}
+
+	@Test
+	public void requestMemory_deploymentProperty_usesDeploymentProperty() throws Exception {
+		serverProperties.getRequests().setMemory("640Mi");
+		deploymentProperties.put("spring.cloud.deployer.kubernetes.requests.memory", "256Mi");
+		Map<String, Quantity> requests = kubernetesDeployer.deduceResourceRequests(serverProperties, deploymentRequest);
+		MatcherAssert.assertThat(requests.get("memory"), is(new Quantity("256Mi")));
+	}
 }

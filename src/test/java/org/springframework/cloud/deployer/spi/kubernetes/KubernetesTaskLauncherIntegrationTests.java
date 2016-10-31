@@ -83,11 +83,36 @@ public class KubernetesTaskLauncherIntegrationTests extends AbstractTaskLauncher
 		return taskLauncher;
 	}
 
+	@Override
+	public void testNonExistentAppsStatus() {
+		super.testNonExistentAppsStatus();
+	}
+
+	@Override
+	public void testSimpleLaunch() throws InterruptedException {
+		super.testSimpleLaunch();
+	}
+
+	@Override
+	public void testReLaunch() throws InterruptedException {
+		super.testReLaunch();
+	}
+
+	@Override
+	public void testErrorExit() throws InterruptedException {
+		super.testErrorExit();
+	}
+
 	@Test
 	@Override
 	@Ignore("Currently reported as failed instead of cancelled")
 	public void testSimpleCancel() throws InterruptedException {
 		super.testSimpleCancel();
+	}
+
+	@Override
+	public void testCommandLineArgs() {
+		super.testCommandLineArgs();
 	}
 
 	@Override
@@ -98,5 +123,9 @@ public class KubernetesTaskLauncherIntegrationTests extends AbstractTaskLauncher
 	@Override
 	protected Resource testApplication() {
 		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:latest");
+	}
+
+	private void cleanup(String... ids) {
+		((KubernetesTaskLauncher)taskLauncher).cleanup(ids);
 	}
 }

@@ -29,21 +29,21 @@ import static org.junit.Assert.assertThat;
  */
 public class ImagePullPolicyTests {
 
-    @Test
-    public void relaxedValueOf_ignoresCase() throws Exception {
-        ImagePullPolicy pullPolicy = ImagePullPolicy.relaxedValueOf("aLWays");
-        assertThat(pullPolicy, is(ImagePullPolicy.Always));
-    }
+	@Test
+	public void relaxedValueOf_ignoresCase() throws Exception {
+		ImagePullPolicy pullPolicy = ImagePullPolicy.relaxedValueOf("aLWays");
+		assertThat(pullPolicy, is(ImagePullPolicy.Always));
+	}
 
-    @Test
-    public void relaxedValueOf_parsesValueWithDashesInsteadOfCamelCase() throws Exception {
-        ImagePullPolicy pullPolicy = ImagePullPolicy.relaxedValueOf("if-not-present");
-        assertThat(pullPolicy, is(ImagePullPolicy.IfNotPresent));
-    }
+	@Test
+	public void relaxedValueOf_parsesValueWithDashesInsteadOfCamelCase() throws Exception {
+		ImagePullPolicy pullPolicy = ImagePullPolicy.relaxedValueOf("if-not-present");
+		assertThat(pullPolicy, is(ImagePullPolicy.IfNotPresent));
+	}
 
-    @Test
-    public void relaxedValueOf_returnsNullIfValueNotParseable() throws Exception {
-        ImagePullPolicy pullPolicy = ImagePullPolicy.relaxedValueOf("not-a-real-policy");
-        assertThat(pullPolicy, is(nullValue()));
-    }
+	@Test
+	public void relaxedValueOf_returnsNullIfValueNotParseable() throws Exception {
+		ImagePullPolicy pullPolicy = ImagePullPolicy.relaxedValueOf("not-a-real-policy");
+		assertThat(pullPolicy, is(nullValue()));
+	}
 }

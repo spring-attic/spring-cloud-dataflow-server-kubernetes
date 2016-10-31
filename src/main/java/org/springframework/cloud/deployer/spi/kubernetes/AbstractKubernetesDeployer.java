@@ -182,8 +182,12 @@ public class AbstractKubernetesDeployer {
 		logger.debug("Using requests - cpu: " + cpuOverride + " mem: " + memOverride);
 
 		Map<String,Quantity> requests = new HashMap<String, Quantity>();
-		requests.put("memory", new Quantity(memOverride));
-		requests.put("cpu", new Quantity(cpuOverride));
+		if (memOverride != null) {
+			requests.put("memory", new Quantity(memOverride));
+		}
+		if (cpuOverride != null) {
+			requests.put("cpu", new Quantity(cpuOverride));
+		}
 		return requests;
 	}
 

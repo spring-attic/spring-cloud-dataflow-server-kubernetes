@@ -143,12 +143,12 @@ public class KubernetesDeployerProperties {
 	/**
 	 * Memory and CPU limits (i.e. maximum needed values) to allocate for a Pod.
 	 */
-	private Resources limits = new Resources("500m", "512Mi");
+	private Resources limits = new Resources();
 
 	/**
 	 * Memory and CPU requests (i.e. guaranteed needed values) to allocate for a Pod.
 	 */
-	private Resources requests = new Resources("500m", "512Mi");
+	private Resources requests = new Resources();
 
 	/**
 	 * Environment variables to set for any deployed app container. To be used for service binding.

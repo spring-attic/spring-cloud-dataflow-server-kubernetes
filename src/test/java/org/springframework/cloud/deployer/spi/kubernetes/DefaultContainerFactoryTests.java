@@ -121,23 +121,23 @@ public class DefaultContainerFactoryTests {
 		assertTrue(65535 == containerPorts.get(2).getContainerPort());
 	}
 
-    @Test(expected = NumberFormatException.class)
-    public void createWithInvalidPort() {
-        KubernetesDeployerProperties kubernetesDeployerProperties = new KubernetesDeployerProperties();
-        DefaultContainerFactory defaultContainerFactory = new DefaultContainerFactory(
-                kubernetesDeployerProperties);
+	@Test(expected = NumberFormatException.class)
+	public void createWithInvalidPort() {
+		KubernetesDeployerProperties kubernetesDeployerProperties = new KubernetesDeployerProperties();
+		DefaultContainerFactory defaultContainerFactory = new DefaultContainerFactory(
+				kubernetesDeployerProperties);
 
-        AppDefinition definition = new AppDefinition("app-test", null);
-        Resource resource = getResource();
-        Map<String, String> props = new HashMap<>();
-        props.put("spring.cloud.deployer.kubernetes.containerPorts",
-                "8081, 8082, invalid, 9212");
-        AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(definition,
-                resource, props);
+		AppDefinition definition = new AppDefinition("app-test", null);
+		Resource resource = getResource();
+		Map<String, String> props = new HashMap<>();
+		props.put("spring.cloud.deployer.kubernetes.containerPorts",
+				"8081, 8082, invalid, 9212");
+		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(definition,
+				resource, props);
 
 		//Attempting to create with an invalid integer set for a port should cause an exception to bubble up.
-        defaultContainerFactory.create("app-test", appDeploymentRequest, null, null);
-    }
+		defaultContainerFactory.create("app-test", appDeploymentRequest, null, null);
+	}
 
 	private Resource getResource() {
 		return new DockerResource(
