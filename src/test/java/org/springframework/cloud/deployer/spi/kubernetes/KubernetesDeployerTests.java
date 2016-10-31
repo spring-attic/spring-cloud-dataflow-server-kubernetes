@@ -34,7 +34,7 @@ import static org.junit.Assert.assertThat;
  *
  * @author Moritz Schulze
  */
-public class KubernetesDeployerTest {
+public class KubernetesDeployerTests {
 
     private AbstractKubernetesDeployer kubernetesDeployer;
     private AppDeploymentRequest deploymentRequest;

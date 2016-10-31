@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
  *
  * @author Moritz Schulze
  */
-public class ImagePullPolicyTest {
+public class ImagePullPolicyTests {
 
     @Test
     public void relaxedValueOf_ignoresCase() throws Exception {

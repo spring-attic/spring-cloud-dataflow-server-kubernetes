@@ -33,21 +33,21 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.deployer.resource.docker.DockerResource;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Unit tests for {@link DefaultContainerFactory}.
  *
  * @author Will Kennedy
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = { KubernetesAutoConfiguration.class })
-public class DefaultContainerFactoryTest {
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = { KubernetesAutoConfiguration.class })
+public class DefaultContainerFactoryTests {
 
 	@Test
 	public void create() {
