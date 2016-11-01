@@ -45,6 +45,7 @@ import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.task.TaskLauncher;
 import org.springframework.cloud.deployer.spi.task.TaskStatus;
 import org.springframework.cloud.deployer.spi.test.AbstractTaskLauncherIntegrationTests;
+import org.springframework.cloud.deployer.spi.test.Timeout;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -83,36 +84,11 @@ public class KubernetesTaskLauncherIntegrationTests extends AbstractTaskLauncher
 		return taskLauncher;
 	}
 
-	@Override
-	public void testNonExistentAppsStatus() {
-		super.testNonExistentAppsStatus();
-	}
-
-	@Override
-	public void testSimpleLaunch() throws InterruptedException {
-		super.testSimpleLaunch();
-	}
-
-	@Override
-	public void testReLaunch() throws InterruptedException {
-		super.testReLaunch();
-	}
-
-	@Override
-	public void testErrorExit() throws InterruptedException {
-		super.testErrorExit();
-	}
-
 	@Test
 	@Override
 	@Ignore("Currently reported as failed instead of cancelled")
 	public void testSimpleCancel() throws InterruptedException {
 		super.testSimpleCancel();
-	}
-
-	@Override
-	public void testCommandLineArgs() {
-		super.testCommandLineArgs();
 	}
 
 	@Override
@@ -125,7 +101,8 @@ public class KubernetesTaskLauncherIntegrationTests extends AbstractTaskLauncher
 		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:latest");
 	}
 
-	private void cleanup(String... ids) {
-		((KubernetesTaskLauncher)taskLauncher).cleanup(ids);
+	@Override
+	protected Timeout deploymentTimeout() {
+		return new Timeout(20, 5000);
 	}
 }
