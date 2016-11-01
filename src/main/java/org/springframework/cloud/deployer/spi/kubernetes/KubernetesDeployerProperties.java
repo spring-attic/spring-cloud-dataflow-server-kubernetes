@@ -178,7 +178,7 @@ public class KubernetesDeployerProperties {
 	/**
 	 * The image pull policy to use for Pod deployments in Kubernetes.
 	 */
-	private ImagePullPolicy imagePullPolicy = ImagePullPolicy.Always;
+	private ImagePullPolicy imagePullPolicy = ImagePullPolicy.IfNotPresent;
 
 	public String getNamespace() {
 		return namespace;
