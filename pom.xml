@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-dataflow-parent</artifactId>
-		<version>1.1.0.M2</version>
+		<version>1.1.0.BUILD-SNAPSHOT</version>
 		<relativePath />  <!-- lookup parent from repository -->
 	</parent>
  
@@ -19,7 +19,7 @@
 	</modules>
 
 	<properties>
-		<spring-cloud-dataflow.version>1.1.0.M2</spring-cloud-dataflow.version>
+		<spring-cloud-dataflow.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-dataflow.version>
 		<spring-cloud-deployer-kubernetes.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-deployer-kubernetes.version>
 		<spring-cloud-kubernetes.version>0.1.1</spring-cloud-kubernetes.version>
 		<netflix-archaius.version>0.7.4</netflix-archaius.version>
