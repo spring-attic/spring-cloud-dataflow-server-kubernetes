@@ -17,7 +17,7 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 :scst-starters-core-version: 1.0.4.RELEASE
 :sct-starters-core-version: 1.0.1.RELEASE
 
-:spring-cloud-stream-docs: http://docs.spring.io/spring-cloud-stream/docs/current/reference/htmlsingle/index.html
+:spring-cloud-stream-docs: http://docs.spring.io/spring-cloud-stream/docs/{scst-core-version}/reference/htmlsingle/index.html
 :spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
 :github-repo: spring-cloud/spring-cloud-dataflow-server-kubernetes
 :github-code: http://github.com/{github-repo}
