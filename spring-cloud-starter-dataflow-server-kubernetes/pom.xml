@@ -53,7 +53,6 @@
 				<includes>
 					<include>META-INF/spring.factories</include>
 					<include>dataflow-server.yml</include>
-					<include>banner.txt</include>
 				</includes>
 			</resource>
 		</resources>
@@ -61,10 +60,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
