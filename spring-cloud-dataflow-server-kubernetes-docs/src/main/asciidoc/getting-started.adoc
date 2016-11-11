@@ -45,7 +45,20 @@ Again, you can use the command `kubectl get pods` to verify that the controller 
 ```
 CREATE DATABASE test;
 ```
-. Update configuration files with values needed to connect to Kubernetes and MySQL.
++
+. Create a Redis service on the Kubernetes cluster.
++
+The Redis service will be used for the analytics functionality. There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
++ 
+```
+$ kubectl create -f src/etc/kubernetes/redis-controller.yml
+$ kubectl create -f src/etc/kubernetes/redis-service.yml
+```
++
+NOTE: If you don't need the analytics functionality you can turn this feature off by changing `SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED` to false in the `scdf-controller.yml` file. If you don't install the Redis service then you should also remove the Redis configuration settings in `scdf-config-kafka.yml` mentioned below.
++
++
+. Update configuration files with values needed to connect to Kubernetes, MySQL and Redis.
 +
 The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
 The ConfigMap settings are specified in the `src/etc/kubernetes/scdf-config.yml` file and the Secrets in the `src/etc/kubernetes/scdf-secrets.yml` file. Modify the password for MySQL in the latter if you changed it. It has to be provided encoded as base64.
@@ -71,6 +84,7 @@ NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 kafka        10.103.248.211   <none>            9092/TCP   14d
 kubernetes   10.103.240.1     <none>            443/TCP    16d
 mysql        10.103.251.179   104.154.246.220   3306/TCP   10d
+redis        10.103.242.191   <none>            6379/TCP   8d
 scdf         10.103.246.82    130.211.203.246   9393/TCP   4m
 zk           10.103.243.29    <none>            2181/TCP   14d
 ```
@@ -189,6 +203,8 @@ dataflow:>! kubectl get pods
 command is:kubectl get pods
 NAME              READY     STATUS             RESTARTS   AGE
 kafka-o20qq       1/1       Running            0          9m
+mysql-o2v83       1/1       Running            0          9m
+redis-zb87a       1/1       Running            0          8m
 test-http-9obkq   1/1       Running            0          2m
 test-log-ysiz3    1/1       Running            0          2m
 dataflow:>! kubectl logs test-log-ysiz3
