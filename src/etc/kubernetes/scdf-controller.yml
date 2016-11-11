@@ -22,8 +22,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: "metadata.namespace"
-        - name: SPRING_APPLICATION_JSON
-          value: '{"spring.cloud.deployer.kubernetes.memory":"640Mi"}'
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED
+          value: 'true'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
+          value: 640Mi
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
           value: 'true'
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_NAME
