@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 import static org.springframework.cloud.deployer.spi.app.DeploymentState.deployed;
 import static org.springframework.cloud.deployer.spi.app.DeploymentState.failed;
 import static org.springframework.cloud.deployer.spi.app.DeploymentState.unknown;
+import static org.springframework.cloud.deployer.spi.kubernetes.AbstractKubernetesDeployer.SPRING_APP_KEY;
 import static org.springframework.cloud.deployer.spi.test.EventuallyMatcher.eventually;
 
 import java.io.IOException;
@@ -30,8 +31,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
+import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.hamcrest.Matchers;
 import org.junit.ClassRule;
@@ -41,10 +45,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.deployer.resource.docker.DockerResource;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
-import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
-import org.springframework.cloud.deployer.spi.kubernetes.KubernetesDeployerProperties.HostVolumeMount;
 import org.springframework.cloud.deployer.spi.test.AbstractAppDeployerIntegrationTests;
 import org.springframework.cloud.deployer.spi.test.Timeout;
 import org.springframework.core.io.Resource;
@@ -53,6 +55,7 @@ import org.springframework.core.io.Resource;
  * Integration tests for {@link KubernetesAppDeployer}.
  *
  * @author Thomas Risberg
+ * @author Donovan Muller
  */
 @SpringBootTest(classes = {KubernetesAutoConfiguration.class})
 public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIntegrationTests {
@@ -65,9 +68,6 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 
 	@Autowired
 	KubernetesClient kubernetesClient;
-
-	@Autowired
-	ContainerFactory containerFactory;
 
 	@Override
 	protected AppDeployer appDeployer() {
@@ -82,6 +82,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		lbProperties.setLivenessProbePeriod(10);
 		lbProperties.setMaxTerminatedErrorRestarts(1);
 		lbProperties.setMaxCrashLoopBackOffRestarts(1);
+		ContainerFactory containerFactory = new DefaultContainerFactory(lbProperties);
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
@@ -95,13 +96,13 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		String deploymentId = lbAppDeployer.deploy(request);
 		Timeout timeout = deploymentTimeout();
 		assertThat(deploymentId, eventually(hasStatusThat(
-				Matchers.<AppStatus>hasProperty("state", is(failed))), timeout.maxAttempts, timeout.pause));
+				Matchers.hasProperty("state", is(failed))), timeout.maxAttempts, timeout.pause));
 
 		log.info("Undeploying {}...", deploymentId);
 		timeout = undeploymentTimeout();
 		lbAppDeployer.undeploy(deploymentId);
 		assertThat(deploymentId, eventually(hasStatusThat(
-				Matchers.<AppStatus>hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
+				Matchers.hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
 	}
 
 	@Test
@@ -110,6 +111,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		KubernetesDeployerProperties lbProperties = new KubernetesDeployerProperties();
 		lbProperties.setCreateLoadBalancer(true);
 		lbProperties.setMinutesToWaitForLoadBalancer(1);
+		ContainerFactory containerFactory = new DefaultContainerFactory(lbProperties);
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
@@ -120,24 +122,29 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		String deploymentId = lbAppDeployer.deploy(request);
 		Timeout timeout = deploymentTimeout();
 		assertThat(deploymentId, eventually(hasStatusThat(
-				Matchers.<AppStatus>hasProperty("state", is(deployed))), timeout.maxAttempts, timeout.pause));
+				Matchers.hasProperty("state", is(deployed))), timeout.maxAttempts, timeout.pause));
 
 		log.info("Undeploying {}...", deploymentId);
 		timeout = undeploymentTimeout();
 		lbAppDeployer.undeploy(deploymentId);
 		assertThat(deploymentId, eventually(hasStatusThat(
-				Matchers.<AppStatus>hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
+				Matchers.hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
 	}
 
 	@Test
-	public void testDeploymentWithMountedVolume() throws IOException {
+	public void testDeploymentWithMountedHostPathVolume() throws IOException {
 		log.info("Testing {}...", "DeploymentWithMountedVolume");
 		String hostPath = "/tmp/" + randomName() + '/';
 		String containerPath = "/tmp/";
 		String subPath = randomName();
 		String mountName = "mount";
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
-		deployProperties.setHostVolumeMounts(Collections.singleton(new HostVolumeMount(mountName, hostPath, containerPath, false)));
+		deployProperties.setVolumes(Collections.singletonList(new VolumeBuilder()
+				.withHostPath(new HostPathVolumeSource(hostPath))
+				.withName(mountName)
+				.build()));
+		deployProperties.setVolumeMounts(Collections.singletonList(new VolumeMount(hostPath, mountName, false, null)));
+		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
 		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(deployProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), Collections.singletonMap("logging.file", containerPath + subPath));
@@ -148,9 +155,10 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		String deploymentId = lbAppDeployer.deploy(request);
 		Timeout timeout = deploymentTimeout();
 		assertThat(deploymentId, eventually(hasStatusThat(
-				Matchers.<AppStatus>hasProperty("state", is(deployed))), timeout.maxAttempts, timeout.pause));
+				Matchers.hasProperty("state", is(deployed))), timeout.maxAttempts, timeout.pause));
 
-		PodSpec spec = kubernetesClient.pods().list().getItems().get(0).getSpec();
+		Map<String, String> selector = Collections.singletonMap(SPRING_APP_KEY, deploymentId);
+		PodSpec spec = kubernetesClient.pods().withLabels(selector).list().getItems().get(0).getSpec();
 		assertThat(spec.getVolumes(), is(notNullValue()));
 		Volume volume = spec.getVolumes().stream()
 				.filter(v -> mountName.equals(v.getName()))
@@ -163,7 +171,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		timeout = undeploymentTimeout();
 		lbAppDeployer.undeploy(deploymentId);
 		assertThat(deploymentId, eventually(hasStatusThat(
-				Matchers.<AppStatus>hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
+				Matchers.hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
 	}
 
 	@Override
