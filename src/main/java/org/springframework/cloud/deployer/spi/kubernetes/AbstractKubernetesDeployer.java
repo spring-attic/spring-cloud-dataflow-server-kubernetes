@@ -16,21 +16,29 @@
 
 package org.springframework.cloud.deployer.spi.kubernetes;
 
-import java.util.EnumSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.boot.bind.RelaxedNames;
+import org.springframework.boot.bind.YamlConfigurationFactory;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
+import org.springframework.util.StringUtils;
 
+import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ResourceRequirements;
+import io.fabric8.kubernetes.api.model.Volume;
 
 /**
  * Abstract base class for a deployer that targets Kubernetes.
@@ -38,6 +46,7 @@ import io.fabric8.kubernetes.api.model.Quantity;
  * @author Florian Rosenberg
  * @author Thomas Risberg
  * @author Mark Fisher
+ * @author Donovan Muller
  */
 public class AbstractKubernetesDeployer {
 
@@ -48,6 +57,10 @@ public class AbstractKubernetesDeployer {
 	protected static final String SPRING_MARKER_VALUE = "spring-app";
 
 	protected static final Log logger = LogFactory.getLog(AbstractKubernetesDeployer.class);
+
+	protected ContainerFactory containerFactory;
+
+	protected KubernetesDeployerProperties properties = new KubernetesDeployerProperties();
 
 	/**
 	 * Creates a map of labels for a given ID. This will allow Kubernetes services
@@ -66,7 +79,7 @@ public class AbstractKubernetesDeployer {
 		return map;
 	}
 
-	protected AppStatus buildAppStatus(KubernetesDeployerProperties properties, String id, PodList list) {
+	protected AppStatus buildAppStatus(String id, PodList list) {
 		AppStatus.Builder statusBuilder = AppStatus.of(id);
 		if (list == null) {
 			statusBuilder.with(new KubernetesAppInstanceStatus(id, null, properties));
@@ -79,6 +92,94 @@ public class AbstractKubernetesDeployer {
 	}
 
 	/**
+	 * Create a PodSpec to be used for app and task deployments
+	 *
+	 * @param appId the app ID
+	 * @param request app deployment request
+	 * @param port port to use for app or null if none
+	 * @param instanceIndex instance index for app or null if no index
+	 * @param neverRestart use restart policy of Never
+	 * @return the PodSpec
+	 */
+	protected PodSpec createPodSpec(String appId, AppDeploymentRequest request,
+	                                Integer port, Integer instanceIndex, boolean neverRestart) {
+		PodSpecBuilder podSpec = new PodSpecBuilder();
+
+		// Add image secrets if set
+		if (properties.getImagePullSecret() != null) {
+			podSpec.addNewImagePullSecret(properties.getImagePullSecret());
+		}
+
+		Container container = containerFactory.create(appId, request, port, instanceIndex);
+
+		// add memory and cpu resource limits
+		ResourceRequirements req = new ResourceRequirements();
+		req.setLimits(deduceResourceLimits(request));
+		req.setRequests(deduceResourceRequests(request));
+		container.setResources(req);
+		ImagePullPolicy pullPolicy = deduceImagePullPolicy(request);
+		container.setImagePullPolicy(pullPolicy.name());
+
+		// only add volumes with corresponding volume mounts
+		podSpec.withVolumes(getVolumes(request).stream()
+				.filter(volume -> container.getVolumeMounts().stream()
+						.anyMatch(volumeMount -> volumeMount.getName().equals(volume.getName())))
+				.collect(Collectors.toList()));
+
+		podSpec.addToContainers(container);
+
+		if (neverRestart){
+			podSpec.withRestartPolicy("Never");
+		}
+
+		return podSpec.build();
+	}
+
+	/**
+	 * Volume deployment properties are specified in YAML format:
+	 *
+	 * <code>
+	 *     spring.cloud.deployer.kubernetes.volumes=[{name: testhostpath, hostPath: { path: '/test/override/hostPath' }},
+	 *     	{name: 'testpvc', persistentVolumeClaim: { claimName: 'testClaim', readOnly: 'true' }},
+	 *     	{name: 'testnfs', nfs: { server: '10.0.0.1:111', path: '/test/nfs' }}]
+	 * </code>
+	 *
+	 * Volumes can be specified as deployer properties as well as app deployment properties.
+	 * Deployment properties override deployer properties.
+	 *
+	 * @param request
+	 * @return the configured volumes
+	 */
+	protected List<Volume> getVolumes(AppDeploymentRequest request) {
+		List<Volume> volumes = new ArrayList<>();
+
+		String volumeDeploymentProperty = request.getDeploymentProperties()
+				.getOrDefault("spring.cloud.deployer.kubernetes.volumes", "");
+		if (!StringUtils.isEmpty(volumeDeploymentProperty)) {
+			YamlConfigurationFactory<KubernetesDeployerProperties> volumeYamlConfigurationFactory =
+					new YamlConfigurationFactory<>(KubernetesDeployerProperties.class);
+			volumeYamlConfigurationFactory.setYaml("{ volumes: " + volumeDeploymentProperty + " }");
+			try {
+				volumeYamlConfigurationFactory.afterPropertiesSet();
+				volumes.addAll(
+						volumeYamlConfigurationFactory.getObject().getVolumes());
+			}
+			catch (Exception e) {
+				throw new IllegalArgumentException(
+						String.format("Invalid volume '%s'", volumeDeploymentProperty), e);
+			}
+		}
+		// only add volumes that have not already been added, based on the volume's name
+		// i.e. allow provided deployment volumes to override deployer defined volumes
+		volumes.addAll(properties.getVolumes().stream()
+				.filter(volume -> volumes.stream()
+						.noneMatch(existingVolume -> existingVolume.getName().equals(volume.getName())))
+				.collect(Collectors.toList()));
+
+		return volumes;
+	}
+
+	/**
 	 * Get the resource limits for the deployment request. A Pod can define its maximum needed resources by setting the
 	 * limits and Kubernetes can provide more resources if any are free.
 	 * <p>
@@ -86,10 +187,9 @@ public class AbstractKubernetesDeployer {
 	 * <p>
 	 * Also supports the deprecated properties {@code spring.cloud.deployer.kubernetes.memory/cpu}.
 	 *
-	 * @param properties The server properties.
 	 * @param request    The deployment properties.
 	 */
-	protected Map<String, Quantity> deduceResourceLimits(KubernetesDeployerProperties properties, AppDeploymentRequest request) {
+	protected Map<String, Quantity> deduceResourceLimits(AppDeploymentRequest request) {
 		String memOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.memory");
 		String memLimitsOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.limits.memory");
 		if (memLimitsOverride != null) {
@@ -137,11 +237,10 @@ public class AbstractKubernetesDeployer {
 	 * Get the image pull policy for the deployment request. If it is not present use the server default. If an override
 	 * for the deployment is present but not parseable, fall back to a default value.
 	 *
-	 * @param properties The server properties.
 	 * @param request The deployment request.
 	 * @return The image pull policy to use for the container in the request.
 	 */
-	ImagePullPolicy deduceImagePullPolicy(KubernetesDeployerProperties properties, AppDeploymentRequest request) {
+	ImagePullPolicy deduceImagePullPolicy(AppDeploymentRequest request) {
 		String pullPolicyOverride =
 				request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.imagePullPolicy");
 
@@ -164,10 +263,9 @@ public class AbstractKubernetesDeployer {
 	 * runtime.
 	 * Falls back to the server properties if not present in the deployment request.
 	 *
-	 * @param properties The server properties.
 	 * @param request    The deployment properties.
 	 */
-	Map<String, Quantity> deduceResourceRequests(KubernetesDeployerProperties properties, AppDeploymentRequest request) {
+	Map<String, Quantity> deduceResourceRequests(AppDeploymentRequest request) {
 		String memOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.requests.memory");
 		if (memOverride == null) {
 			memOverride = properties.getRequests().getMemory();
