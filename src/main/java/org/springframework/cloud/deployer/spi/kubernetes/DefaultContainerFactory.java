@@ -119,6 +119,11 @@ public class DefaultContainerFactory implements ContainerFactory {
 		}
 		if (instanceIndex != null) {
 			envVars.add(new EnvVar(AppDeployer.INSTANCE_INDEX_PROPERTY_KEY, instanceIndex.toString(), null));
+			envVars.add(new EnvVar("SPRING_APPLICATION_INDEX", instanceIndex.toString(), null));
+		}
+		if (request.getDeploymentProperties().get(AppDeployer.GROUP_PROPERTY_KEY) != null) {
+			envVars.add(new EnvVar("SPRING_CLOUD_APPLICATION_GROUP",
+					request.getDeploymentProperties().get(AppDeployer.GROUP_PROPERTY_KEY), null));
 		}
 
 		String appInstanceId = instanceIndex == null ? appId : appId + "-" + instanceIndex;

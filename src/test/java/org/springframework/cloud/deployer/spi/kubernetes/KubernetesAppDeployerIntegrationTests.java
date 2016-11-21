@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.Volume;
@@ -170,6 +171,42 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		log.info("Undeploying {}...", deploymentId);
 		timeout = undeploymentTimeout();
 		lbAppDeployer.undeploy(deploymentId);
+		assertThat(deploymentId, eventually(hasStatusThat(
+				Matchers.hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
+	}
+
+	@Test
+	public void testDeploymentWithGroupAndIndex() throws IOException {
+		log.info("Testing {}...", "DeploymentWithWithGroupAndIndex");
+		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
+		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
+		KubernetesAppDeployer testAppDeployer = new KubernetesAppDeployer(deployProperties, kubernetesClient, containerFactory);
+
+		AppDefinition definition = new AppDefinition(randomName(), new HashMap<>());
+		Resource resource = testApplication();
+		Map<String, String> props = new HashMap<>();
+		props.put(AppDeployer.GROUP_PROPERTY_KEY, "foo");
+		props.put(AppDeployer.INDEXED_PROPERTY_KEY, "true");
+		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource, props);
+
+		log.info("Deploying {}...", request.getDefinition().getName());
+		String deploymentId = testAppDeployer.deploy(request);
+		Timeout timeout = deploymentTimeout();
+		assertThat(deploymentId, eventually(hasStatusThat(
+				Matchers.hasProperty("state", is(deployed))), timeout.maxAttempts, timeout.pause));
+
+		Map<String, String> selector = Collections.singletonMap(SPRING_APP_KEY, deploymentId);
+		PodSpec spec = kubernetesClient.pods().withLabels(selector).list().getItems().get(0).getSpec();
+		Map<String, String> envVars = new HashMap<>();
+		for (EnvVar e : spec.getContainers().get(0).getEnv()) {
+			envVars.put(e.getName(), e.getValue());
+		}
+		assertThat(envVars.get("SPRING_CLOUD_APPLICATION_GROUP"), is("foo"));
+		assertThat(envVars.get("SPRING_APPLICATION_INDEX"), is("0"));
+
+		log.info("Undeploying {}...", deploymentId);
+		timeout = undeploymentTimeout();
+		testAppDeployer.undeploy(deploymentId);
 		assertThat(deploymentId, eventually(hasStatusThat(
 				Matchers.hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
 	}
