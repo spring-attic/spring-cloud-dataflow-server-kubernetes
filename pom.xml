@@ -14,9 +14,8 @@
  
 	<modules>
 		<module>spring-cloud-dataflow-server-kubernetes-docs</module>
-		<module>spring-cloud-dataflow-server-kubernetes-dependencies</module>
+		<module>spring-cloud-dataflow-server-kubernetes-autoconfig</module>
 		<module>spring-cloud-dataflow-server-kubernetes</module>
-		<module>spring-cloud-starter-dataflow-server-kubernetes</module>
 	</modules>
 
 	<properties>
