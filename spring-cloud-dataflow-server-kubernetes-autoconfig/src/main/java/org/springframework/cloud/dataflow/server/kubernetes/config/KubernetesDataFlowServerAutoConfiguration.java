@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.dataflow.server.config.kubernetes;
+package org.springframework.cloud.dataflow.server.kubernetes.config;
 
 import java.util.HashMap;
 import java.util.Map;
