@@ -17,6 +17,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 9393
+        resources:
+          limits:
+            cpu: 1.0
+            memory: 2048Mi
+          requests:
+            cpu: 0.5
+            memory: 1024Mi
         env:
         - name: KUBERNETES_NAMESPACE
           valueFrom:

@@ -5,7 +5,7 @@ metadata:
   labels:
     spring-cloud-service: scdf
 spec:
-# If you are not running k8s on a local dev box, use LoadBalancer to expose the (changing) Redis pod to the k8s API
+  # If you are running k8s on a local dev box, you can use type NodePort instead
   type: LoadBalancer
   ports:
     - port: 9393
