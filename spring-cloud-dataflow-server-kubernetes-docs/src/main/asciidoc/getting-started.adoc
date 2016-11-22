@@ -2,7 +2,7 @@
 
 == Deploying Streams on Kubernetes
 
-In this getting started guide, the Data Flow Server is deployed to the Kubernetes cluster.  This means that we need to make available an RDBMS service for stream and task repositories, app registry plus a transport option of either Kafka or Rabbit MQ.
+In this getting started guide, the Data Flow Server is deployed to the Kubernetes cluster.  This means that we need to make available an RDBMS service for stream and task repositories, app registry plus a transport option of either Kafka or Rabbit MQ. We also need a Redis instance if we are planning on using the analytics features.
 
 . Deploy a Kubernetes cluster.
 + 
@@ -10,19 +10,21 @@ The http://kubernetes.io/docs/getting-started-guides/[Kubernetes Getting Started
 +
 We have also used the https://github.com/kubernetes/minikube[Minikube] project to run a local Kubernetes cluster for testing.
 +
-The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line.
+The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line. For the MySQL service we used the `gcloud` comand line utility. See the docs for installing both these utilities: https://cloud.google.com/sdk/downloads[Installing Cloud SDK] and http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 +
 . Create a Kafka service on the Kubernetes cluster.
 +
-The Kafka service will be used for messaging between modules in the stream.  You can instead use Rabbit MQ, but, in order to simplify, we only show the Kafka configurations in this guide. There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules.
+The Kafka service will be used for messaging between modules in the stream.  You can instead use Rabbit MQ, but, in order to simplify, we only show the Kafka configurations in this guide. There are sample replication controller and service YAML files in the `spring-cloud-dataflow-server-kubernetes` repository that you can use as a starting point as they have the required metadata set for service discovery by the modules. For Kafka we use the files with a "zk" and "kafka" prefix.
 + 
 ```
 $ git clone https://github.com/spring-cloud/spring-cloud-dataflow-server-kubernetes
 $ cd spring-cloud-dataflow-server-kubernetes
+$ kubectl create -f src/etc/kubernetes/kafka-zk-controller.yml
+$ kubectl create -f src/etc/kubernetes/kafka-zk-service.yml
 $ kubectl create -f src/etc/kubernetes/kafka-controller.yml
 $ kubectl create -f src/etc/kubernetes/kafka-service.yml
 ```
-You can use the command `kubectl get pods` to verify that the controller and service is running.  Use the command `kubectl get services` to check on the state of the service. Use the commands `kubectl delete svc kafka` and `kubectl delete rc kafka` to clean up afterwards.
+You can use the command `kubectl get pods` to verify that the controller and service is running.  Use the command `kubectl get services` to check on the state of the service. Use the commands `kubectl delete svc kafka` and `kubectl delete rc kafka-broker` plus `kubectl delete svc kafka-zk` and `kubectl delete rc kafka-zk` to clean up afterwards.
 +
 . Create a MySQL service on the Kubernetes cluster.
 +
