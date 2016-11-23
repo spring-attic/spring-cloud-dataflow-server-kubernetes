@@ -33,17 +33,17 @@ include::{dataflow-asciidoc}/architecture.adoc[]
 
 include::getting-started.adoc[]
 
-include::{dataflow-asciidoc}/configuration.adoc[]
+include::configuration.adoc[]
 
-include::{dataflow-asciidoc}/streams.adoc[]
+//include::{dataflow-asciidoc}/streams.adoc[]
 
-include::{dataflow-asciidoc}/tasks.adoc[]
+//include::{dataflow-asciidoc}/tasks.adoc[]
 
 include::{dataflow-asciidoc}/dashboard.adoc[]
 
 include::server.adoc[]
 
-include::{dataflow-asciidoc}/howto.adoc[]
+include::howto.adoc[]
 
 include::appendix.adoc[]
 
