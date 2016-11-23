@@ -29,6 +29,7 @@ import org.springframework.boot.bind.YamlConfigurationFactory;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
+import org.springframework.cloud.deployer.spi.util.ByteSizeUtils;
 import org.springframework.util.StringUtils;
 
 import io.fabric8.kubernetes.api.model.Container;
@@ -190,7 +191,18 @@ public class AbstractKubernetesDeployer {
 	 * @param request    The deployment properties.
 	 */
 	protected Map<String, Quantity> deduceResourceLimits(AppDeploymentRequest request) {
+		String memDeployer = getCommonDeployerMemory(request);
 		String memOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.memory");
+		if (memDeployer != null) {
+			if (memOverride == null) {
+				memOverride = memDeployer;
+			}
+			else {
+				logger.warn(String.format("Both " + AppDeployer.MEMORY_PROPERTY_KEY +
+								"=%s and spring.cloud.deployer.kubernetes.memory=%s specified, the latter will take precedence.",
+						memDeployer, memOverride));
+			}
+		}
 		String memLimitsOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.limits.memory");
 		if (memLimitsOverride != null) {
 			// Non-deprecated value has priority
@@ -207,8 +219,18 @@ public class AbstractKubernetesDeployer {
 			}
 		}
 
-
+		String cpuDeployer = request.getDeploymentProperties().get(AppDeployer.CPU_PROPERTY_KEY);
 		String cpuOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.cpu");
+		if (cpuDeployer != null) {
+			if (cpuOverride == null) {
+				cpuOverride = cpuDeployer;
+			}
+			else {
+				logger.warn(String.format("Both " + AppDeployer.CPU_PROPERTY_KEY +
+								"=%s and spring.cloud.deployer.kubernetes.cpu=%s specified, the latter will take precedence.",
+						cpuDeployer, cpuOverride));
+			}
+		}
 		String cpuLimitsOverride = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.limits.cpu");
 		if (cpuLimitsOverride != null) {
 			// Non-deprecated value has priority
@@ -286,6 +308,15 @@ public class AbstractKubernetesDeployer {
 			requests.put("cpu", new Quantity(cpuOverride));
 		}
 		return requests;
+	}
+
+	private String getCommonDeployerMemory(AppDeploymentRequest request) {
+		String mem = request.getDeploymentProperties().get(AppDeployer.MEMORY_PROPERTY_KEY);
+		if (mem == null) {
+			return null;
+		}
+		long memAmount = ByteSizeUtils.parseToMebibytes(mem);
+		return memAmount + "Mi";
 	}
 
 }
