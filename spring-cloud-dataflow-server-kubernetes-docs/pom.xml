@@ -57,15 +57,19 @@
 						<groupId>org.asciidoctor</groupId>
 						<artifactId>asciidoctor-maven-plugin</artifactId>
 						<version>1.5.3</version>
-						<dependencies>
-						  <dependency>
-						    <!-- Needed to resolve URI includes -->
-						    <!-- See https://github.com/asciidoctor/asciidoctor.js/issues/153 -->
-						    <groupId>org.jruby</groupId>
-						    <artifactId>jruby-complete</artifactId>
-						    <version>9.0.0.0</version>
-						  </dependency>
-						</dependencies>
+						<configuration>
+							<sourceDocumentName>index.adoc</sourceDocumentName>
+							<doctype>book</doctype>
+							<attributes>
+								<allow-uri-read>true</allow-uri-read>
+								<attribute-missing>warn</attribute-missing>
+								<project-version>${project.version}</project-version>
+								<project-artifactId>${project.artifactId}</project-artifactId>
+								<version-type-lowercase>${version-type-lowercase}</version-type-lowercase>
+								<dataflow-project-version>${spring-cloud-dataflow.version}</dataflow-project-version>
+								<dataflow-version-type-lowercase>${dataflow-version-type-lowercase}</dataflow-version-type-lowercase>
+							</attributes>
+						</configuration>
 						<executions>
 							<execution>
 								<id>generate-docbook</id>
@@ -79,13 +83,19 @@
 									<doctype>book</doctype>
 									<attributes>
 										<docinfo>true</docinfo>
-										<dataflow-project-version>${spring-cloud-dataflow.version}</dataflow-project-version>
-										<project-version>${project.version}</project-version>
-										<project-artifactId>${project.artifactId}</project-artifactId>
-										<version-type-lowercase>${version-type-lowercase}</version-type-lowercase>
-										<dataflow-version-type-lowercase>${dataflow-version-type-lowercase}</dataflow-version-type-lowercase>
-										<allow-uri-read>true</allow-uri-read>
-										<attribute-missing>warn</attribute-missing>
+									</attributes>
+								</configuration>
+							</execution>
+							<execution>
+								<id>generate-html5</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>process-asciidoc</goal>
+								</goals>
+								<configuration>
+									<backend>html5</backend>
+									<attributes>
+										<toc2 />
 									</attributes>
 								</configuration>
 							</execution>
@@ -130,30 +140,6 @@
 						</dependencies>
 						<executions>
 							<execution>
-								<id>html-single</id>
-								<goals>
-									<goal>generate-html</goal>
-								</goals>
-								<phase>generate-resources</phase>
-								<configuration>
-									<htmlCustomization>${basedir}/src/main/docbook/xsl/html-singlepage.xsl</htmlCustomization>
-									<targetDirectory>${basedir}/target/docbook/htmlsingle</targetDirectory>
-									<postProcess>
-										<copy todir="${basedir}/target/contents/reference/htmlsingle">
-											<fileset dir="${basedir}/target/docbook/htmlsingle">
-												<include name="**/*.html" />
-											</fileset>
-										</copy>
-										<copy todir="${basedir}/target/contents/reference/htmlsingle/images">
-										        <fileset dir="${basedir}/target/generated-docs/images" />
-										</copy>
-										<copy todir="${basedir}/target/contents/reference/htmlsingle/css">
-											<fileset dir="${basedir}/src/main/docbook/css" />
-										</copy>
-									</postProcess>
-								</configuration>
-							</execution>
-							<execution>
 								<id>html</id>
 								<goals>
 									<goal>generate-html</goal>
@@ -197,7 +183,6 @@
 									</postProcess>
 								</configuration>
 							</execution>
-
 							<execution>
 								<id>epub</id>
 								<goals>
@@ -264,6 +249,10 @@
 										<zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip">
 											<zipfileset src="${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar" prefix="api" />
 											<fileset dir="${project.build.directory}/contents" />
+											<zipfileset dir="${project.build.directory}/generated-docs" prefix="reference/htmlsingle">
+												<include name="index.html" />
+												<include name="images/**" />
+											</zipfileset>
 										</zip>
 									</target>
 								</configuration>
@@ -318,6 +307,28 @@
 											<type>zip;zip.type=docs;zip.deployed=false</type>
 										</artifact>
 									</artifacts>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>net.radai</groupId>
+						<artifactId>grep-maven-plugin</artifactId>
+						<version>1.0</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>grep</goal>
+								</goals>
+								<phase>test</phase>
+								<configuration>
+									<greps>
+										<grep>
+											<file>target/generated-docs/index.html</file>
+											<grepPattern>Unresolved directive in .*\.adoc - include::</grepPattern>
+											<failIfFound>true</failIfFound>
+										</grep>
+									</greps>
 								</configuration>
 							</execution>
 						</executions>
