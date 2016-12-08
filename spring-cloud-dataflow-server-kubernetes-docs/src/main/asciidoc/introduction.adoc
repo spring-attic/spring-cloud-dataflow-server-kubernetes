@@ -5,3 +5,21 @@
 == Introducing Spring Cloud Data Flow for Kubernetes
 
 This project provides support for orchestrating long-running (_streaming_) and short-lived (_task/batch_) data microservices to Kubernetes.
+
+[IMPORTANT]
+====
+Currently, only apps registered with the Docker resource are supported by this deployer server.
+I.e. the below app registration is valid:
+
+[source,console]
+----
+dataflow:>app register --type source --name time --uri docker:springcloudstream/time-source-kafka:latest
+----
+
+but the following app registered with a Maven resource is _not supported_:
+
+[source,console]
+----
+dataflow:>app register --type source --name time --uri maven://org.springframework.cloud.stream.app:time-source-kafka:{dataflow-project-version}
+----
+====
