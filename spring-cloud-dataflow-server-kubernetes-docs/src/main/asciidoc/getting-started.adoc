@@ -4,6 +4,19 @@
 
 In this getting started guide, the Data Flow Server is deployed to the Kubernetes cluster.  This means that we need to make available an RDBMS service for stream and task repositories, app registry plus a transport option of either Kafka or Rabbit MQ. We also need a Redis instance if we are planning on using the analytics features.
 
+[IMPORTANT]
+====
+Currently, only apps registered with the Docker resource are supported by the Data Flow Server for Kubernetes.
+I.e. the below app registration is valid:
+
+[source,console]
+----
+dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-kafka:latest
+----
+
+but any app registered with a Maven, HTTP or File resource (using a URI prefixed with maven://, http:// or file://) is _not supported_.
+====
+
 . Deploy a Kubernetes cluster.
 + 
 The http://kubernetes.io/docs/getting-started-guides/[Kubernetes Getting Started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
