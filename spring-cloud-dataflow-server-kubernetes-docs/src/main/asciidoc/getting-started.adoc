@@ -14,7 +14,7 @@ I.e. the below app registration is valid:
 dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-kafka:latest
 ----
 
-but any app registered with a Maven, HTTP or File resource (using a URI prefixed with maven://, http:// or file://) is _not supported_.
+but any app registered with a Maven, HTTP or File resource (using a URI prefixed with `maven://`, `http://` or `file://`) is _not supported_.
 ====
 
 . Deploy a Kubernetes cluster.
