@@ -82,9 +82,7 @@ public class AbstractKubernetesDeployer {
 
 	protected AppStatus buildAppStatus(String id, PodList list) {
 		AppStatus.Builder statusBuilder = AppStatus.of(id);
-		if (list == null) {
-			statusBuilder.with(new KubernetesAppInstanceStatus(id, null, properties));
-		} else {
+		if (list != null && list.getItems() != null) {
 			for (Pod pod : list.getItems()) {
 				statusBuilder.with(new KubernetesAppInstanceStatus(id, pod, properties));
 			}

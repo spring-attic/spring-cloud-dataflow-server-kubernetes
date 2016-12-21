@@ -34,6 +34,9 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 
 /**
  * A deployer that targets Kubernetes.
@@ -149,8 +152,15 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 				logger.debug(String.format("Deleted replication controller for: %s %b", appIdToDelete, rcDeleted));
 				Map<String, String> selector = new HashMap<>();
 				selector.put(SPRING_APP_KEY, appIdToDelete);
-				Boolean podDeleted = client.pods().withLabels(selector).delete();
-				logger.debug(String.format("Deleted pods for: %s %b", appIdToDelete, podDeleted));
+				FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podsToDelete =
+						client.pods().withLabels(selector);
+				if (podsToDelete != null && podsToDelete.list().getItems() != null) {
+					Boolean podDeleted = podsToDelete.delete();
+					logger.debug(String.format("Deleted pods for: %s %b", appIdToDelete, podDeleted));
+				}
+				else {
+					logger.debug(String.format("No pods to delete for: %s", appIdToDelete));
+				}
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
 				throw e;
