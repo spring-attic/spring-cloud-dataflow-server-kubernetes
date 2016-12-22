@@ -117,53 +117,54 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 
 		List<ReplicationController> apps =
 			client.replicationControllers().withLabel(SPRING_APP_KEY, appId).list().getItems();
-		for (ReplicationController rc : apps) {
-			String appIdToDelete = rc.getMetadata().getName();
-			logger.debug(String.format("Deleting svc, rc and pods for: %s", appIdToDelete));
+		if (apps != null) {
+			for (ReplicationController rc : apps) {
+				String appIdToDelete = rc.getMetadata().getName();
+				logger.debug(String.format("Deleting svc, rc and pods for: %s", appIdToDelete));
 
-			Service svc = client.services().withName(appIdToDelete).get();
-			try {
-				if (svc != null && "LoadBalancer".equals(svc.getSpec().getType())) {
-					int tries = 0;
-					int maxWait = properties.getMinutesToWaitForLoadBalancer() * 6; // we check 6 times per minute
-					while (tries++ < maxWait) {
-						if (svc.getStatus() != null && svc.getStatus().getLoadBalancer() != null &&
-								svc.getStatus().getLoadBalancer().getIngress() != null &&
-								svc.getStatus().getLoadBalancer().getIngress().isEmpty()) {
-							if (tries % 6 == 0) {
-								logger.warn("Waiting for LoadBalancer to complete before deleting it ...");
+				Service svc = client.services().withName(appIdToDelete).get();
+				try {
+					if (svc != null && "LoadBalancer".equals(svc.getSpec().getType())) {
+						int tries = 0;
+						int maxWait = properties.getMinutesToWaitForLoadBalancer() * 6; // we check 6 times per minute
+						while (tries++ < maxWait) {
+							if (svc.getStatus() != null && svc.getStatus().getLoadBalancer() != null &&
+									svc.getStatus().getLoadBalancer().getIngress() != null &&
+									svc.getStatus().getLoadBalancer().getIngress().isEmpty()) {
+								if (tries % 6 == 0) {
+									logger.warn("Waiting for LoadBalancer to complete before deleting it ...");
+								}
+								logger.debug(String.format("Waiting for LoadBalancer, try %d", tries));
+								try {
+									Thread.sleep(10000L);
+								} catch (InterruptedException e) {
+								}
+								svc = client.services().withName(appIdToDelete).get();
+							} else {
+								break;
 							}
-							logger.debug(String.format("Waiting for LoadBalancer, try %d", tries));
-							try {
-								Thread.sleep(10000L);
-							} catch (InterruptedException e) {
-							}
-							svc = client.services().withName(appIdToDelete).get();
-						} else {
-							break;
 						}
+						logger.debug(String.format("LoadBalancer Ingress: %s",
+								svc.getStatus().getLoadBalancer().getIngress().toString()));
 					}
-					logger.debug(String.format("LoadBalancer Ingress: %s",
-							svc.getStatus().getLoadBalancer().getIngress().toString()));
+					Boolean svcDeleted = client.services().withName(appIdToDelete).delete();
+					logger.debug(String.format("Deleted service for: %s %b", appIdToDelete, svcDeleted));
+					Boolean rcDeleted = client.replicationControllers().withName(appIdToDelete).delete();
+					logger.debug(String.format("Deleted replication controller for: %s %b", appIdToDelete, rcDeleted));
+					Map<String, String> selector = new HashMap<>();
+					selector.put(SPRING_APP_KEY, appIdToDelete);
+					FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podsToDelete =
+							client.pods().withLabels(selector);
+					if (podsToDelete != null && podsToDelete.list().getItems() != null) {
+						Boolean podDeleted = podsToDelete.delete();
+						logger.debug(String.format("Deleted pods for: %s %b", appIdToDelete, podDeleted));
+					} else {
+						logger.debug(String.format("No pods to delete for: %s", appIdToDelete));
+					}
+				} catch (RuntimeException e) {
+					logger.error(e.getMessage(), e);
+					throw e;
 				}
-				Boolean svcDeleted = client.services().withName(appIdToDelete).delete();
-				logger.debug(String.format("Deleted service for: %s %b", appIdToDelete, svcDeleted));
-				Boolean rcDeleted = client.replicationControllers().withName(appIdToDelete).delete();
-				logger.debug(String.format("Deleted replication controller for: %s %b", appIdToDelete, rcDeleted));
-				Map<String, String> selector = new HashMap<>();
-				selector.put(SPRING_APP_KEY, appIdToDelete);
-				FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podsToDelete =
-						client.pods().withLabels(selector);
-				if (podsToDelete != null && podsToDelete.list().getItems() != null) {
-					Boolean podDeleted = podsToDelete.delete();
-					logger.debug(String.format("Deleted pods for: %s %b", appIdToDelete, podDeleted));
-				}
-				else {
-					logger.debug(String.format("No pods to delete for: %s", appIdToDelete));
-				}
-			} catch (RuntimeException e) {
-				logger.error(e.getMessage(), e);
-				throw e;
 			}
 		}
 	}
@@ -175,9 +176,11 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 		PodList list = client.pods().withLabels(selector).list();
 		if (logger.isDebugEnabled()) {
 			logger.debug(String.format("Building AppStatus for app: %s", appId));
-			logger.debug(String.format("Pods for appId %s: %d", appId, list.getItems().size()));
-			for (Pod pod : list.getItems()) {
-				logger.debug(String.format("Pod: %s", pod.getMetadata().getName()));
+			if (list != null && list.getItems() != null) {
+				logger.debug(String.format("Pods for appId %s: %d", appId, list.getItems().size()));
+				for (Pod pod : list.getItems()) {
+					logger.debug(String.format("Pod: %s", pod.getMetadata().getName()));
+				}
 			}
 		}
 		AppStatus status = buildAppStatus(appId, list);
