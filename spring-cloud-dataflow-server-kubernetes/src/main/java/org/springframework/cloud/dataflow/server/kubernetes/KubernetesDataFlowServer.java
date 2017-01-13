@@ -17,6 +17,7 @@
 package org.springframework.cloud.dataflow.server.kubernetes;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.dataflow.server.EnableDataFlowServer;
 
 /**
@@ -24,6 +25,7 @@ import org.springframework.cloud.dataflow.server.EnableDataFlowServer;
  *
  * @author Thomas Risberg
  */
+@SpringBootApplication
 @EnableDataFlowServer
 public class KubernetesDataFlowServer {
 
