@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,7 +109,8 @@ public class AbstractKubernetesDeployer {
 			podSpec.addNewImagePullSecret(properties.getImagePullSecret());
 		}
 
-		Container container = containerFactory.create(appId, request, port, instanceIndex);
+		boolean hostNetwork = getHostNetwork(request);
+		Container container = containerFactory.create(appId, request, port, instanceIndex, hostNetwork);
 
 		// add memory and cpu resource limits
 		ResourceRequirements req = new ResourceRequirements();
@@ -125,6 +126,9 @@ public class AbstractKubernetesDeployer {
 						.anyMatch(volumeMount -> volumeMount.getName().equals(volume.getName())))
 				.collect(Collectors.toList()));
 
+		if (hostNetwork) {
+			podSpec.withHostNetwork(true);
+		}
 		podSpec.addToContainers(container);
 
 		if (neverRestart){
@@ -306,6 +310,26 @@ public class AbstractKubernetesDeployer {
 			requests.put("cpu", new Quantity(cpuOverride));
 		}
 		return requests;
+	}
+
+	/**
+	 * Get the hostNetwork setting for the deployment request.
+	 *
+	 * @param request The deployment request.
+	 * @return Whether host networking is requested
+	 */
+	protected boolean getHostNetwork(AppDeploymentRequest request) {
+		String hostNetworkOverride =
+				request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.hostNetwork");
+		boolean hostNetwork;
+		if (StringUtils.isEmpty(hostNetworkOverride)) {
+			hostNetwork = properties.isHostNetwork();
+		}
+		else {
+			hostNetwork = Boolean.valueOf(hostNetworkOverride);
+		}
+		logger.debug("Using hostNetwork " + hostNetwork);
+		return hostNetwork;
 	}
 
 	private String getCommonDeployerMemory(AppDeploymentRequest request) {
