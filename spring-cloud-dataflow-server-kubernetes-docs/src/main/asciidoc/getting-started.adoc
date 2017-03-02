@@ -182,14 +182,14 @@ $ kubectl logs -f ticktock-log-qnk72
 +
 NOTE: If you need to specify any of the app specific configuration properties then you must use "long-form" of them including the app specific prefix like `--jdbc.tableName=TEST_DATA`. This is due to the server not being able to access the metadata for the Docker based starter apps. You will also not see the configuration properties listed when using the `app info` command or in the Dashboard GUI.
 +
-NOTE: If you need to be able to connect from outside of the Kubernetes cluster to an app that you deploy, like the `http-source`, then you can provide a deployment property of `spring.cloud.deployer.kubernetes.createLoadBalancer=true` for the app module to specify that you want to have a LoadBalancer with an external IP address created for your app's service. 
+NOTE: If you need to be able to connect from outside of the Kubernetes cluster to an app that you deploy, like the `http-source`, then you can provide a deployment property of `deployer.http.kubernetes.createLoadBalancer=true` for the app to specify that you want to have a LoadBalancer with an external IP address created for your app's service. 
 +
 To register the `http-source` and use it in a stream where you can post data to it, you can use the following commands:
 +
 ```
 dataflow:>app register --type source --name http --uri docker:springcloudstream/http-source-kafka:latest
 dataflow:>stream create --name test --definition "http | log"
-dataflow:>stream deploy test --properties "app.http.spring.cloud.deployer.kubernetes.createLoadBalancer=true"
+dataflow:>stream deploy test --properties "deployer.http.kubernetes.createLoadBalancer=true"
 ```
 +
 Now, look up the external IP address for the `http` app (it can sometimes take a minute or two for the external IP to get assigned):
