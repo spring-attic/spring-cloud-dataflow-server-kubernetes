@@ -35,6 +35,7 @@ import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 
 /**
  * A task launcher that targets Kubernetes.
@@ -135,10 +136,15 @@ public class KubernetesTaskLauncher extends AbstractKubernetesDeployer implement
 	}
 
 	private List<String> getPodIdsForTaskName(String taskName) {
-		PodList pods = client.pods().inNamespace(client.getNamespace()).withLabel("task-name", taskName).list();
 		List<String> ids = new ArrayList<>();
-		for (Pod pod : pods.getItems()) {
-			ids.add(pod.getMetadata().getName());
+		try {
+			PodList pods = client.pods().inNamespace(client.getNamespace()).withLabel("task-name", taskName).list();
+			for (Pod pod : pods.getItems()) {
+				ids.add(pod.getMetadata().getName());
+			}
+		}
+		catch (KubernetesClientException kce) {
+			logger.warn(String.format("Failed to retrieve pods for task: %s", taskName), kce);
 		}
 		return ids;
 	}
