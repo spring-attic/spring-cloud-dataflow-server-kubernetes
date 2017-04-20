@@ -118,6 +118,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 		for (Map.Entry<String, String> e : envVarsMap.entrySet()) {
 			envVars.add(new EnvVar(e.getKey(), e.getValue(), null));
 		}
+		envVars.add(new EnvVar("SPRING_CLOUD_APPLICATION_GUID", "${HOSTNAME}", null));
 		if (instanceIndex != null) {
 			envVars.add(new EnvVar(AppDeployer.INSTANCE_INDEX_PROPERTY_KEY, instanceIndex.toString(), null));
 			envVars.add(new EnvVar("SPRING_APPLICATION_INDEX", instanceIndex.toString(), null));

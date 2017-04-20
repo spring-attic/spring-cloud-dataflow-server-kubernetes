@@ -71,7 +71,7 @@ public class DefaultContainerFactoryTests {
 		Container container = defaultContainerFactory.create("app-test",
 				appDeploymentRequest, null, null, false);
 		assertNotNull(container);
-		assertEquals(2, container.getEnv().size());
+		assertEquals(3, container.getEnv().size());
 		EnvVar envVar1 = container.getEnv().get(0);
 		EnvVar envVar2 = container.getEnv().get(1);
 		assertEquals("JAVA_OPTIONS", envVar1.getName());
@@ -198,7 +198,7 @@ public class DefaultContainerFactoryTests {
 		Container containerExec = defaultContainerFactory.create("app-test",
 				appDeploymentRequestExec, null, null, false);
 		assertNotNull(containerExec);
-		assertTrue(containerExec.getEnv().size() == 0);
+		assertTrue(containerExec.getEnv().size() == 1);
 		assertTrue(containerExec.getArgs().get(0).equals("--foo.bar.baz=test"));
 
 		props.put("spring.cloud.deployer.kubernetes.entryPointStyle", "boot");
