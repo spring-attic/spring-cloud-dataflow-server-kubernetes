@@ -8,6 +8,6 @@ spec:
   # If you are running k8s on a local dev box, you can use type NodePort instead
   type: LoadBalancer
   ports:
-    - port: 9393
+    - port: 80
   selector:
     name: scdf

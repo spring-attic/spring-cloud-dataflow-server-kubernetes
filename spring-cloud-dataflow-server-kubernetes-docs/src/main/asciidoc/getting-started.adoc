@@ -6,15 +6,23 @@ In this getting started guide, the Data Flow Server is deployed to the Kubernete
 
 [IMPORTANT]
 ====
-Currently, only apps registered with the Docker resource are supported by the Data Flow Server for Kubernetes.
+This guide describes setting up an environment for testing Spring Cloud Data Flow on Google Container Engine and is not meant to be a definitive guide for setting up a production environment. Feel free to adjust the suggestions to fit your test set-up. PLease remember that a production environment requires much more consideration for persistent storage of message queues, high availabillity, security etc.
+====
+
+[NOTE]
+====
+Currently, only apps registered with a `--uri` property pointing to a Docker resource are supported by the Data Flow Server for Kubernetes. 
+
+Note that we do support Maven resources for the `--metadata-uri` property.
+
 I.e. the below app registration is valid:
 
-[source,console]
+[source,console,subs=attributes]
 ----
-dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-kafka:latest
+dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-kafka-10:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:time-source-kafka-10:jar:metadata:{scst-starters-core-version}
 ----
 
-but any app registered with a Maven, HTTP or File resource (using a URI prefixed with `maven://`, `http://` or `file://`) is _not supported_.
+but any app registered with a Maven, HTTP or File resource for the executable jar (using a `--uri` property prefixed with `maven://`, `http://` or `file://`) is *_not supported_*.
 ====
 
 . Deploy a Kubernetes cluster.
@@ -72,8 +80,16 @@ $ kubectl create -f src/etc/kubernetes/redis-service.yml
 +
 NOTE: If you don't need the analytics functionality you can turn this feature off by changing `SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED` to false in the `scdf-controller.yml` file. If you don't install the Redis service then you should also remove the Redis configuration settings in `scdf-config-kafka.yml` mentioned below.
 +
+. Deploy the Metrics Collector on the Kubernetes cluster.
 +
-. Update configuration files with values needed to connect to Kubernetes, MySQL and Redis.
+The Metrics Collector will provide message rates for all deployed stream apps. These message rates will be visible in the Dashboard UI.
++ 
+```
+$ kubectl create -f src/etc/kubernetes/metrics-controller-kafka.yml
+$ kubectl create -f src/etc/kubernetes/metrics-service.yml
+```
++
+. Update configuration files with values needed to connect to the required services.
 +
 The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
 The ConfigMap settings are specified in the `src/etc/kubernetes/scdf-config.yml` file and the Secrets in the `src/etc/kubernetes/scdf-secrets.yml` file. Modify the password for MySQL in the latter if you changed it. It has to be provided encoded as base64.
@@ -99,8 +115,9 @@ NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 kafka        10.103.248.211   <none>            9092/TCP   14d
 kubernetes   10.103.240.1     <none>            443/TCP    16d
 mysql        10.103.251.179   104.154.246.220   3306/TCP   10d
+metrics      10.103.248.127   <none>            80/TCP     8d
 redis        10.103.242.191   <none>            6379/TCP   8d
-scdf         10.103.246.82    130.211.203.246   9393/TCP   4m
+scdf         10.103.246.82    130.211.203.246   80/TCP     4m
 zk           10.103.243.29    <none>            2181/TCP   14d
 ```
 +
@@ -113,7 +130,7 @@ wget http://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework
 $ java -jar spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 ```
 +
-Configure the Data Flow server URI with the following command (use the IP address from previous step and at the moment we are using port 9393):
+Configure the Data Flow server URI with the following command (use the IP address from previous step):
 +
 [subs=attributes]
 ```
@@ -131,8 +148,8 @@ Configure the Data Flow server URI with the following command (use the IP addres
 {dataflow-project-version}
 
 Welcome to the Spring Cloud Data Flow shell. For assistance hit TAB or type "help".
-server-unknown:>dataflow config server --uri http://130.211.203.246:9393
-Successfully targeted http://130.211.203.246:9393
+server-unknown:>dataflow config server --uri http://130.211.203.246/
+Successfully targeted http://130.211.203.246/
 dataflow:>
 ```
 +
