@@ -125,6 +125,39 @@ database types can be found
 https://github.com/spring-cloud/spring-cloud-task/tree/master/spring-cloud-task-core/src/main/resources/org/springframework/cloud/task/migration[here].
 
 
+[[configuration-security]]
+== Security
+
+We are now securing the server application in the sample configurations file used in the <<kubernetes-getting-started,Getting Started section>>.
+
+This section covers the basic configuration settings we provide in the provided sample configuration, please refer to the  link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/htmlsingle/#configuration-security[core security documentation] for more detailed coverage of the security configuration options for the Spring Cloud Data Flow server and shell.
+
+The security settings in the `scdf-config-kafka.yml` file are:
+[source,yaml]
+----
+    security:
+      basic:
+        enabled: true                                         # <1>
+        realm: Spring Cloud Data Flow                         # <2>
+    spring:
+      cloud:
+        dataflow:
+          security:
+            authentication:
+              file:
+                enabled: true
+                users:
+                  admin: admin, ROLE_MANAGE, ROLE_VIEW        # <3>
+                  user: password, ROLE_VIEW, ROLE_CREATE      # <4>
+----
+
+<1> Enable security
+<2> Optionally set the realm, defaults to "Spring"
+<3> Create an 'admin' user with passowrd set to 'admin' that can view apps, streams and tasks and that can also view management endpoints
+<4> Create a 'user' user with passsword set to 'password' than can register apps and create streams and tasks and also view them
+
+Feel free to change user names and passwords to suite, and also maybe move the definition of users to a Kubernetes Secret.
+
 [[configuration-monitoring-management]]
 == Monitoring and Management
 
