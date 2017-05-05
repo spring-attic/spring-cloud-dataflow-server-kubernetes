@@ -206,14 +206,16 @@ kubectl logs -f <app-pod-name>
 
 === Tasks
 
-Tasks are launched as bare pods without a replication controller. The pods remein after the tasks complete and you would have to delete them manually once they are no longer needed.
+Tasks are launched as bare pods without a replication controller. The pods remain after the tasks complete and this gives you an opportunity to review the logs. 
 
-For the task logs use:
+To review the task logs use:
 
 [source,shell]
 ----
 kubectl logs <task-pod-name>
 ----
+
+You have two options to delete completed pods. You can delete them manually once they are no longer needed.
 
 To delete the task pod use:
 
@@ -222,5 +224,25 @@ To delete the task pod use:
 kubectl delete pod <task-pod-name>
 ----
 
+You can also use the Data Flow shell command `task execution cleanup` command to remove the completed pod for a task execution.
 
+First we need to determine the `ID` for the task execution:
+
+[source,shell]
+----
+dataflow:>task execution list 
+╔═════════╤══╤════════════════════════════╤════════════════════════════╤═════════╗
+║Task Name│ID│         Start Time         │          End Time          │Exit Code║
+╠═════════╪══╪════════════════════════════╪════════════════════════════╪═════════╣
+║task1    │1 │Fri May 05 18:12:05 EDT 2017│Fri May 05 18:12:05 EDT 2017│0        ║
+╚═════════╧══╧════════════════════════════╧════════════════════════════╧═════════╝
+----
+
+Next we issue the command to cleanup the execution artifacts (the completed pod):
+
+[source,shell]
+----
+dataflow:>task execution cleanup --id 1
+Request to clean up resources for task execution 1 has been submitted
+----
 
