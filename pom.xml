@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-dataflow-parent</artifactId>
-		<version>1.2.0.RC2</version>
+		<version>1.2.0.RELEASE</version>
 		<relativePath />  <!-- lookup parent from repository -->
 	</parent>
  
@@ -19,8 +19,8 @@
 	</modules>
 
 	<properties>
-		<spring-cloud-dataflow.version>1.2.0.RC2</spring-cloud-dataflow.version>
-		<spring-cloud-deployer-kubernetes.version>1.2.0.RC1</spring-cloud-deployer-kubernetes.version>
+		<spring-cloud-dataflow.version>1.2.0.RELEASE</spring-cloud-dataflow.version>
+		<spring-cloud-deployer-kubernetes.version>1.2.0.RELEASE</spring-cloud-deployer-kubernetes.version>
 		<spring-cloud-kubernetes.version>0.1.6</spring-cloud-kubernetes.version>
 		<okhttp3.version>3.6.0</okhttp3.version>
 	</properties>

@@ -4,4 +4,8 @@
 [[dataflow-kubernetes-intro]]
 == Introducing Spring Cloud Data Flow for Kubernetes
 
-This project provides support for orchestrating long-running (_streaming_) and short-lived (_task/batch_) data microservices to Kubernetes using apps packaged as Docker images.
+Spring Cloud Data Flow is a toolkit for building data integration and real-time data processing pipelines.
+
+Pipelines consist of Spring Boot apps, built using the Spring Cloud Stream or Spring Cloud Task microservice frameworks. This makes Spring Cloud Data Flow suitable for a range of data processing use cases, from import/export to event streaming and predictive analytics.
+
+This project provides support for using Spring Cloud Data Flow with Kubernetes as the runtime for these pipelines with apps packaged as Docker images.
