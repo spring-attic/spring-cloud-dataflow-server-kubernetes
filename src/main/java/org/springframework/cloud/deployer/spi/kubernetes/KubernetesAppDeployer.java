@@ -32,6 +32,7 @@ import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -174,18 +175,19 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 	@Override
 	public AppStatus status(String appId) {
 		Map<String, String> selector = new HashMap<>();
+		ServiceList services = client.services().withLabel(SPRING_APP_KEY, appId).list();
 		selector.put(SPRING_APP_KEY, appId);
-		PodList list = client.pods().withLabels(selector).list();
+		PodList podList = client.pods().withLabels(selector).list();
 		if (logger.isDebugEnabled()) {
 			logger.debug(String.format("Building AppStatus for app: %s", appId));
-			if (list != null && list.getItems() != null) {
-				logger.debug(String.format("Pods for appId %s: %d", appId, list.getItems().size()));
-				for (Pod pod : list.getItems()) {
+			if (podList != null && podList.getItems() != null) {
+				logger.debug(String.format("Pods for appId %s: %d", appId, podList.getItems().size()));
+				for (Pod pod : podList.getItems()) {
 					logger.debug(String.format("Pod: %s", pod.getMetadata().getName()));
 				}
 			}
 		}
-		AppStatus status = buildAppStatus(appId, list);
+		AppStatus status = buildAppStatus(appId, podList, services);
 		logger.debug(String.format("Status for app: %s is %s", appId, status));
 
 		return status;

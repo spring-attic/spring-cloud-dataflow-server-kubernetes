@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,9 @@ import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -46,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.deployer.resource.docker.DockerResource;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
+import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.core.AppDefinition;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.test.AbstractAppDeployerIntegrationTests;
@@ -68,7 +72,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	private AppDeployer appDeployer;
 
 	@Autowired
-	KubernetesClient kubernetesClient;
+	private KubernetesClient kubernetesClient;
 
 	@Override
 	protected AppDeployer provideAppDeployer() {
@@ -124,6 +128,39 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		Timeout timeout = deploymentTimeout();
 		assertThat(deploymentId, eventually(hasStatusThat(
 				Matchers.hasProperty("state", is(deployed))), timeout.maxAttempts, timeout.pause));
+
+		log.info("Undeploying {}...", deploymentId);
+		timeout = undeploymentTimeout();
+		lbAppDeployer.undeploy(deploymentId);
+		assertThat(deploymentId, eventually(hasStatusThat(
+				Matchers.hasProperty("state", is(unknown))), timeout.maxAttempts, timeout.pause));
+	}
+
+	@Test
+	public void testDeploymentWithLoadBalancerHasUrl() {
+		log.info("Testing {}...", "DeploymentWithLoadBalancerShowsUrl");
+		KubernetesDeployerProperties lbProperties = new KubernetesDeployerProperties();
+		lbProperties.setCreateLoadBalancer(true);
+		lbProperties.setMinutesToWaitForLoadBalancer(1);
+		ContainerFactory containerFactory = new DefaultContainerFactory(lbProperties);
+		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
+
+		AppDefinition definition = new AppDefinition(randomName(), null);
+		Resource resource = testApplication();
+		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource);
+
+		log.info("Deploying {}...", request.getDefinition().getName());
+		String deploymentId = lbAppDeployer.deploy(request);
+		Timeout timeout = deploymentTimeout();
+		assertThat(deploymentId, eventually(hasStatusThat(
+				Matchers.hasProperty("state", is(deployed))), timeout.maxAttempts, timeout.pause));
+
+		log.info("Checking instance attributes of {}...", request.getDefinition().getName());
+		AppStatus status = lbAppDeployer.status(deploymentId);
+		for (String inst : status.getInstances().keySet()) {
+			assertThat(deploymentId, eventually(hasInstanceAttribute(Matchers.hasKey("url"), lbAppDeployer, inst),
+					timeout.maxAttempts, timeout.pause));
+		}
 
 		log.info("Undeploying {}...", deploymentId);
 		timeout = undeploymentTimeout();
@@ -225,5 +262,28 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	@Override
 	protected Resource testApplication() {
 		return new DockerResource("springcloud/spring-cloud-deployer-spi-test-app:latest");
+	}
+
+	private Matcher<String> hasInstanceAttribute(final Matcher<Map<? extends String, ?>> mapMatcher,
+	                                               final KubernetesAppDeployer appDeployer,
+	                                               final String inst) {
+		return new BaseMatcher<String>() {
+			private Map<String, String> instanceAttributes;
+
+			public boolean matches(Object item) {
+				this.instanceAttributes = appDeployer.status(item.toString()).getInstances().get(inst).getAttributes();
+				return mapMatcher.matches(this.instanceAttributes);
+			}
+
+			public void describeMismatch(Object item, Description mismatchDescription) {
+				mismatchDescription.appendText("attributes of instance " + inst + " of ").appendValue(item)
+						.appendText(" ");
+				mapMatcher.describeMismatch(this.instanceAttributes, mismatchDescription);
+			}
+
+			public void describeTo(Description description) {
+				mapMatcher.describeTo(description);
+			}
+		};
 	}
 }

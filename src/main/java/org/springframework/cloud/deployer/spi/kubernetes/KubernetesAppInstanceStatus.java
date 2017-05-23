@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,11 @@
 package org.springframework.cloud.deployer.spi.kubernetes;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServicePort;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,13 +41,13 @@ public class KubernetesAppInstanceStatus implements AppInstanceStatus {
 
 	private static Log logger = LogFactory.getLog(KubernetesAppInstanceStatus.class);
 	private final Pod pod;
-	private final String moduleId;
+	private Service service;
 	private KubernetesDeployerProperties properties;
 	private ContainerStatus containerStatus;
 
-	public KubernetesAppInstanceStatus(String moduleId, Pod pod, KubernetesDeployerProperties properties) {
-		this.moduleId = moduleId;
+	public KubernetesAppInstanceStatus(Pod pod, Service service, KubernetesDeployerProperties properties) {
 		this.pod = pod;
+		this.service = service;
 		this.properties = properties;
 		// we assume one container per pod
 		if (pod != null && pod.getStatus().getContainerStatuses().size() == 1) {
@@ -142,20 +145,46 @@ public class KubernetesAppInstanceStatus implements AppInstanceStatus {
 		Map<String, String> result = new HashMap<>();
 
 		if (pod != null) {
-			result.put("pod_starttime", pod.getStatus().getStartTime());
-			result.put("pod_ip", pod.getStatus().getPodIP());
-			result.put("host_ip", pod.getStatus().getHostIP());
+			result.put("pod.name", pod.getMetadata().getName());
+			result.put("pod.startTime", pod.getStatus().getStartTime());
+			result.put("pod.ip", pod.getStatus().getPodIP());
+			result.put("host.ip", pod.getStatus().getHostIP());
 			result.put("phase", pod.getStatus().getPhase());
+			result.put(AbstractKubernetesDeployer.SPRING_APP_KEY.replace('-', '.'),
+					pod.getMetadata().getLabels().get(AbstractKubernetesDeployer.SPRING_APP_KEY));
+			result.put(AbstractKubernetesDeployer.SPRING_DEPLOYMENT_KEY.replace('-', '.'),
+					pod.getMetadata().getLabels().get(AbstractKubernetesDeployer.SPRING_DEPLOYMENT_KEY));
+		}
+		if (service != null) {
+			result.put("service.name", service.getMetadata().getName());
+			if ("LoadBalancer".equals(service.getSpec().getType())) {
+				if (service.getStatus() != null && service.getStatus().getLoadBalancer() != null &&
+						service.getStatus().getLoadBalancer().getIngress() != null &&
+						!service.getStatus().getLoadBalancer().getIngress().isEmpty()) {
+					String externalIp = service.getStatus().getLoadBalancer().getIngress().get(0).getIp();
+					result.put("service.external.ip", externalIp);
+					List<ServicePort> ports = service.getSpec().getPorts();
+					int port = 0;
+					if (ports != null && ports.size() > 0) {
+						port = ports.get(0).getPort();
+						result.put("service.external.port", String.valueOf(port));
+					}
+					if (externalIp != null) {
+						result.put("url", "http://" + externalIp + (port > 0 && port != 80 ? ":" + port : ""));
+					}
+
+				}
+			}
 		}
 		if (containerStatus != null) {
-			result.put("container_restart_count", "" + containerStatus.getRestartCount());
+			result.put("container.restartCount", "" + containerStatus.getRestartCount());
 			if (containerStatus.getLastState() != null && containerStatus.getLastState().getTerminated() != null) {
-				result.put("container_last_termination_exit_code", "" + containerStatus.getLastState().getTerminated().getExitCode());
-				result.put("container_last_termination_reason", containerStatus.getLastState().getTerminated().getReason());
+				result.put("container.lastState.terminated.exitCode", "" + containerStatus.getLastState().getTerminated().getExitCode());
+				result.put("container.lastState.terminated.reason", containerStatus.getLastState().getTerminated().getReason());
 			}
 			if (containerStatus.getState() != null && containerStatus.getState().getTerminated() != null) {
-				result.put("container_termination_exit_code", "" + containerStatus.getState().getTerminated().getExitCode());
-				result.put("container_termination_reason", containerStatus.getState().getTerminated().getReason());
+				result.put("container.state.terminated.exitCode", "" + containerStatus.getState().getTerminated().getExitCode());
+				result.put("container.state.terminated.reason", containerStatus.getState().getTerminated().getReason());
 			}
 		}
 		return result;

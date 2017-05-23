@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -104,11 +106,19 @@ public class AbstractKubernetesDeployer {
 		return map;
 	}
 
-	protected AppStatus buildAppStatus(String id, PodList list) {
+	protected AppStatus buildAppStatus(String id, PodList podList, ServiceList services) {
 		AppStatus.Builder statusBuilder = AppStatus.of(id);
-		if (list != null && list.getItems() != null) {
-			for (Pod pod : list.getItems()) {
-				statusBuilder.with(new KubernetesAppInstanceStatus(id, pod, properties));
+		Service service = null;
+		if (podList != null && podList.getItems() != null) {
+			for (Pod pod : podList.getItems()) {
+				for (Service svc : services.getItems()) {
+					if (svc.getMetadata().getName()
+							.equals(pod.getMetadata().getLabels().get(SPRING_DEPLOYMENT_KEY))) {
+						service = svc;
+						break;
+					}
+				}
+				statusBuilder.with(new KubernetesAppInstanceStatus(pod, service, properties));
 			}
 		}
 		return statusBuilder.build();
