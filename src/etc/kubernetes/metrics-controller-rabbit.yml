@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: metrics
-        image: springcloudstream/metrics-collector-rabbit:1.0.0.M1
+        image: springcloud/metrics-collector-rabbit:1.0.0.RELEASE
         imagePullPolicy: Always
         ports:
         - containerPort: 80
