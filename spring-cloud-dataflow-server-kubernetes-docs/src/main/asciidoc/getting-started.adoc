@@ -28,9 +28,9 @@ but any app registered with a Maven, HTTP or File resource for the executable ja
 
 . Deploy a Kubernetes cluster.
 + 
-The http://kubernetes.io/docs/getting-started-guides/[Kubernetes Getting Started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
+The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the Right Solution] guide lets you choose among many deployment options so you can pick one that you are most comfortable using.
 +
-We have also used the https://github.com/kubernetes/minikube[Minikube] project to run a local Kubernetes cluster for testing.
+All our testing is done using the https://cloud.google.com/container-engine/[Google Container Engine] that is part of the Google Cloud Platform.
 +
 The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line. For the MySQL service we used the `gcloud` comand line utility. See the docs for installing both these utilities: https://cloud.google.com/sdk/downloads[Installing Cloud SDK] and http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 +
@@ -93,7 +93,7 @@ $ kubectl create -f src/etc/kubernetes/metrics-service.yml
 . Update configuration files with values needed to connect to the required services.
 +
 The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
-The ConfigMap settings are specified in the `src/etc/kubernetes/scdf-config.yml` file and the Secrets in the `src/etc/kubernetes/scdf-secrets.yml` file. Modify the password for MySQL in the latter if you changed it. It has to be provided encoded as base64.
+The ConfigMap settings are specified in the `src/etc/kubernetes/scdf-config-kafka.yml` file and the Secrets in the `src/etc/kubernetes/scdf-secrets.yml` file. Modify the password for MySQL in the latter if you changed it. It has to be provided encoded as base64.
 +
 NOTE: We are now configuring the Data Flow server with file based security and the default user is 'user' with a password of 'password'. Fel free to change this in the `src/etc/kubernetes/scdf-config.yml` file.
 +
