@@ -11,9 +11,8 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 
 // Since the core projects will be at different release cadences, the following tokens need changed at the time of every release
 :scdf-core-version: {dataflow-project-version}
-//:scdf-core-git: v{scdf-core-version}
-:scdf-core-git: master
-:scst-core-version: Chelsea.SR2
+:scdf-core-git: v{scdf-core-version}
+:scst-core-version: Dalston.SR1
 :sct-core-version: 1.2.1.RELEASE
 :scst-starters-core-version: 1.2.0.RELEASE
 :sct-starters-core-version: 1.2.0.RELEASE
