@@ -31,7 +31,7 @@ spec:
               fieldPath: "metadata.namespace"
         - name: SERVER_PORT
           value: '80'
-        - name: SPRING_CLOUD_CONFIG_SERVER_BOOTSTRAP
+        - name: SPRING_CLOUD_CONFIG_ENABLED
           value: 'false'
         - name: SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED
           value: 'true'
