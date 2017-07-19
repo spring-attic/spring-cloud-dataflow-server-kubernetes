@@ -1,5 +1,6 @@
+[appendix]
 [[howto]]
-= '`How-to`' guides
+== '`How-to`' guides
 
 [partintro]
 --
@@ -15,7 +16,7 @@ We're also more than happy to extend this section; If you want to add a '`how-to
 can send us a {github-code}[pull request].
 --
 
-== Logging
+=== Logging
 
 Spring Cloud Data Flow is built upon several Spring projects, but ultimately the dataflow-server is a 
 Spring Boot app, so the logging techniques that apply to any link:http://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html#howto-logging[Spring Boot]
@@ -25,7 +26,7 @@ application are applicable here as well.
 While troubleshooting, following are the two primary areas where enabling the DEBUG logs could be 
 useful.
 
-=== Deployment Logs
+==== Deployment Logs
 Spring Cloud Data Flow builds upon link:https://github.com/spring-cloud/spring-cloud-deployer[Spring Cloud Deployer] SPI 
 and the platform specific dataflow-server uses the respective link:https://github.com/spring-cloud?utf8=%E2%9C%93&query=deployer[SPI implementations]. 
 Specifically, if we were to troubleshoot deployment specific issues; such as the network errors, it'd 
@@ -33,15 +34,13 @@ be useful to enable the DEBUG logs at the underlying deployer and the libraries 
 
 . For instance, if you'd like to enable DEBUG logs for the link:https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/tree/master/spring-cloud-deployer-kubernetes[kubernetes-deployer], 
 you'd be starting the server with following environment variable set.
-
 +
 [source,bash]
 ----
 LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_DEPLOYER_SPI_KUBERNETES=DEBUG
 ----
-+
 
-=== Application Logs
+==== Application Logs
 
 The streaming applications in Spring Cloud Data Flow are Spring Boot applications and they can be 
 independently setup with logging configurations. 
@@ -49,7 +48,6 @@ independently setup with logging configurations.
 For instance, if you'd have to troubleshoot the `header` and `payload` specifics that are being passed
 around source, processor and sink channels, you'd be deploying the stream with the following
 options.
-
 
 [source,bash]
 ----
