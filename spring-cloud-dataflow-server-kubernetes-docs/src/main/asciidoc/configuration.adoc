@@ -170,7 +170,20 @@ You can list all artifacts used by using the following command:
 kubectl get cm,secrets,svc,rc,pod
 ----
 
-=== Server
+== Deployer Properties
+
+The Spring Data Flow Kubernetes Server has several properties you can use to configure the apps that it deploya. You can control the default values to set the `cpu` and `memory` requirements for the pods.  The configuration is controlled by configuration properties under the `spring.cloud.deployer.kubernetes` prefix.  For example you might declare the following section in an `application.properties` file or pass them as command line arguments when starting the Server.
+
+```
+spring.cloud.deployer.kubernetes.memory=512Mi
+spring.cloud.deployer.kubernetes.cpu=500m
+```
+
+See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesAppDeployerProperties.java[KubernetesAppDeployerProperties] for more of the supported options.
+
+Data Flow Server properties that are common across all of the Data Flow Server implementations that concern maven repository settings can also be set in a similar manner.  See the section on Common Data Flow Server Properties for more information.
+
+=== Inspecting Server and Apps
 
 You can access the server log by using the following command (just supply the name of pod for the server):
 
@@ -181,7 +194,7 @@ kubectl logs <scdf-pod-name>
 
 === Streams
 
-The streams apps are deployed with teh stream name followed by the name of the app and for processors and sinks there is also an instance index appended. 
+The streams apps are deployed with the stream name followed by the name of the app and for processors and sinks there is also an instance index appended. 
 
 To see details for a specifc app deployment you can use (just supply the name of pod for the app):
 

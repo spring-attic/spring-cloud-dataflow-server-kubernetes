@@ -1,17 +1,19 @@
 = Spring Cloud Data Flow Server for Kubernetes
 Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Dave Syer, David Turanski, Janne Valkealahti
 :doctype: book
-:toc:
+:toc: left
 :toclevels: 4
 :source-highlighter: prettify
 :numbered:
 :icons: font
 :hide-uri-scheme:
+:docinfo: shared
 :attributes: allow-uri-read
 
 // Since the core projects will be at different release cadences, the following tokens need changed at the time of every release
 :scdf-core-version: {dataflow-project-version}
-:scdf-core-git: v{scdf-core-version}
+// :scdf-core-git: v{scdf-core-version}
+:scdf-core-git: master
 :scst-core-version: Dalston.SR1
 :sct-core-version: 1.2.1.RELEASE
 :scst-starters-core-version: 1.2.0.RELEASE
@@ -38,27 +40,19 @@ endif::backend-html5[]
 
 // ======================================================================================
 
-include::introduction.adoc[]
-
-include::overview.adoc[]
-
-include::{dataflow-asciidoc}/architecture.adoc[]
-
 include::getting-started.adoc[]
+
+include::{dataflow-asciidoc}/applications.adoc[]
+include::{dataflow-asciidoc}/architecture.adoc[]
 
 include::configuration.adoc[]
 
-//include::{dataflow-asciidoc}/streams.adoc[]
-
-//include::{dataflow-asciidoc}/tasks.adoc[]
-
+include::{dataflow-asciidoc}/shell.adoc[]
+include::{dataflow-asciidoc}/streams.adoc[]
+include::{dataflow-asciidoc}/tasks.adoc[]
 include::{dataflow-asciidoc}/dashboard.adoc[]
-
-include::server.adoc[]
-
-include::howto.adoc[]
+include::{dataflow-asciidoc}/api-guide.adoc[]
 
 include::appendix.adoc[]
-
 
 // ======================================================================================
