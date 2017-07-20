@@ -1,3 +1,4 @@
+# DEPRECATED as of version 1.2.2.RELEASE - use the src/kubernetes/metrics/metrics-deployment-rabbit.yaml file instead
 apiVersion: v1
 kind: ReplicationController
 metadata:

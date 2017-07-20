@@ -1,3 +1,4 @@
+# DEPRECATED as of version 1.2.2.RELEASE - use the src/kubernetes/metrics/metrics-svc.yaml file instead
 kind: Service
 apiVersion: v1
 metadata:
