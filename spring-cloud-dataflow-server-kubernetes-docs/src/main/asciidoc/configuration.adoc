@@ -23,7 +23,7 @@ You can enable or disable these features by setting the following boolean enviro
 
 By default, all the features are enabled.
 
-NOTE: Since analytics feature is enabled by default, the Data Flow server is expected to have a valid Redis store available as analytic repository as we provide a default implementation of analytics based on Redis. This also means that the Data Flow server's `health` depends on the redis store availability as well. If you do not want to enabled HTTP endpoints to read analytics data written to Redis, then disable the analytics feature using the property mentioned above.
+NOTE: Since analytics feature is enabled by default, the Data Flow server is expected to have a valid Redis store available as analytic repository as we provide a default implementation of analytics based on Redis. This also means that the Data Flow server's `health` depends on the redis store availability as well. If you do not want to enable HTTP endpoints to read analytics data written to Redis, then disable the analytics feature using the property mentioned above.
 
 The REST endpoint `/features` provides information on the features enabled/disabled.
 
@@ -172,16 +172,16 @@ kubectl get cm,secrets,svc,rc,pod
 
 == Deployer Properties
 
-The Spring Data Flow Kubernetes Server has several properties you can use to configure the apps that it deploya. You can control the default values to set the `cpu` and `memory` requirements for the pods.  The configuration is controlled by configuration properties under the `spring.cloud.deployer.kubernetes` prefix.  For example you might declare the following section in an `application.properties` file or pass them as command line arguments when starting the Server.
+The Spring Data Flow Kubernetes Server has several properties you can use to configure the apps that it deploys. You can control the default values to set the `cpu` and `memory` requirements for the pods.  The configuration is controlled by configuration properties under the `spring.cloud.deployer.kubernetes` prefix.  For example you might declare the following section in an `application.properties` file or pass them as command line arguments when starting the Server.
 
 ```
 spring.cloud.deployer.kubernetes.memory=512Mi
 spring.cloud.deployer.kubernetes.cpu=500m
 ```
 
-See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesAppDeployerProperties.java[KubernetesAppDeployerProperties] for more of the supported options.
+See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesDeployerProperties.java[KubernetesDeployerProperties] for more of the supported options.
 
-Data Flow Server properties that are common across all of the Data Flow Server implementations that concern maven repository settings can also be set in a similar manner.  See the section on Common Data Flow Server Properties for more information.
+Data Flow Server properties that are common across all of the Data Flow Server implementations including the configuration of maven repository settings can be set in a similar manner.
 
 === Inspecting Server and Apps
 

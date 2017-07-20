@@ -1,5 +1,5 @@
 = Spring Cloud Data Flow Server for Kubernetes
-Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Dave Syer, David Turanski, Janne Valkealahti
+Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Florian Rosenberg, Dave Syer, David Turanski, Janne Valkealahti, Oleg Zhurakousky
 :doctype: book
 :toc: left
 :toclevels: 4
@@ -23,6 +23,8 @@ Eric Bottard, Florian Rosenberg, Sabby Anandan, Marius Bogoevici, Mark Fisher, I
 :spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
 :github-repo: spring-cloud/spring-cloud-dataflow-server-kubernetes
 :github-code: http://github.com/{github-repo}
+// :github-tag: v{project-version}
+:github-tag: master
 :dataflow-asciidoc: https://raw.githubusercontent.com/spring-cloud/spring-cloud-dataflow/{scdf-core-git}/spring-cloud-dataflow-docs/src/main/asciidoc
 
 ifdef::backend-html5[]
