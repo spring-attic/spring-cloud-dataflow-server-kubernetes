@@ -1,31 +1,13 @@
 [[kubernetes-getting-started]]
 = Getting Started
 
-[[dataflow-kubernetes-intro]]
-== Introducing Spring Cloud Data Flow for Kubernetes
-
-Spring Cloud Data Flow is a toolkit for building data integration and real-time data processing pipelines.
+http://cloud.spring.io/spring-cloud-dataflow/[Spring Cloud Data Flow] is a toolkit for building data integration and real-time data processing pipelines.
 
 Pipelines consist of Spring Boot apps, built using the Spring Cloud Stream or Spring Cloud Task microservice frameworks. This makes Spring Cloud Data Flow suitable for a range of data processing use cases, from import/export to event streaming and predictive analytics.
 
 This project provides support for using Spring Cloud Data Flow with Kubernetes as the runtime for these pipelines with apps packaged as Docker images.
 
-[[spring-cloud-data-flow-overview]]
-=== Spring Cloud Data Flow Overview
-
-The http://cloud.spring.io/spring-cloud-dataflow/[Spring Cloud Data Flow] server uses https://github.com/spring-cloud/spring-cloud-deployer/[Spring Cloud Deployer], to deploy pipelines onto modern runtimes such as Cloud Foundry, Kubernetes, Apache Mesos or Apache YARN.
-
-A selection of pre-built http://cloud.spring.io/spring-cloud-stream-app-starters/[stream] and http://cloud.spring.io/spring-cloud-task-app-starters/[task/batch] starter apps for various data integration and processing scenarios facilitate learning and experimentation.
-
-<<index.adoc#custom-applications, Custom>> stream and task applications, targeting different middleware or data services, can be built using the familiar Spring Boot style programming model.
-
-A simple <<index.html#_stream_dsl, stream pipeline DSL>> makes it easy to specify which apps to deploy and how to connect outputs and inputs. A new <<index.html#_composed_tasks_dsl, composed task DSL>> was added in v1.2.
-
-The <<index.html#dashboard-introduction, dashboard>> offers a graphical editor for building new pipelines interactively, as well as views of deployable apps and running apps with metrics.
-
-The Spring Could Data Flow server exposes a <<index.html#api-guide-overview, REST API>> for composing and deploying data pipelines. A separate <<index.html#shell, shell>> makes it easy to work with the API from the command line.
-
-== Deploying the Data Flow server on Kubernetes
+== Deploying the Spring Cloud Data Flow server on Kubernetes
 
 In this section we will deploy the Spring Cloud Data Flow Server to a Kubernetes cluster.  We need to make available several Kubernetes services for the Spring Cloud Data Flow server to use. We need an RDBMS service for the app registry and stream and task repositories. We also need a transport option of either Kafka or Rabbit MQ. In addition to this we need a Redis instance if we are planning on using the analytics features.
 
