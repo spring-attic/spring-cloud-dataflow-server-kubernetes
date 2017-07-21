@@ -150,11 +150,13 @@ public class DefaultContainerFactory implements ContainerFactory {
 						.endPort();
 			}
 			container.withReadinessProbe(
-							createProbe(port, properties.getReadinessProbePath(), properties.getReadinessProbeTimeout(),
-									properties.getReadinessProbeDelay(), properties.getReadinessProbePeriod()))
+							new ProbeCreator(port, properties.getReadinessProbePath(), properties.getReadinessProbeTimeout(),
+									properties.getReadinessProbeDelay(), properties.getReadinessProbePeriod(),
+									"readiness", request.getDeploymentProperties()).create())
 					.withLivenessProbe(
-							createProbe(port, properties.getLivenessProbePath(), properties.getLivenessProbeTimeout(),
-									properties.getLivenessProbeDelay(), properties.getLivenessProbePeriod()));
+							new ProbeCreator(port, properties.getLivenessProbePath(), properties.getLivenessProbeTimeout(),
+									properties.getLivenessProbeDelay(), properties.getLivenessProbePeriod(),
+									"liveness", request.getDeploymentProperties()).create());
 		}
 
 		//Add additional specified ports.  Further work is needed to add probe customization for each port.
@@ -182,23 +184,6 @@ public class DefaultContainerFactory implements ContainerFactory {
 		}
 
 		return container.build();
-	}
-
-	/**
-	 * Create a readiness probe for the /health endpoint exposed by each module.
-	 */
-	protected Probe createProbe(Integer externalPort, String endpoint, int timeout, int initialDelay, int period) {
-		return new ProbeBuilder()
-				.withHttpGet(
-						new HTTPGetActionBuilder()
-								.withPath(endpoint)
-								.withNewPort(externalPort)
-								.build()
-				)
-				.withTimeoutSeconds(timeout)
-				.withInitialDelaySeconds(initialDelay)
-				.withPeriodSeconds(period)
-				.build();
 	}
 
 	/**
@@ -335,4 +320,65 @@ public class DefaultContainerFactory implements ContainerFactory {
 		return entryPointStyle;
 	}
 
+	/**
+	 * Create a readiness/liveness probe overriding any value that is provided as a deployment property.
+	 */
+	private static class ProbeCreator {
+
+		static final String KUBERNETES_DEPLOYER_PREFIX = "spring.cloud.deployer.kubernetes";
+
+		Integer externalPort;
+		String endpoint;
+		int timeout;
+		int initialDelay;
+		int period;
+
+		ProbeCreator(Integer externalPort, String endpoint, int timeout, int initialDelay, int period,
+					 String prefix, Map<String, String> deployProperties) {
+			this.externalPort = externalPort;
+			if (deployProperties.containsKey(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbePath")) {
+				this.endpoint = String.valueOf(
+						deployProperties.get(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbePath").trim());
+			}
+			else {
+				this.endpoint = endpoint;
+			}
+			if (deployProperties.containsKey(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbeTimeout")) {
+				this.timeout = Integer.valueOf(
+						deployProperties.get(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbeTimeout").trim());
+			}
+			else {
+				this.timeout = timeout;
+			}
+			if (deployProperties.containsKey(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbeDelay")) {
+				this.initialDelay = Integer.valueOf(
+						deployProperties.get(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbeDelay").trim());
+			}
+			else {
+				this.initialDelay = initialDelay;
+			}
+			if (deployProperties.containsKey(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbePeriod")) {
+				this.period = Integer.valueOf(
+						deployProperties.get(KUBERNETES_DEPLOYER_PREFIX + "." + prefix + "ProbePeriod").trim());
+			}
+			else {
+				this.period = period;
+			}
+		}
+
+		Probe create() {
+			return new ProbeBuilder()
+					.withHttpGet(
+							new HTTPGetActionBuilder()
+									.withPath(endpoint)
+									.withNewPort(externalPort)
+									.build()
+					)
+					.withTimeoutSeconds(timeout)
+					.withInitialDelaySeconds(initialDelay)
+					.withPeriodSeconds(period)
+					.build();
+
+		}
+	}
 }
