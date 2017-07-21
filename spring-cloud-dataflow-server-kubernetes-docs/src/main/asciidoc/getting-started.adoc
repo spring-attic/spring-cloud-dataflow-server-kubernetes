@@ -158,7 +158,7 @@ $ minikube service --url scdf-server
 http://192.168.99.100:31991
 ```
 
-== Deploying Streams on Kubernetes
+== Creating and Running Streams on Kubernetes
 
 . Download and run the Spring Cloud Data Flow shell.
 +
@@ -348,7 +348,7 @@ command is:kubectl logs test-log-0-ysiz3
 dataflow:>stream destroy --name test
 ```
 
-== Deploying Tasks on Kubernetes
+== Creating and Launching Tasks on Kubernetes
 
 . Create a task and launch it
 +
@@ -384,4 +384,3 @@ dataflow:>task execution list
 ```
 dataflow:>task destroy --name task1
 ```
-
