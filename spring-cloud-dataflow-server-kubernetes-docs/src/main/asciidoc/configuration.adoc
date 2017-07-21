@@ -250,7 +250,7 @@ You can get the logs for a specific pod by issuing:
 kubectl logs pod <pod-name>
 ----
 
-If the pod is continously getting restarted you can add `-p` as an option to see the previous log like:
+If the pod is continuously getting restarted you can add `-p` as an option to see the previous log like:
 
 [source,shell]
 ----
@@ -268,7 +268,7 @@ A useful command to help in troubleshooting issues, such as a container that has
 
 [source,shell]
 ----
-kubectl describe pods/ticktock-log-0-qnk72
+kubectl describe pod ticktock-log-0-qnk72
 ----
 
 === Inspecting Server Logs
@@ -283,9 +283,9 @@ kubectl logs <scdf-server-pod-name>
 
 === Streams
 
-The streams apps are deployed with the stream name followed by the name of the app and for processors and sinks there is also an instance index appended. 
+The stream apps are deployed with the stream name followed by the name of the app and for processors and sinks there is also an instance index appended. 
 
-To see all the pods that are deployed by the Spring Cloud Data Flow server you can specify the label `role=spring=app`:
+To see all the pods that are deployed by the Spring Cloud Data Flow server you can specify the label `role=spring-app`:
 
 [source,shell]
 ----
