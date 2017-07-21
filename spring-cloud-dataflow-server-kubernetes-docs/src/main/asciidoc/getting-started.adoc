@@ -9,7 +9,7 @@ This project provides support for using Spring Cloud Data Flow with Kubernetes a
 
 == Deploying the Spring Cloud Data Flow server on Kubernetes
 
-In this section we will deploy the Spring Cloud Data Flow Server to a Kubernetes cluster.  We need to make available several Kubernetes services for the Spring Cloud Data Flow server to use. We need an RDBMS service for the app registry and stream and task repositories. We also need a transport option of either Kafka or Rabbit MQ. In addition to this we need a Redis instance if we are planning on using the analytics features.
+In this section we will deploy the Spring Cloud Data Flow Server to a Kubernetes cluster.  We need to make available several services for the Spring Cloud Data Flow server to use. We need an RDBMS service for the app registry and stream and task repositories. We also need a transport option of either Kafka or Rabbit MQ. In addition to this we need a Redis instance if we are planning on using the analytics features.
 
 [IMPORTANT]
 ====
@@ -42,9 +42,9 @@ NOTE: When starting Minikube you should allocate some extra resources since we w
 +
 The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 +
-NOTE: We are developing a https://helm.sh/[Helm] chart to simplify all this and we plan on making it available as part of https://kubeapps.com/[KubeApps].
-+
 . Get the Kubernetes configuration files.
++
+NOTE: We are developing a https://helm.sh/[Helm] chart to simplify all this and we plan on making it available as part of https://kubeapps.com/[KubeApps].
 +
 There are sample deployment and service YAML files in the https://github.com/{github-repo}[https://github.com/{github-repo}] repository that you can use as a starting point. They have the required metadata set for service discovery by the different apps and services deployed. To check out the code enter the following commands:
 + 
@@ -203,7 +203,7 @@ dataflow:>
 [subs=attributes]
 ```
 dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:{scst-starters-core-version}
-dataflow:>app register --type sink --name log --uri docker:springcloudstream/log-sink-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:{scst-starters-core-version}
+dataflow:>app register --type sink --name log --uri docker://springcloudstream/log-sink-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:{scst-starters-core-version}
 ```
 +
 . Alternatively, if you would like to register all out-of-the-box stream applications built with the Rabbit binder in bulk, 
@@ -384,3 +384,81 @@ dataflow:>task execution list
 ```
 dataflow:>task destroy --name task1
 ```
+
+== Application Configuration
+
+This section covers how you can customize the deployment of your applications. You can use a number of deployer properties to influence settings for the applications that are deployed.
+
+See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesDeployerProperties.java[KubernetesDeployerProperties] for more of the supported options.
+
+If you would like to override the default values for all apps that you deploy then you should modify the <<index.html#_spring_cloud_deployer_for_kubernetes_properties, Spring Cloud Deployer for Kubernetes Properties>> for the server.
+
+=== Memory and CPU Settings
+
+The Spring Cloud Deployer that is being used has certain defaults for the memory and CPU setting that are used for deployed apps. With the defaults the container Limits and Requests are set to the following:
+
+```
+    Limits:
+      cpu:	500m
+      memory:	512Mi
+    Requests:
+      cpu:	500m
+      memory:	512Mi
+```
+
+You might find that the 512Mi memory limit is too low and to increase it you can provide a common `spring.cloud.deployer.memory` deployer property like this (replace <app> with the name of the app you would like to set this for):
+
+```
+deployer.<app>.memory=640m
+```
+
+This property affects bot the Requests and Limits memory value set for the container.
+
+If you would like to set the Requests and Limits values separately you would have to use the deployer properties that are specific to the Kubernetes deployer. To set the Limits to 1000m for cpu, 1024Mi for memory and Requests to 800m for cpu, 640Mi for memory you can use the following properties:
+
+```
+deployer.<app>.kubernetes.limits.cpu=1000m
+deployer.<app>.kubernetes.limits.memory=1024Mi
+deployer.<app>.kubernetes.requests.cpu=800m
+deployer.<app>.kubernetes.requests.memory=640Mi
+```
+
+That should result in the following container settings being used:
+
+```
+    Limits:
+      cpu:	1
+      memory:	1Gi
+    Requests:
+      cpu:	800m
+      memory:	640Mi
+```
+
+NOTE: When using the common memory property you should use and `m` suffix for the value while when using the Kubernetes specific properties you should use the Kubernetes `Mi` style suffix.
+
+The settings we have used so far only affect the settings for the container, they do not affect the memory setting for the JVM process in the container. If you would like to set JVM memory settings you can provide an environment variable for this, see the next section for details.
+
+=== Environment Variables
+
+To set an environment variable for a deployed app use the `spring.cloud.deployer.kubernetes.environmentVariables` property like this:
+
+```
+deployer.<app>.kubernetes.environmentVariables=JAVA_TOOL_OPTIONS=-Xmx1024m
+```
+
+This example sets the `JAVA_TOOL_OPTIONS` environment variable to pass in a JVM memory setting. 
+
+=== Liveness and Readiness Probes
+
+The liveness and readiness probes are using the paths `\health` and `\info` respectively. They use a delay of 10 for both and a period of 60 and 10 respectively. You can chage these defaults when you deploy by using deployer properties.
+
+Here is an example changing the liveness probe (just replace <app> with the name of your app):
+
+```
+deployer.<app>.kubernetes.livenessProbePath=/info
+deployer.<app>.kubernetes.livenessProbeDelay=120
+deployer.<app>.kubernetes.livenessProbePeriod=20
+```
+
+For setting values for the readiness probe just change the property name to include readiness instead of liveness.
+

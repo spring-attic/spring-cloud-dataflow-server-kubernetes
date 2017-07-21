@@ -212,6 +212,16 @@ For example you might declare the following as part of the container env section
           value: 640Mi
 ```
 
+You can modify the settings used for teh liveness and readiness probes. This might be necessary if your cluster is slower and the apps need more time to start up. Here is an example of setting the delay and period for the liveness probe:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_DELAY
+          value: '120'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_PERIOD
+          value: '45'
+```
+
 See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesDeployerProperties.java[KubernetesDeployerProperties] for more of the supported options.
 
 Data Flow Server properties that are common across all of the Data Flow Server implementations including the configuration of maven repository settings can be set in a similar manner although the latter might be easier to set using a `SPRING_APPLICATION_JSON` environment variable like:
