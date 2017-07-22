@@ -9,11 +9,15 @@ This project provides support for using Spring Cloud Data Flow with Kubernetes a
 
 == Deploying the Spring Cloud Data Flow server on Kubernetes
 
-In this section we will deploy the Spring Cloud Data Flow Server to a Kubernetes cluster.  We need to make available several services for the Spring Cloud Data Flow server to use. We need an RDBMS service for the app registry and stream and task repositories. We also need a transport option of either Kafka or Rabbit MQ. In addition to this we need a Redis instance if we are planning on using the analytics features.
+In this section we will deploy the Spring Cloud Data Flow Server to a Kubernetes cluster.
+Operationalizing Spring Cloud Data Flow depends on few services and its availability.
+For example, we need an RDBMS service for the app registry, stream, and task repositories. 
+For streaming pipelines, we also need a transport option such as Apache Kafka or Rabbit MQ. 
+In addition to this, we need a Redis service if the analytics features are in use.
 
 [IMPORTANT]
 ====
-This guide describes setting up an environment for testing Spring Cloud Data Flow on Google Container Engine and is not meant to be a definitive guide for setting up a production environment. Feel free to adjust the suggestions to fit your test set-up. Please remember that a production environment requires much more consideration for persistent storage of message queues, high availabillity, security etc.
+This guide describes setting up an environment for testing Spring Cloud Data Flow on Google Container Engine and is not meant to be a definitive guide for setting up a production environment. Feel free to adjust the suggestions to fit your test set-up. Please remember that a production environment requires much more consideration for persistent storage of message queues, high availability, security etc.
 ====
 
 [NOTE]
@@ -36,7 +40,7 @@ but any app registered with a Maven, HTTP or File resource for the executable ja
 + 
 The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the Right Solution] guide lets you choose among many options so you can pick one that you are most comfortable using.
 +
-All our testing is done using the https://cloud.google.com/container-engine/[Google Container Engine] that is part of the Google Cloud Platform. That is a also the target platform for this getting started chapter. We have also succesfully deployed using https://kubernetes.io/docs/getting-started-guides/minikube/[Minikube] and we will note where you need to adjust for deploying on Minikube.
+All our testing is done using the https://cloud.google.com/container-engine/[Google Container Engine] that is part of the Google Cloud Platform. That is a also the target platform for this getting started chapter. We have also successfully deployed using https://kubernetes.io/docs/getting-started-guides/minikube/[Minikube] and we will note where you need to adjust for deploying on Minikube.
 +
 NOTE: When starting Minikube you should allocate some extra resources since we will be deploying several services. We have used `minikube start --cpus=4 --memory=4096` to start.
 +
@@ -310,7 +314,7 @@ NAME               READY     STATUS    RESTARTS   AGE
 test-http-9obkq    1/1       Running   0          3m
 test-log-0-ysiz3   1/1       Running   0          3m
 ```
-Now look up the URL to use with the follwoig command:
+Now look up the URL to use with the following command:
 +
 ```
 dataflow:>! minikube service --url test-http
@@ -395,7 +399,7 @@ If you would like to override the default values for all apps that you deploy th
 
 === Memory and CPU Settings
 
-The Spring Cloud Deployer that is being used has certain defaults for the memory and CPU setting that are used for deployed apps. With the defaults the container Limits and Requests are set to the following:
+The apps are deployed by default with the following "Limits" and "Requests" settings:
 
 ```
     Limits:
@@ -440,19 +444,21 @@ The settings we have used so far only affect the settings for the container, the
 
 === Environment Variables
 
-To set an environment variable for a deployed app use the `spring.cloud.deployer.kubernetes.environmentVariables` property like this:
+To influence the environment settings for a given app, you can take advantage of the `spring.cloud.deployer.kubernetes.environmentVariables` deployer property. 
+For example, a common requirement in production settings is to influence the JVM memory arguments.
+This can be achieved by using the `JAVA_TOOL_OPTIONS` environment variable:
 
 ```
 deployer.<app>.kubernetes.environmentVariables=JAVA_TOOL_OPTIONS=-Xmx1024m
 ```
 
-This example sets the `JAVA_TOOL_OPTIONS` environment variable to pass in a JVM memory setting. 
+This overrides the JVM memory setting for the desired <app> (just replace <app> with the name of your app). 
 
 === Liveness and Readiness Probes
 
-The liveness and readiness probes are using the paths `\health` and `\info` respectively. They use a delay of 10 for both and a period of 60 and 10 respectively. You can chage these defaults when you deploy by using deployer properties.
+The _liveness_ and _readiness_ probes are using the _paths_ `\health` and `\info` respectively. They use a _delay_ of 10 for both and a _period_ of 60 and 10 respectively. You can chage these defaults when you deploy by using deployer properties.
 
-Here is an example changing the liveness probe (just replace <app> with the name of your app):
+Here is an example changing the _liveness_ probe (just replace <app> with the name of your app):
 
 ```
 deployer.<app>.kubernetes.livenessProbePath=/info
@@ -460,5 +466,5 @@ deployer.<app>.kubernetes.livenessProbeDelay=120
 deployer.<app>.kubernetes.livenessProbePeriod=20
 ```
 
-For setting values for the readiness probe just change the property name to include readiness instead of liveness.
+Similarly, swap _liveness_ for _readiness_ to override the default readiness settings.
 
