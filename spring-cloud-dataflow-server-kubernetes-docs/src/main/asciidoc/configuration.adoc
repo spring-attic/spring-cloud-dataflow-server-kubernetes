@@ -111,7 +111,7 @@ The password is provided as a base64 encoded value.
 [[configuration-rdbms]]
 == Database Configuration
 
-Spring Cloud Data Flow provides schemas for H2, HSQLDB, MySQL, Oracle, Postgresql, DB2 and SqlServer that will be automatically created when the server starts.
+Spring Cloud Data Flow provides schemas for H2, HSQLDB, MySQL, Oracle, PostgreSQL, DB2 and SQL Server that will be automatically created when the server starts.
 
 The JDBC drivers for *MySQL* (via MariaDB driver), *HSQLDB*, *PostgreSQL* along with embedded *H2* are available out of the box.
 If you are using any other database, then the corresponding JDBC driver jar needs to be on the classpath of the server.
@@ -192,8 +192,8 @@ The security settings in the `src/kubernetes/server/server-config-rabbit.yaml` f
 
 <1> Enable security
 <2> Optionally set the realm, defaults to "Spring"
-<3> Create an 'admin' user with passowrd set to 'admin' that can view apps, streams and tasks and that can also view management endpoints
-<4> Create a 'user' user with passsword set to 'password' than can register apps and create streams and tasks and also view them
+<3> Create an 'admin' user with password set to 'admin' that can view apps, streams and tasks and that can also view management endpoints
+<4> Create a 'user' user with password set to 'password' than can register apps and create streams and tasks and also view them
 
 Feel free to change user names and passwords to suite, and also maybe move the definition of user passwords to a Kubernetes Secret.
 
@@ -210,6 +210,16 @@ For example you might declare the following as part of the container env section
           value: 500m
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
           value: 640Mi
+```
+
+You can modify the settings used for the liveness and readiness probes. This might be necessary if your cluster is slower and the apps need more time to start up. Here is an example of setting the delay and period for the liveness probe:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_DELAY
+          value: '120'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_PERIOD
+          value: '45'
 ```
 
 See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesDeployerProperties.java[KubernetesDeployerProperties] for more of the supported options.
@@ -292,7 +302,7 @@ To see all the pods that are deployed by the Spring Cloud Data Flow server you c
 kubectl get pod -l role=spring-app
 ----
 
-To see details for a specifc app deployment you can use (just supply the name of pod for the app):
+To see details for a specific app deployment you can use (just supply the name of pod for the app):
 
 [source,shell]
 ----
