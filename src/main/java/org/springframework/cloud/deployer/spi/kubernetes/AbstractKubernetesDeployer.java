@@ -34,6 +34,7 @@ import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.core.RuntimeEnvironmentInfo;
 import org.springframework.cloud.deployer.spi.util.ByteSizeUtils;
 import org.springframework.cloud.deployer.spi.util.RuntimeVersionUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import io.fabric8.kubernetes.api.model.Container;
@@ -45,6 +46,8 @@ import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceRequirements;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.client.KubernetesClient;
+
+import static java.lang.String.format;
 
 /**
  * Abstract base class for a deployer that targets Kubernetes.
@@ -154,6 +157,11 @@ public class AbstractKubernetesDeployer {
 		ImagePullPolicy pullPolicy = deduceImagePullPolicy(request);
 		container.setImagePullPolicy(pullPolicy.name());
 
+		//
+		Map<String, String> nodeSelectors = getNodeSelectors(request.getDeploymentProperties());
+		if (nodeSelectors.size() > 0) {
+			podSpec.withNodeSelector(nodeSelectors);
+		}
 		// only add volumes with corresponding volume mounts
 		podSpec.withVolumes(getVolumes(request).stream()
 				.filter(volume -> container.getVolumeMounts().stream()
@@ -364,6 +372,30 @@ public class AbstractKubernetesDeployer {
 		}
 		logger.debug("Using hostNetwork " + hostNetwork);
 		return hostNetwork;
+	}
+
+	/**
+	 * Get the nodeSelectors setting for the deployment request.
+	 *
+	 * @param properties The deployment request deployment properties.
+	 * @return map of nodeSelectors
+	 */
+	protected Map<String, String> getNodeSelectors(Map<String, String> properties) {
+		Map<String, String> nodeSelectors = new HashMap<>();
+
+		String nodeSelectorsProperty = properties
+				.getOrDefault(KubernetesDeployerProperties.KUBERNETES_DEPLOYMENT_NODE_SELECTOR, "");
+
+		if (StringUtils.hasText(nodeSelectorsProperty)) {
+			String[] nodeSelectorPairs = nodeSelectorsProperty.split(",");
+			for (String nodeSelectorPair : nodeSelectorPairs) {
+				String[] nodeSelector = nodeSelectorPair.split(":");
+				Assert.isTrue(nodeSelector.length == 2, format("Invalid nodeSelector value: '{}'", nodeSelectorPair));
+				nodeSelectors.put(nodeSelector[0].trim(), nodeSelector[1].trim());
+			}
+		}
+
+		return nodeSelectors;
 	}
 
 	private String getCommonDeployerMemory(AppDeploymentRequest request) {

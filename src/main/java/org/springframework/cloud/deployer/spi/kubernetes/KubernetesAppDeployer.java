@@ -26,6 +26,8 @@ import org.springframework.cloud.deployer.spi.app.AppStatus;
 import org.springframework.cloud.deployer.spi.app.DeploymentState;
 import org.springframework.cloud.deployer.spi.core.AppDeploymentRequest;
 import org.springframework.cloud.deployer.spi.core.RuntimeEnvironmentInfo;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -39,6 +41,8 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
+
+import static java.lang.String.format;
 
 /**
  * A deployer that targets Kubernetes.
@@ -246,7 +250,7 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 		return client.replicationControllers().create(rc);
 	}
 
-	private void createService(String appId, AppDeploymentRequest request, Map<String, String> idMap, int externalPort) {
+	protected void createService(String appId, AppDeploymentRequest request, Map<String, String> idMap, int externalPort) {
 		ServiceSpecBuilder spec = new ServiceSpecBuilder();
 		boolean isCreateLoadBalancer = false;
 		String createLoadBalancer = request.getDeploymentProperties().get("spring.cloud.deployer.kubernetes.createLoadBalancer");
@@ -287,14 +291,46 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 		spec.withSelector(idMap)
 			.addNewPortLike(servicePort).endPort();
 
+		Map<String, String> annotations = getServiceAnnotations(request.getDeploymentProperties());
+
 		client.services().inNamespace(client.getNamespace()).createNew()
 				.withNewMetadata()
 					.withName(appId)
 					.withLabels(idMap)
+					.withAnnotations(annotations)
 					.addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE)
 					.endMetadata()
 				.withSpec(spec.build())
 				.done();
 	}
+
+	/**
+	 * Get the service annotations for the deployment request.
+	 *
+	 * @param properties The deployment request deployment properties.
+	 * @return map of annottaions
+	 */
+	protected Map<String, String> getServiceAnnotations(Map<String, String> properties) {
+		Map<String, String> annotations = new HashMap<>();
+
+		String annotationsProperty = properties
+				.getOrDefault("spring.cloud.deployer.kubernetes.serviceAnnotations", "");
+
+		if (StringUtils.isEmpty(annotationsProperty)) {
+			annotationsProperty = this.properties.getServiceAnnotations();
+		}
+
+		if (StringUtils.hasText(annotationsProperty)) {
+			String[] annotationPairs = annotationsProperty.split(",");
+			for (String annotationPair : annotationPairs) {
+				String[] annotation = annotationPair.split(":");
+				Assert.isTrue(annotation.length == 2, format("Invalid annotation value: '{}'", annotationPair));
+				annotations.put(annotation[0].trim(), annotation[1].trim());
+			}
+		}
+
+		return annotations;
+	}
+
 
 }

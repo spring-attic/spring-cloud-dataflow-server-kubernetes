@@ -32,6 +32,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class KubernetesDeployerProperties {
 
 	/**
+	 * Constants for app deployment properties that don't have a deployer level default property.
+	 */
+	public static final String KUBERNETES_DEPLOYMENT_NODE_SELECTOR = "spring.cloud.deployer.kubernetes.deployment.nodeSelector";
+
+	/**
 	 * Encapsulates resources for Kubernetes Container resource requests and limits
 	 */
 	public static class Resources {
@@ -170,6 +175,11 @@ public class KubernetesDeployerProperties {
 	 * Create a "LoadBalancer" for the service created for each app. This facilitates assignment of external IP to app.
 	 */
 	private boolean createLoadBalancer = false;
+
+	/**
+	 * Service annotations to set for the service created for each app.
+	 */
+	private String serviceAnnotations = null;
 
 	/**
 	 * Time to wait for load balancer to be available before attempting delete of service (in minutes).
@@ -349,6 +359,14 @@ public class KubernetesDeployerProperties {
 
 	public void setCreateLoadBalancer(boolean createLoadBalancer) {
 		this.createLoadBalancer = createLoadBalancer;
+	}
+
+	public String getServiceAnnotations() {
+		return serviceAnnotations;
+	}
+
+	public void setServiceAnnotations(String serviceAnnotations) {
+		this.serviceAnnotations = serviceAnnotations;
 	}
 
 	public int getMinutesToWaitForLoadBalancer() {

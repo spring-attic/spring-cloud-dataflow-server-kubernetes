@@ -137,17 +137,18 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	}
 
 	@Test
-	public void testDeploymentWithLoadBalancerHasUrl() {
+	public void testDeploymentWithLoadBalancerHasUrlAndAnnotation() {
 		log.info("Testing {}...", "DeploymentWithLoadBalancerShowsUrl");
-		KubernetesDeployerProperties lbProperties = new KubernetesDeployerProperties();
-		lbProperties.setCreateLoadBalancer(true);
-		lbProperties.setMinutesToWaitForLoadBalancer(1);
-		ContainerFactory containerFactory = new DefaultContainerFactory(lbProperties);
-		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
+		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
+		deployProperties.setCreateLoadBalancer(true);
+		deployProperties.setMinutesToWaitForLoadBalancer(1);
+		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
+		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(deployProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
 		Resource resource = testApplication();
-		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource);
+		AppDeploymentRequest request = new AppDeploymentRequest(definition, resource,
+				Collections.singletonMap("spring.cloud.deployer.kubernetes.serviceAnnotations","foo:bar"));
 
 		log.info("Deploying {}...", request.getDefinition().getName());
 		String deploymentId = lbAppDeployer.deploy(request);
@@ -161,6 +162,12 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 			assertThat(deploymentId, eventually(hasInstanceAttribute(Matchers.hasKey("url"), lbAppDeployer, inst),
 					timeout.maxAttempts, timeout.pause));
 		}
+		log.info("Checking service annotations of {}...", request.getDefinition().getName());
+		Map<String, String> annotations = kubernetesClient.services().withName(request.getDefinition().getName()).get()
+				.getMetadata().getAnnotations();
+		assertThat(annotations, is(notNullValue()));
+		assertThat(annotations.size(), is(1));
+		assertThat(annotations.get("foo"), is("bar"));
 
 		log.info("Undeploying {}...", deploymentId);
 		timeout = undeploymentTimeout();

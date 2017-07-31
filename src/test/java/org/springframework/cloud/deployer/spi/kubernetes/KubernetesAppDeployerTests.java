@@ -1,7 +1,9 @@
 package org.springframework.cloud.deployer.spi.kubernetes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +23,7 @@ import io.fabric8.kubernetes.api.model.VolumeBuilder;
  *
  * @author Donovan Muller
  */
-public class KubernetesAppDeployerTest {
+public class KubernetesAppDeployerTests {
 
 	private KubernetesAppDeployer deployer;
 
@@ -78,6 +80,24 @@ public class KubernetesAppDeployerTest {
 				new VolumeBuilder().withName("testhostpath").withNewHostPath("/test/override/hostPath").build(),
 				new VolumeBuilder().withName("testpvc").withNewPersistentVolumeClaim("testClaim", true).build(),
 				new VolumeBuilder().withName("testnfs").withNewNfs("/test/override/nfs", null, "192.168.1.1:111").build());
+	}
+
+	@Test
+	public void deployWithNodeSelector() throws Exception {
+		AppDefinition definition = new AppDefinition("app-test", null);
+		Map<String, String> props = new HashMap<>();
+		props.put("spring.cloud.deployer.kubernetes.deployment.nodeSelector",
+				"disktype:ssd, os: linux");
+		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(definition, getResource(), props);
+
+		deployer = new KubernetesAppDeployer(bindDeployerProperties(), null);
+		PodSpec podSpec = deployer.createPodSpec("1", appDeploymentRequest, 8080, 1, false);
+
+		assertThat(podSpec.getNodeSelector()).containsOnly(
+				entry("disktype", "ssd"),
+				entry("os", "linux")
+		);
+
 	}
 
 	private Resource getResource() {
