@@ -58,7 +58,8 @@ include::{dataflow-asciidoc}/shell.adoc[]
 include::{dataflow-asciidoc}/streams.adoc[]
 include::{dataflow-asciidoc}/tasks.adoc[]
 include::{dataflow-asciidoc}/dashboard.adoc[]
-include::{dataflow-asciidoc}/api-guide.adoc[]
+
+include::api-guide-link.adoc[]
 
 include::appendix.adoc[]
 

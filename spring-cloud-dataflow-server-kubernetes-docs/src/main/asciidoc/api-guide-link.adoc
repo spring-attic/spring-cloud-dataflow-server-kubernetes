@@ -1,0 +1,9 @@
+// The API Guide adoc source file residing in SCDF core can't be included here, because it depends on generated
+// REST Docs snippets that aren't versionned (and are heavyweight to regenerate for each flavor). Hence, we do a
+// simple link to the correct SCDF core version:
+:spring-cloud-dataflow-docs-rest: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/htmlsingle/index.html#api-guide
+
+[[api-guide]]
+= REST API Guide
+
+You can find the documentation about the Data Flow REST API in the {spring-cloud-dataflow-docs-rest}[core documentation].
