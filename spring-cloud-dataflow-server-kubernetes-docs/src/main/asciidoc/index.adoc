@@ -11,16 +11,20 @@ Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinat
 :attributes: allow-uri-read
 
 :scdf-core-version: {dataflow-project-version}
+
 // !!! snapshot tags vs relese tags - update these before and after each relese !!!
-// :scdf-core-git: v{scdf-core-version}
-:scdf-core-git: master
-// :github-tag: v{project-version}
-:github-tag: master
-// :docker-tag: {project-version}
-:docker-tag: latest
+
+:scdf-core-git: v{scdf-core-version}
+//:scdf-core-git: master
+
+:github-tag: v{project-version}
+//:github-tag: master
+
+:docker-tag: {project-version}
+//:docker-tag: latest
 
 
-// Since the core projects will be at different release cadences, the following tokens need changed at the time of every release
+// Since the core projects will be at different release cadences, the following tokens might need to be changed for a release
 :scst-core-version: Dalston.SR1
 :sct-core-version: 1.2.1.RELEASE
 :scst-starters-core-version: 1.2.0.RELEASE
