@@ -14,18 +14,17 @@ Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinat
 
 // !!! snapshot tags vs relese tags - update these before and after each relese !!!
 
-:scdf-core-git: v{scdf-core-version}
-//:scdf-core-git: master
+//:scdf-core-git: v{scdf-core-version}
+:scdf-core-git: master
 
-:github-tag: v{project-version}
-//:github-tag: master
+//:github-tag: v{project-version}
+:github-tag: master
 
-:docker-tag: {project-version}
-//:docker-tag: latest
-
+//:docker-tag: {project-version}
+:docker-tag: latest
 
 // Since the core projects will be at different release cadences, the following tokens might need to be changed for a release
-:scst-core-version: Dalston.SR1
+:scst-core-version: Dalston.SR2
 :sct-core-version: 1.2.1.RELEASE
 :scst-starters-core-version: 1.2.0.RELEASE
 :sct-starters-core-version: 1.2.0.RELEASE
