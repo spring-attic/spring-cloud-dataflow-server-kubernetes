@@ -74,6 +74,9 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	@Autowired
 	private KubernetesClient kubernetesClient;
 
+	@Autowired
+	private KubernetesDeployerProperties originalProperties;
+
 	@Override
 	protected AppDeployer provideAppDeployer() {
 		return appDeployer;
@@ -82,13 +85,14 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	@Test
 	public void testFailedDeploymentWithLoadBalancer() {
 		log.info("Testing {}...", "FailedDeploymentWithLoadBalancer");
-		KubernetesDeployerProperties lbProperties = new KubernetesDeployerProperties();
-		lbProperties.setCreateLoadBalancer(true);
-		lbProperties.setLivenessProbePeriod(10);
-		lbProperties.setMaxTerminatedErrorRestarts(1);
-		lbProperties.setMaxCrashLoopBackOffRestarts(1);
-		ContainerFactory containerFactory = new DefaultContainerFactory(lbProperties);
-		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
+		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
+		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
+		deployProperties.setCreateLoadBalancer(true);
+		deployProperties.setLivenessProbePeriod(10);
+		deployProperties.setMaxTerminatedErrorRestarts(1);
+		deployProperties.setMaxCrashLoopBackOffRestarts(1);
+		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
+		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(deployProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
 		Resource resource = testApplication();
@@ -113,11 +117,12 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	@Test
 	public void testGoodDeploymentWithLoadBalancer() {
 		log.info("Testing {}...", "GoodDeploymentWithLoadBalancer");
-		KubernetesDeployerProperties lbProperties = new KubernetesDeployerProperties();
-		lbProperties.setCreateLoadBalancer(true);
-		lbProperties.setMinutesToWaitForLoadBalancer(1);
-		ContainerFactory containerFactory = new DefaultContainerFactory(lbProperties);
-		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(lbProperties, kubernetesClient, containerFactory);
+		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
+		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
+		deployProperties.setCreateLoadBalancer(true);
+		deployProperties.setMinutesToWaitForLoadBalancer(1);
+		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
+		KubernetesAppDeployer lbAppDeployer = new KubernetesAppDeployer(deployProperties, kubernetesClient, containerFactory);
 
 		AppDefinition definition = new AppDefinition(randomName(), null);
 		Resource resource = testApplication();
@@ -140,6 +145,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	public void testDeploymentWithLoadBalancerHasUrlAndAnnotation() {
 		log.info("Testing {}...", "DeploymentWithLoadBalancerShowsUrl");
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
+		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
 		deployProperties.setCreateLoadBalancer(true);
 		deployProperties.setMinutesToWaitForLoadBalancer(1);
 		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
@@ -184,6 +190,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		String subPath = randomName();
 		String mountName = "mount";
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
+		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
 		deployProperties.setVolumes(Collections.singletonList(new VolumeBuilder()
 				.withHostPath(new HostPathVolumeSource(hostPath))
 				.withName(mountName)
@@ -223,6 +230,7 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	public void testDeploymentWithGroupAndIndex() throws IOException {
 		log.info("Testing {}...", "DeploymentWithWithGroupAndIndex");
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
+		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
 		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
 		KubernetesAppDeployer testAppDeployer = new KubernetesAppDeployer(deployProperties, kubernetesClient, containerFactory);
 

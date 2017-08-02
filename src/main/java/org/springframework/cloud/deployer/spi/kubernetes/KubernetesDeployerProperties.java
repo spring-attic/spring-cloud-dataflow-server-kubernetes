@@ -224,6 +224,12 @@ public class KubernetesDeployerProperties {
 	 */
 	private boolean hostNetwork = false;
 
+	/**
+	 * Create a "Deployment" with a "Replica Set" instead of a "Replication Controller".
+	 * See https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+	 */
+	private boolean createDeployment = false;
+
 
 	public String getNamespace() {
 		return namespace;
@@ -439,5 +445,13 @@ public class KubernetesDeployerProperties {
 
 	public void setHostNetwork(boolean hostNetwork) {
 		this.hostNetwork = hostNetwork;
+	}
+
+	public boolean isCreateDeployment() {
+		return createDeployment;
+	}
+
+	public void setCreateDeployment(boolean createDeployment) {
+		this.createDeployment = createDeployment;
 	}
 }

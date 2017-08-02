@@ -37,6 +37,8 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
@@ -94,18 +96,30 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 				for (int index=0 ; index < count ; index++) {
 					String indexedId = appId + "-" + index;
 					Map<String, String> idMap = createIdMap(appId, request, index);
-					logger.debug(String.format("Creating service: %s on %d with index %d", appId, externalPort, index));
+					logger.debug(String.format("Creating Service: %s on %d with index %d", appId, externalPort, index));
 					createService(indexedId, request, idMap, externalPort);
-					logger.debug(String.format("Creating repl controller: %s with index %d", appId, index));
-					createReplicationController(indexedId, request, idMap, externalPort, 1, index);
+					if (properties.isCreateDeployment()) {
+						logger.debug(String.format("Creating Deployment: %s with index %d", appId, index));
+						createDeployment(indexedId, request, idMap, externalPort, 1, index);
+					}
+					else {
+						logger.debug(String.format("Creating Replication Controller: %s with index %d", appId, index));
+						createReplicationController(indexedId, request, idMap, externalPort, 1, index);
+					}
 				}
 			}
 			else {
 				Map<String, String> idMap = createIdMap(appId, request, null);
-				logger.debug(String.format("Creating service: %s on {}", appId, externalPort));
+				logger.debug(String.format("Creating Service: %s on {}", appId, externalPort));
 				createService(appId, request, idMap, externalPort);
-				logger.debug(String.format("Creating repl controller: %s", appId));
-				createReplicationController(appId, request, idMap, externalPort, count, null);
+				if (properties.isCreateDeployment()) {
+					logger.debug(String.format("Creating Deployment: %s", appId));
+					createDeployment(appId, request, idMap, externalPort, count, null);
+				}
+				else {
+					logger.debug(String.format("Creating Replication Controller: %s", appId));
+					createReplicationController(appId, request, idMap, externalPort, count, null);
+				}
 			}
 
 			return appId;
@@ -122,12 +136,12 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 		if (status.getState().equals(DeploymentState.unknown)) {
 			throw new IllegalStateException(String.format("App '%s' is not deployed", appId));
 		}
-		List<ReplicationController> apps =
-			client.replicationControllers().withLabel(SPRING_APP_KEY, appId).list().getItems();
+		List<Service> apps =
+			client.services().withLabel(SPRING_APP_KEY, appId).list().getItems();
 		if (apps != null) {
-			for (ReplicationController rc : apps) {
-				String appIdToDelete = rc.getMetadata().getName();
-				logger.debug(String.format("Deleting svc, rc and pods for: %s", appIdToDelete));
+			for (Service app : apps) {
+				String appIdToDelete = app.getMetadata().getName();
+				logger.debug(String.format("Deleting Resources for: %s", appIdToDelete));
 
 				Service svc = client.services().withName(appIdToDelete).get();
 				try {
@@ -155,18 +169,24 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 								svc.getStatus().getLoadBalancer().getIngress().toString()));
 					}
 					Boolean svcDeleted = client.services().withName(appIdToDelete).delete();
-					logger.debug(String.format("Deleted service for: %s %b", appIdToDelete, svcDeleted));
+					logger.debug(String.format("Deleted Service for: %s %b", appIdToDelete, svcDeleted));
 					Boolean rcDeleted = client.replicationControllers().withName(appIdToDelete).delete();
-					logger.debug(String.format("Deleted replication controller for: %s %b", appIdToDelete, rcDeleted));
+					if (rcDeleted) {
+						logger.debug(String.format("Deleted Replication Controller for: %s %b", appIdToDelete, rcDeleted));
+					}
+					Boolean deplDeleted = client.extensions().deployments().withName(appIdToDelete).delete();
+					if (deplDeleted) {
+						logger.debug(String.format("Deleted Deployment for: %s %b", appIdToDelete, deplDeleted));
+					}
 					Map<String, String> selector = new HashMap<>();
 					selector.put(SPRING_APP_KEY, appIdToDelete);
 					FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podsToDelete =
 							client.pods().withLabels(selector);
 					if (podsToDelete != null && podsToDelete.list().getItems() != null) {
 						Boolean podDeleted = podsToDelete.delete();
-						logger.debug(String.format("Deleted pods for: %s %b", appIdToDelete, podDeleted));
+						logger.debug(String.format("Deleted Pods for: %s %b", appIdToDelete, podDeleted));
 					} else {
-						logger.debug(String.format("No pods to delete for: %s", appIdToDelete));
+						logger.debug(String.format("No Pods to delete for: %s", appIdToDelete));
 					}
 				} catch (RuntimeException e) {
 					logger.error(e.getMessage(), e);
@@ -225,7 +245,31 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 		return deploymentId.replace('.', '-').toLowerCase();
 	}
 
-	private ReplicationController createReplicationController(
+	private Deployment createDeployment (
+			String appId, AppDeploymentRequest request,
+			Map<String, String> idMap, int externalPort, int replicas, Integer instanceIndex) {
+		Deployment d = new DeploymentBuilder()
+				.withNewMetadata()
+					.withName(appId)
+					.withLabels(idMap)
+						.addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE)
+				.endMetadata()
+				.withNewSpec()
+					.withReplicas(replicas)
+					.withNewTemplate()
+						.withNewMetadata()
+							.withLabels(idMap)
+								.addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE)
+						.endMetadata()
+						.withSpec(createPodSpec(appId, request, Integer.valueOf(externalPort), instanceIndex, false))
+					.endTemplate()
+				.endSpec()
+				.build();
+
+		return client.extensions().deployments().create(d);
+	}
+
+	private ReplicationController createReplicationController (
 			String appId, AppDeploymentRequest request,
 			Map<String, String> idMap, int externalPort, int replicas, Integer instanceIndex) {
 		ReplicationController rc = new ReplicationControllerBuilder()
