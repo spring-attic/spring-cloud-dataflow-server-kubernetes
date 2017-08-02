@@ -302,7 +302,7 @@ test-http    10.103.251.157   130.211.200.96   8080/TCP   58s
 . If you are using Minikube, or any cluster that doesn't support an External LoadBalancer, then you should deploy the stream with a NodePort in the range of 30000-32767. Use the following command to deploy it:
 +
 ```
-dataflow:>stream deploy test --properties "deployer.http.kubernetes.createLoadBalancer=true"
+dataflow:>stream deploy test --properties "deployer.http.kubernetes.createNodePort=32123"
 ```
 +
 Wait for the pods to be started showing 1/1 in the READY column by using this command:
@@ -319,7 +319,7 @@ Now look up the URL to use with the following command:
 ```
 dataflow:>! minikube service --url test-http
 command is:minikube service --url test-http
-http://192.168.99.100:41267
+http://192.168.99.100:32123
 ```
 +
 . Post some data to the `test-http` app either using the EXTERNAL-IP address from above with port 8080 or the URL provided by the minikube command:
