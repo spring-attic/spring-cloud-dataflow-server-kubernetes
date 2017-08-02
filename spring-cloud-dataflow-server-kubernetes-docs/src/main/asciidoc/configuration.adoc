@@ -200,9 +200,21 @@ Feel free to change user names and passwords to suite, and also maybe move the d
 == Spring Cloud Deployer for Kubernetes Properties
 
 The Spring Cloud Deployer for Kubernetes has several properties you can use to configure the apps that it deploys.
-You can control the default values to set the `cpu` and `memory` requirements for the pods that are created as part of app deployments.
 The configuration is controlled by configuration properties under the `spring.cloud.deployer.kubernetes` prefix.
-For example you might declare the following as part of the container env section in a deployment YAML file.
+
+=== Using Deployments
+
+The deployer uses Replication Controllers by default. To use Deployments instead you can set the following option as part of the container env section in a deployment YAML file. This is now the preferred setting and will be the default in future releases of the deployer.
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CREATE_DEPLOYMENT
+          value: 'true'
+```
+
+=== CPU and Memory Limits
+
+You can control the default values to set the `cpu` and `memory` requirements for the pods that are created as part of app deployments. You can declare the following as part of the container env section in a deployment YAML file:
 
 ```
         env:
@@ -211,6 +223,8 @@ For example you might declare the following as part of the container env section
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
           value: 640Mi
 ```
+
+=== Liveness and Rediness Probes Configurations
 
 You can modify the settings used for the liveness and readiness probes. This might be necessary if your cluster is slower and the apps need more time to start up. Here is an example of setting the delay and period for the liveness probe:
 
@@ -223,6 +237,8 @@ You can modify the settings used for the liveness and readiness probes. This mig
 ```
 
 See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesDeployerProperties.java[KubernetesDeployerProperties] for more of the supported options.
+
+=== Using SPRING_APPLICATION_JSON
 
 Data Flow Server properties that are common across all of the Data Flow Server implementations including the configuration of maven repository settings can be set in a similar manner although the latter might be easier to set using a `SPRING_APPLICATION_JSON` environment variable like:
 
