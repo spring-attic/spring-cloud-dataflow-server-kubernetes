@@ -10,43 +10,7 @@ Build the project without running tests using:
 
 ## Integration tests
 
-### Minikube
-
-[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your laptop for users looking to try out Kubernetes or develop with it day-to-day.
-
-Follow the instructions for installing Minikube [here](https://github.com/kubernetes/minikube#installation).
-
-To start the Minikube cluster run:
-
-```
-minikube start
-```
-
-You should see a message saying 
-
-```
-Starting local Kubernetes cluster...
-Kubectl is now configured to use the cluster.
-``` 
-
-#### Running the tests
-
-Once the Minikube is up and running, you can run all integration tests.
-
-First determine the master address using `kubectl cluster-info` command which should show something like:
-
-```
-Kubernetes master is running at https://192.168.99.100:8443
-kubernetes-dashboard is running at https://192.168.99.100:8443/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
-```
-
-Now set `KUBERNETES_MASTER` to point to the master address shown above and run the tests:
-
-```
-export KUBERNETES_MASTER=https://192.168.99.100:8443
-export KUBERNETES_NAMESPACE=default
-$ ./mvnw test
-```
+All testing is curently done against a GKE cluster. Minikube is no longer useful since we test some parts of the external IP features that a LoadBalancer service provides.
 
 ### Google Container Engine
 
@@ -63,20 +27,10 @@ gcloud container clusters get-credentials spring-test
 
 Once the test cluster has been created, you can run all integration tests.
 
-First determine the master address using `kubectl cluster-info` command which should show something like:
+As long as your `kubectl` config files are set to point to your cluster, you should be able to just run the tests. Verify your config using `kubectl config get-contexts` and check that your test cluster is the current context.
+
+Now run the tests:
 
 ```
-Kubernetes master is running at https://104.197.162.59
-GLBCDefaultBackend is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/default-http-backend
-Heapster is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/heapster
-KubeDNS is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/kube-dns
-kubernetes-dashboard is running at https://104.197.162.59/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
-```
-
-Now set `KUBERNETES_MASTER` to point to the master address shown above and run the tests:
-
-```
-export KUBERNETES_MASTER=https://104.197.162.59
-export KUBERNETES_NAMESPACE=default
 $ ./mvnw test
 ```
