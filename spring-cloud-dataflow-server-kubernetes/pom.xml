@@ -19,6 +19,11 @@
 			<version>1.3.0.BUILD-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-kubernetes</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<scope>runtime</scope>
@@ -27,11 +32,6 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
-		</dependency>
-		<!-- Fabric8 spring-cloud-kubernetes dependencies -->
-		<dependency>
-			<groupId>io.fabric8</groupId>
-			<artifactId>spring-cloud-starter-kubernetes</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

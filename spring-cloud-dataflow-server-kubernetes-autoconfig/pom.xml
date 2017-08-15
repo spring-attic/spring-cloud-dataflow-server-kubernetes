@@ -21,22 +21,6 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-dataflow-server-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<!-- Fabric8 spring-cloud-kubernetes dependencies -->
-		<dependency>
-			<groupId>io.fabric8</groupId>
-			<artifactId>spring-cloud-starter-kubernetes</artifactId>
-			<scope>runtime</scope>
-		</dependency>
 	</dependencies>
 	<build>
 		<resources>
