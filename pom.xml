@@ -38,7 +38,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-kubernetes</artifactId>
+				<artifactId>spring-cloud-starter-kubernetes-config</artifactId>
 				<version>${spring-cloud-kubernetes.version}</version>
 			</dependency>
 		</dependencies>
