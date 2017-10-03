@@ -36,19 +36,19 @@ dataflow:>app register --type source --name time --uri docker://springcloudstrea
 but any app registered with a Maven, HTTP or File resource for the executable jar (using a `--uri` property prefixed with `maven://`, `http://` or `file://`) is *_not supported_*.
 ====
 
+=== Deploying Spring Cloud Dataflow on Kubernetes using configuration files
+
 . Create a Kubernetes cluster.
 + 
 The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the Right Solution] guide lets you choose among many options so you can pick one that you are most comfortable using.
 +
-All our testing is done using the https://cloud.google.com/container-engine/[Google Container Engine] that is part of the Google Cloud Platform. That is a also the target platform for this getting started chapter. We have also successfully deployed using https://kubernetes.io/docs/getting-started-guides/minikube/[Minikube] and we will note where you need to adjust for deploying on Minikube.
+All our testing is done using the https://cloud.google.com/container-engine/[Google Container Engine] that is part of the Google Cloud Platform. That is a also the target platform for this section. We have also successfully deployed using https://kubernetes.io/docs/getting-started-guides/minikube/[Minikube] and we will note where you need to adjust for deploying on Minikube.
 +
 NOTE: When starting Minikube you should allocate some extra resources since we will be deploying several services. We have used `minikube start --cpus=4 --memory=4096` to start.
 +
 The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 +
 . Get the Kubernetes configuration files.
-+
-NOTE: We are developing a https://helm.sh/[Helm] chart to simplify all this and we plan on making it available as part of https://kubeapps.com/[KubeApps].
 +
 There are sample deployment and service YAML files in the https://github.com/{github-repo}[https://github.com/{github-repo}] repository that you can use as a starting point. They have the required metadata set for service discovery by the different apps and services deployed. To check out the code enter the following commands:
 + 
@@ -160,6 +160,134 @@ If you are using Minikube then you don't have an external load balancer and the 
 ```
 $ minikube service --url scdf-server
 http://192.168.99.100:31991
+```
+
+=== Deploying Spring Cloud Dataflow on Kubernetes using Helm
+Spring Cloud DataFlow offers a https://helm.sh/[Helm] Chart for deploying the Spring Cloud Data Flow server and its required services to a Kubernetes Cluster.
+The following instructions cover how to initialize `Helm` and install Spring Cloud Data Flow on a Kubernetes cluster.
+
+. Create a Kubernetes cluster.
++
+The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the Right Solution] guide lets you choose among many options so you can pick one that you are most comfortable using.
++
+All our testing is done using the https://cloud.google.com/container-engine/[Google Container Engine] that is part of the Google Cloud Platform. That is a also the target platform for this section.
+The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility.  See the docs for installation instructions: http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
++
+. Installing Helm
++
+`Helm` is comprised of 2 components: one is the client (Helm) the other is the server (Tiller).
+The `Helm` client is run on your local machine and can be installed using the following instructions found
+https://github.com/kubernetes/helm/blob/master/README.md#install[here].
+If Tiller has not been installed on your cluster, execute the following `Helm` client command:
++
+```
+$ helm init
+```
+NOTE: To verify that the `Tiller` pod is running execute the following command: `kubectl get pod --namespace kube-system` and you should see the `Tiller` pod running.
++
+. Installing the Spring Cloud Data Flow Server and required services.
++
+Before we can run the Spring Cloud Data Flow Chart, we need to access the incubator repository where it currently resides.
+To add this repository to our `Helm` install, execute the following commands:
++
+```
+helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com
+helm repo update
+```
++
+To install Spring Cloud Data Flow and its required services execute the following:
++
+```
+helm install --name my-release incubator/spring-cloud-data-flow
+```
++
+If you wish specify a different version of Spring Cloud Data Flow besides the
+current release, you can set the `server.version` as shown below:
++
+```
+helm install --name my-release incubator/spring-cloud-data-flow --set server.version=<version-you-want>
+```
++
+NOTE: To see all of the settings that can be configured on the Spring Cloud Data Flow chart, check out the https://github.com/kubernetes/charts/tree/master/incubator/spring-cloud-data-flow[README].
++
+
+You should see the following output:
++
+```
+NAME:   my-release
+LAST DEPLOYED: Tue Oct  3 10:33:50 2017
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1/ConfigMap
+NAME                         DATA  AGE
+my-release-data-flow-server  1     2s
+
+==> v1/PersistentVolumeClaim
+NAME                 STATUS   VOLUME    CAPACITY  ACCESSMODES  STORAGECLASS  AGE
+my-release-mysql     Pending  standard  2s
+my-release-rabbitmq  Pending  standard  2s
+my-release-redis     Pending  standard  2s
+
+==> v1/Service
+NAME                          CLUSTER-IP     EXTERNAL-IP  PORT(S)                                AGE
+my-release-mysql              10.59.247.118  <none>       3306/TCP                               2s
+my-release-rabbitmq           10.59.249.211  <none>       4369/TCP,5672/TCP,25672/TCP,15672/TCP  2s
+my-release-redis              10.59.242.108  <none>       6379/TCP                               2s
+my-release-data-flow-metrics  10.59.247.121  <none>       80/TCP                                 2s
+my-release-data-flow-server   10.59.249.224  <pending>    80:30859/TCP                           2s
+
+==> v1beta1/Deployment
+NAME                          DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+my-release-mysql              1        1        1           0          2s
+my-release-rabbitmq           1        1        1           0          2s
+my-release-redis              1        1        1           0          2s
+my-release-data-flow-metrics  1        1        1           0          2s
+my-release-data-flow-server   1        1        1           0          1s
+
+==> v1/Secret
+NAME                  TYPE    DATA  AGE
+my-release-mysql      Opaque  2     2s
+my-release-rabbitmq   Opaque  2     2s
+my-release-redis      Opaque  1     2s
+my-release-data-flow  Opaque  2     2s
+
+
+NOTES:
+1. Get the application URL by running these commands:
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of the server by running 'kubectl get svc -w my-release-data-flow-server'
+  export SERVICE_IP=$(kubectl get svc --namespace default my-release-data-flow-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo http://$SERVICE_IP:80
+```
++
+You have just created a new release in the default namespace of your Kubernetes cluster.
+The notes section gives instructions for connecting to the newly installed server.
+It takes a couple of minutes for the application and its required services to start up.
+You can check on the status by issuing a `kubectl get pod -w` command.
+Wait for the READY column to show "1/1" for all pods. Once that is done, you can
+connect to the Data Flow server using the external ip listed via a
+`kubectl get svc my-release-data-flow-server` command.
+The default username is `user`, and the password is `password`.
++
+To see what `Helm` releases you have running, you can use the `helm list` command.
+When it is time to delete the release, run `helm delete my-release`.
+This removes any resources created for the release but keeps release information
+so you can rollback any changes using a `helm rollback my-release 1` command.
+To completely delete the release and purge any release metadata, use `helm delete my-release --purge`.
++
+
+There is an https://github.com/kubernetes/charts/issues/980[issue] with
+generated secrets used for the required services getting
+rotated on chart upgrades. To avoid this set the password for these services
+when installing the chart. You can use:
++
+```
+helm install --name my-release \
+    --set rabbitmq.rabbitmqPassword=rabbitpwd \
+    --set mysql.mysqlRootPassword=mysqlpwd \
+    --set redis.redisPassword=redispwd incubator/spring-cloud-data-flow
 ```
 
 == Creating and Running Streams on Kubernetes
