@@ -28,6 +28,7 @@ Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinat
 :sct-core-version: 1.2.1.RELEASE
 :scst-starters-core-version: 1.2.0.RELEASE
 :sct-starters-core-version: 1.2.0.RELEASE
+:skipper-core-version: 1.0.0.M1
 
 :spring-cloud-stream-docs: http://docs.spring.io/spring-cloud-stream/docs/{scst-core-version}/reference/htmlsingle/index.html
 :spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference

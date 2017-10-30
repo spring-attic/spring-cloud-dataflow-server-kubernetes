@@ -310,6 +310,129 @@ helm install --name my-release \
 ----
 ====
 
+=== Spring Cloud Skipper Integration
+
+Skipper is a tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms. 
+You can use Skipper standalone or integrate it with Continuous Integration pipelines to help achieve Continuous Deployment 
+of applications. For more details, review the link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
+for a complete overview and the feature capabilities.
+
+Before we begin setting up Skipper to use with Spring Cloud Data Flow, let's review the basics by understanding foundational 
+design by which the relevant infrastructure is provisioned in Kubernetes. The tailormade 
+link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#tour-kubernetes[three-minute-tour for Kubernetes] 
+walks through the fundamentals.
+
+Next up, we will review the relevant artifacts to provision Spring Cloud Skipper in Kubernetes.
+
+==== Skipper Deployment
+[source,yaml,options=nowrap]
+----
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: skipper
+  labels:
+    app: skipper
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: skipper
+    spec:
+      containers:
+      - name: skipper
+        image: springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 1.0
+            memory: 1024Mi
+          requests:
+            cpu: 0.5
+            memory: 640Mi
+        env:
+        - name: SPRING_APPLICATION_JSON
+          value: "{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" : \"SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}\"}"
+----
+
+[NOTE]
+====
+Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#platforms[platforms], 
+so it is important to define the "accounts" based on the project preferences. In the above YAML file, the accounts map 
+to `minikube` as the platform. This can be modified, and of course, you can have any number of platform definitions. 
+More details are in Spring Cloud Skipper reference guide.
+====
+
+[NOTE]
+====
+If you'd like to change the version of Skipper server, you can do so by updating the image from `springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT`
+to a desired docker tag.
+====
+
+[NOTE]
+====
+If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware, you must change 
+the value for 
+
+[source,yaml,options=nowrap]
+----
+"{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" :
+\"SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=${KAFKA_SERVICE_HOST}:${KAFKA_SERVICE_PORT},
+SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=${KAFKA_ZK_SERVICE_HOST}:${KAFKA_ZK_SERVICE_PORT}\"}"
+----
+
+====
+
+==== Skipper Service
+[source,yaml,options=nowrap]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: skipper
+  labels:
+    app: skipper
+spec:
+  # If you are running k8s on a local dev box or using minikube, you can use type NodePort instead
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 7577 # port used by 'skpr' (i.e., 7577)
+  selector:
+    app: skipper
+----
+
+Run the following commands to start Skipper as the companion server for Spring Cloud Data Flow:
+
+```
+$ kubectl create -f src/kubernetes/skipper/skipper-deployment.yaml
+$ kubectl create -f src/kubernetes/skipper/skipper-svc.yaml
+```
+
+You can use the command `kubectl get all -l app=skipper` to verify that the deployment, pod and service resources are running. 
+Use the command `kubectl delete all -l app=skipper` to clean up afterwards.
+
+Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address assigned to `scdf-server`, we will use that 
+later to connect from the shell.
+
+```
+$ kubectl get svc
+NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
+skipper      10.103.246.83    130.211.203.247   80/TCP     4m
+```
+So the URL you need to use is in this case is: http://130.211.203.247
+
+If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. 
+You need to use the NodePort assigned for the `skipper` service. Use this command to look up the URL to use:
+
+```
+$ minikube service --url skipper
+http://192.168.99.100:32060
+```
+
 == Creating and Running Streams on Kubernetes
 
 . Download and run the Spring Cloud Data Flow shell.
@@ -499,6 +622,299 @@ command is:kubectl logs test-log-0-ysiz3
 ```
 dataflow:>stream destroy --name test
 ```
+
+=== Deploying Streams using Skipper
+We will proceed with the assumption that Spring Cloud Data Flow, Spring Cloud Skipper, RDBMS, and desired messaging 
+middleware is up and running in minikube.
+
+[source,console,options=nowrap]
+----
+$ kubectl get all
+NAME                              READY     STATUS    RESTARTS   AGE
+po/mysql-777890292-z0dsw          1/1       Running   0          38m
+po/rabbitmq-317767540-2qzrr       1/1       Running   0          38m
+po/redis-4054078334-37m0l         1/1       Running   0          38m
+po/scdf-server-2734071167-bjd3g   1/1       Running   0          48s
+po/skipper-2408247821-50z31       1/1       Running   0          3m
+
+...
+...
+----
+
+Let's start with deploying a stream with the `time-source` pointing to 1.2.0.RELEASE and `log-sink` pointing
+to 1.1.0.RELEASE. The goal is to rolling upgrade the `log-sink` application to 1.2.0.RELEASE.
+
+```
+dataflow:>app register --name time --type source --uri docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE
+Successfully registered application 'source:time'
+
+dataflow:>app register --name log --type sink --uri docker:springcloudstream/log-sink-rabbit:1.1.0.RELEASE
+Successfully registered application 'sink:log'
+
+dataflow:>app info source:time
+Information about source application 'time':
+Resource URI: docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE
+
+dataflow:>app info sink:log
+Information about sink application 'log':
+Resource URI: docker:springcloudstream/log-sink-rabbit:1.1.0.RELEASE
+```
+
+
+. Create stream.
+
++
+```
+dataflow:>stream create foo --definition "time | log"
+Created new stream 'foo'
+```
++
+
+. Deploy stream.
+
++
+```
+dataflow:>stream deploy foo --platformName minikube  --packageVersion 1.0.0 --useSkipper
+Deployment request has been sent for stream 'foo'
+```
++
+
+[NOTE]
+====
+While deploying the stream, we are supplying three new properties. 1) `--platformName` indicates the platform repository to 
+use when deployed via Skipper 2) `--packageVersion` to which the package should confirm to 3) `--useSkipper` flag indicating 
+to SCDF that the deployment should be delegated to Skipper.
+====
+
+. List pods.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl get all
+NAME                              READY     STATUS    RESTARTS   AGE
+po/foo-log-v1-0-2k4r8             1/1       Running   0          2m
+po/foo-time-v1-qhdqq              1/1       Running   0          2m
+po/mysql-777890292-z0dsw          1/1       Running   0          49m
+po/rabbitmq-317767540-2qzrr       1/1       Running   0          49m
+po/redis-4054078334-37m0l         1/1       Running   0          49m
+po/scdf-server-2734071167-bjd3g   1/1       Running   0          12m
+po/skipper-2408247821-50z31       1/1       Running   0          15m
+
+...
+...
+----
++
+
+. Verify logs.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl -f po/foo-log-v1-0-2k4r8
+...
+...
+2017-10-30 22:59:04.966  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:04
+2017-10-30 22:59:05.968  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:05
+2017-10-30 22:59:07.000  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:06
+----
++
+
+. Verify history in Skipper.
+
++
+[source,console,options=nowrap]
+----
+skipper:>history --release-name myfoo
+╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
+║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
+╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
+║1      │Mon Oct 30 16:18:28 PDT 2017│DEPLOYED│foo         │1.0.0          │Install complete║
+╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
+----
++
+
+. Verify the package manifest in Skipper. The `log-sink` should be at 1.1.0.RELEASE.
+
++
+[source,yml,options=nowrap]
+----
+skipper:>manifest get --release-name myfoo
+
+---
+# Source: log.yml
+apiVersion: skipper/v1
+kind: SpringBootApp
+metadata:
+  name: log
+spec:
+  resource: docker:springcloudstream/log-sink-rabbit:1.1.0.RELEASE
+  resourceMetadata: docker:springcloudstream/log-sink-rabbit:jar:metadata:1.1.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: log
+    spring.cloud.stream.metrics.key: foo.log.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.input.group: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: sink
+    spring.cloud.stream.bindings.input.destination: foo.time
+  deploymentProperties:
+    spring.cloud.deployer.indexed: true
+    spring.cloud.deployer.group: foo
+    spring.cloud.deployer.count: 1
+
+---
+# Source: time.yml
+apiVersion: skipper/v1
+kind: SpringBootApp
+metadata:
+  name: time
+spec:
+  resource: docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE
+  resourceMetadata: docker:springcloudstream/time-source-rabbit:jar:metadata:1.2.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: time
+    spring.cloud.stream.metrics.key: foo.time.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.output.producer.requiredGroups: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.stream.bindings.output.destination: foo.time
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: source
+  deploymentProperties:
+    spring.cloud.deployer.group: foo
+----
++
+
+[NOTE]
+====
+Where `myfoo` is the release name generated by Skipper. This might change to `scdf-foo` or other naming patterns in the 
+next milestone.
+====
+
+. Let's update `log-sink` from 1.1.0.RELEASE to 1.2.0.RELEASE
+
++
+[source,console,options=nowrap]
+----
+dataflow:>stream update --name foo --packageVersion 1.0.0 --properties log.version=1.2.0.RELEASE
+Update request has been sent for stream 'foo'
+----
++
+
+. List pods.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl get all
+NAME                              READY     STATUS        RESTARTS   AGE
+po/foo-log-v1-0-2k4r8             1/1       Terminating   0          3m
+po/foo-log-v2-0-fjnlt             0/1       Running       0          9s
+po/foo-time-v1-qhdqq              1/1       Running       0          3m
+po/mysql-777890292-z0dsw          1/1       Running       0          51m
+po/rabbitmq-317767540-2qzrr       1/1       Running       0          51m
+po/redis-4054078334-37m0l         1/1       Running       0          51m
+po/scdf-server-2734071167-bjd3g   1/1       Running       0          14m
+po/skipper-2408247821-50z31       1/1       Running       0          16m
+
+...
+...
+----
++
+
+[NOTE]
+====
+Notice that there are two versions of the `log-sink` applications. The `po/foo-log-v1-0-2k4r8` pod is going down and the 
+newly spawned `po/foo-log-v2-0-fjnlt` pod is bootstrapping. The version is incremented and the pod-name reflects the 
+new name.
+====
+
+. Once the new pod is up and running, let's verify the logs.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl -f po/foo-log-v2-0-fjnlt
+...
+...
+2017-10-30 23:24:30.016  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:30
+2017-10-30 23:24:31.017  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:31
+2017-10-30 23:24:32.018  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:32
+----
++
+
+. Let's look at the updated package manifest in Skipper. We should now be seeing `log-sink` at 1.2.0.RELEASE.
+
++
+[source,yml,options=nowrap]
+----
+skipper:>manifest get --release-name myfoo
+
+---
+# Source: log.yml
+apiVersion: skipper/v1
+kind: SpringBootApp
+metadata:
+  name: log
+spec:
+  resource: docker:springcloudstream/log-sink-rabbit:1.2.0.RELEASE
+  resourceMetadata: docker:springcloudstream/log-sink-rabbit:jar:metadata:1.2.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: log
+    spring.cloud.stream.metrics.key: foo.log.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.input.group: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: sink
+    spring.cloud.stream.bindings.input.destination: foo.time
+  deploymentProperties:
+    spring.cloud.deployer.indexed: true
+    spring.cloud.deployer.group: foo
+    spring.cloud.deployer.count: 1
+
+---
+# Source: time.yml
+apiVersion: skipper/v1
+kind: SpringBootApp
+metadata:
+  name: time
+spec:
+  resource: docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE
+  resourceMetadata: docker:springcloudstream/time-source-rabbit:jar:metadata:1.2.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: time
+    spring.cloud.stream.metrics.key: foo.time.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.output.producer.requiredGroups: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.stream.bindings.output.destination: foo.time
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: source
+  deploymentProperties:
+    spring.cloud.deployer.group: foo
+----
++
+
+. Verify history in Skipper.
+
++
+[source,console,options=nowrap]
+----
+skipper:>history --release-name myfoo
+╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
+║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
+╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
+║2      │Mon Oct 30 16:21:55 PDT 2017│DEPLOYED│foo         │1.0.0          │Upgrade complete║
+║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
+╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
+----
 
 == Creating and Launching Tasks on Kubernetes
 

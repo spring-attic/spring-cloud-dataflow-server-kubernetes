@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: skipper
+  labels:
+    app: skipper
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: skipper
+    spec:
+      containers:
+      - name: skipper
+        image: springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 1.0
+            memory: 1024Mi
+          requests:
+            cpu: 0.5
+            memory: 640Mi
+        env:
+        - name: SPRING_APPLICATION_JSON
+          value: "{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" : \"SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}\"}"
