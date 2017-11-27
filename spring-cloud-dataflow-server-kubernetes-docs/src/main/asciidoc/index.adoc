@@ -60,6 +60,8 @@ include::configuration.adoc[]
 
 include::{dataflow-asciidoc}/shell.adoc[]
 include::{dataflow-asciidoc}/streams.adoc[]
+include::streams-skipper.adoc[]
+
 include::{dataflow-asciidoc}/tasks.adoc[]
 include::{dataflow-asciidoc}/dashboard.adoc[]
 
