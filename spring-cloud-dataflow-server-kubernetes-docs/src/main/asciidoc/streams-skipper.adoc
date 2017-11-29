@@ -18,18 +18,18 @@ po/skipper-2408247821-50z31       1/1       Running   0          3m
 ...
 ----
 
-Verify the available platforms in Skipper.
+Verify the registered platforms in Skipper.
 
 [source,console,options=nowrap]
 ----
-skipper:>platform list
-╔════════╤══════════╤══════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║  Name  │   Type   │                                                 Description                                                  ║
-╠════════╪══════════╪══════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
-║default │local     │ShutdownTimeout = [30], EnvVarsToInherit = [TMP,LANG,LANGUAGE,LC_.*,PATH], JavaCmd =                          ║
-║        │          │[/usr/lib/jvm/java-1.8-openjdk/jre/bin/java], WorkingDirectoriesRoot = [/tmp], DeleteFilesOnExit = [true]     ║
-║minikube│kubernetes│master url = [https://kubernetes.default.svc/], namespace = [default], api version = [v1]                     ║
-╚════════╧══════════╧══════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+dataflow:>stream skipper platform-list
+╔════════╤══════════╤══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║  Name  │   Type   │                                                                 Description                                                                  ║
+╠════════╪══════════╪══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║minikube│kubernetes│master url = [https://kubernetes.default.svc/], namespace = [default], api version = [v1]                                                     ║
+║default │local     │ShutdownTimeout = [30], EnvVarsToInherit = [TMP,LANG,LANGUAGE,LC_.*,PATH], JavaCmd = [/usr/lib/jvm/java-1.8-openjdk/jre/bin/java],            ║
+║        │          │WorkingDirectoriesRoot = [/tmp], DeleteFilesOnExit = [true]                                                                                   ║
+╚════════╧══════════╧══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 ----
 
 Let's start with deploying a stream with the `time-source` pointing to 1.2.0.RELEASE and `log-sink` pointing
@@ -110,12 +110,12 @@ $ kubectl -f po/foo-log-v1-0-2k4r8
 ----
 +
 
-. Verify history in Skipper.
+. Verify the stream history.
 
 +
 [source,console,options=nowrap]
 ----
-skipper:>history --release-name foo
+dataflow:>stream skipper history --name foo
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
@@ -124,12 +124,12 @@ skipper:>history --release-name foo
 ----
 +
 
-. Verify the package manifest in Skipper. The `log-sink` should be at 1.1.0.RELEASE.
+. Verify the package manifest. The `log-sink` should be at 1.1.0.RELEASE.
 
 +
 [source,yml,options=nowrap]
 ----
-skipper:>manifest get --release-name foo
+dataflow:>stream skipper manifest --name foo
 
 ---
 # Source: log.yml
@@ -230,12 +230,12 @@ $ kubectl -f po/foo-log-v2-0-fjnlt
 ----
 +
 
-. Let's look at the updated package manifest in Skipper. We should now be seeing `log-sink` at 1.2.0.RELEASE.
+. Let's look at the updated package manifest persisted in Skipper. We should now be seeing `log-sink` at 1.2.0.RELEASE.
 
 +
 [source,yml,options=nowrap]
 ----
-skipper:>manifest get --release-name foo
+dataflow:>stream skipper manifest --name foo
 
 ---
 # Source: log.yml
@@ -285,12 +285,12 @@ spec:
 ----
 +
 
-. Verify history in Skipper.
+. Verify stream history for the latest updates.
 
 +
 [source,console,options=nowrap]
 ----
-skipper:>history --release-name foo
+dataflow:>stream skipper history --name foo
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
@@ -298,3 +298,25 @@ skipper:>history --release-name foo
 ║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
 ╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
 ----
+
+. Rolling-back to the previous version is just a command away.
+
++
+[source,console,options=nowrap]
+----
+dataflow:>stream skipper rollback --name foo
+Rollback request has been sent for the stream 'foo'
+
+...
+...
+
+dataflow:>stream skipper history --name foo
+╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
+║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
+╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
+║3      │Mon Oct 30 16:22:51 PDT 2017│DEPLOYED│foo         │1.0.0          │Upgrade complete║
+║2      │Mon Oct 30 16:21:55 PDT 2017│DEPLOYED│foo         │1.0.0          │Delete complete ║
+║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
+╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
+----
+
