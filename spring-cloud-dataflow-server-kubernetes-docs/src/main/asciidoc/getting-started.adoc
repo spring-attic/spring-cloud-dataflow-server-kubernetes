@@ -310,6 +310,130 @@ helm install --name my-release \
 ----
 ====
 
+[[spring-cloud-skipper-integration]]
+=== Spring Cloud Skipper Integration
+
+Skipper is a tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms. 
+You can use Skipper standalone or integrate it with Continuous Integration pipelines to help achieve Continuous Deployment 
+of applications. For more details, review the link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
+for a complete overview and the feature capabilities.
+
+Before we begin setting up Skipper to use with Spring Cloud Data Flow, let's review the basics by understanding foundational 
+design by which the relevant infrastructure is provisioned in Kubernetes. The tailormade 
+link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#tour-kubernetes[three-minute-tour for Kubernetes] 
+walks through the fundamentals.
+
+Next up, we will review the relevant artifacts to provision Spring Cloud Skipper in Kubernetes.
+
+==== Skipper Deployment
+[source,yaml,options=nowrap]
+----
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: skipper
+  labels:
+    app: skipper
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: skipper
+    spec:
+      containers:
+      - name: skipper
+        image: springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 1.0
+            memory: 1024Mi
+          requests:
+            cpu: 0.5
+            memory: 640Mi
+        env:
+        - name: SPRING_APPLICATION_JSON
+          value: "{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" : \"SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}\"}"
+----
+
+[NOTE]
+====
+Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#platforms[platforms], 
+so it is important to define the "accounts" based on the project preferences. In the above YAML file, the accounts map 
+to `minikube` as the platform. This can be modified, and of course, you can have any number of platform definitions. 
+More details are in Spring Cloud Skipper reference guide.
+====
+
+[NOTE]
+====
+If you'd like to change the version of Skipper server, you can do so by updating the image from `springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT`
+to a desired docker tag.
+====
+
+[NOTE]
+====
+If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware, you must change 
+the value for 
+
+[source,yaml,options=nowrap]
+----
+"{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" :
+\"SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=${KAFKA_SERVICE_HOST}:${KAFKA_SERVICE_PORT},
+SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=${KAFKA_ZK_SERVICE_HOST}:${KAFKA_ZK_SERVICE_PORT}\"}"
+----
+
+====
+
+==== Skipper Service
+[source,yaml,options=nowrap]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: skipper
+  labels:
+    app: skipper
+spec:
+  # If you are running k8s on a local dev box or using minikube, you can use type NodePort instead
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 7577 # port used by 'skpr' (i.e., 7577)
+  selector:
+    app: skipper
+----
+
+Run the following commands to start Skipper as the companion server for Spring Cloud Data Flow:
+
+```
+$ kubectl create -f src/kubernetes/skipper/skipper-deployment.yaml
+$ kubectl create -f src/kubernetes/skipper/skipper-svc.yaml
+```
+
+You can use the command `kubectl get all -l app=skipper` to verify that the deployment, pod and service resources are running. 
+Use the command `kubectl delete all -l app=skipper` to clean up afterwards.
+
+Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address assigned to `scdf-server`, we will use that 
+later to connect from the shell.
+
+```
+$ kubectl get svc
+NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
+skipper      10.103.246.83    130.211.203.247   80/TCP     4m
+```
+So the URL you need to use is in this case is: http://130.211.203.247
+
+If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. 
+You need to use the NodePort assigned for the `skipper` service. Use this command to look up the URL to use:
+
+```
+$ minikube service --url skipper
+http://192.168.99.100:32060
+```
+
 == Creating and Running Streams on Kubernetes
 
 . Download and run the Spring Cloud Data Flow shell.

@@ -1,0 +1,322 @@
+[[streams-using-skipper]]
+= Streams deployed using Skipper
+
+We will proceed with the assumption that Spring Cloud Data Flow, <<getting-started.adoc#spring-cloud-skipper-integration, Spring Cloud Skipper>>, RDBMS, and desired messaging 
+middleware is up and running in minikube.
+
+[source,console,options=nowrap]
+----
+$ kubectl get all
+NAME                              READY     STATUS    RESTARTS   AGE
+po/mysql-777890292-z0dsw          1/1       Running   0          38m
+po/rabbitmq-317767540-2qzrr       1/1       Running   0          38m
+po/redis-4054078334-37m0l         1/1       Running   0          38m
+po/scdf-server-2734071167-bjd3g   1/1       Running   0          48s
+po/skipper-2408247821-50z31       1/1       Running   0          3m
+
+...
+...
+----
+
+Verify the registered platforms in Skipper.
+
+[source,console,options=nowrap]
+----
+dataflow:>stream skipper platform-list
+╔════════╤══════════╤══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║  Name  │   Type   │                                                                 Description                                                                  ║
+╠════════╪══════════╪══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║minikube│kubernetes│master url = [https://kubernetes.default.svc/], namespace = [default], api version = [v1]                                                     ║
+║default │local     │ShutdownTimeout = [30], EnvVarsToInherit = [TMP,LANG,LANGUAGE,LC_.*,PATH], JavaCmd = [/usr/lib/jvm/java-1.8-openjdk/jre/bin/java],            ║
+║        │          │WorkingDirectoriesRoot = [/tmp], DeleteFilesOnExit = [true]                                                                                   ║
+╚════════╧══════════╧══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+----
+
+Let's start with deploying a stream with the `time-source` pointing to 1.2.0.RELEASE and `log-sink` pointing
+to 1.1.0.RELEASE. The goal is to rolling upgrade the `log-sink` application to 1.2.0.RELEASE.
+
+```
+dataflow:>app register --name time --type source --uri docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE
+Successfully registered application 'source:time'
+
+dataflow:>app register --name log --type sink --uri docker:springcloudstream/log-sink-rabbit:1.1.0.RELEASE
+Successfully registered application 'sink:log'
+
+dataflow:>app info source:time
+Information about source application 'time':
+Resource URI: docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE
+
+dataflow:>app info sink:log
+Information about sink application 'log':
+Resource URI: docker:springcloudstream/log-sink-rabbit:1.1.0.RELEASE
+```
+
+
+. Create stream.
+
++
+```
+dataflow:>stream create foo --definition "time | log"
+Created new stream 'foo'
+```
++
+
+. Deploy stream.
+
++
+```
+dataflow:>stream skipper deploy foo --platformName minikube
+Deployment request has been sent for stream 'foo'
+```
++
+
+[NOTE]
+====
+While deploying the stream, we are supplying `--platformName` and that indicates the platform repository (i.e., `minikube`) to
+use when deploying the stream applications via Skipper.
+====
+
+. List pods.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl get all
+NAME                              READY     STATUS    RESTARTS   AGE
+po/foo-log-v1-0-2k4r8             1/1       Running   0          2m
+po/foo-time-v1-qhdqq              1/1       Running   0          2m
+po/mysql-777890292-z0dsw          1/1       Running   0          49m
+po/rabbitmq-317767540-2qzrr       1/1       Running   0          49m
+po/redis-4054078334-37m0l         1/1       Running   0          49m
+po/scdf-server-2734071167-bjd3g   1/1       Running   0          12m
+po/skipper-2408247821-50z31       1/1       Running   0          15m
+
+...
+...
+----
++
+
+. Verify logs.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl -f po/foo-log-v1-0-2k4r8
+...
+...
+2017-10-30 22:59:04.966  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:04
+2017-10-30 22:59:05.968  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:05
+2017-10-30 22:59:07.000  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:06
+----
++
+
+. Verify the stream history.
+
++
+[source,console,options=nowrap]
+----
+dataflow:>stream skipper history --name foo
+╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
+║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
+╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
+║1      │Mon Oct 30 16:18:28 PDT 2017│DEPLOYED│foo         │1.0.0          │Install complete║
+╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
+----
++
+
+. Verify the package manifest. The `log-sink` should be at 1.1.0.RELEASE.
+
++
+[source,yml,options=nowrap]
+----
+dataflow:>stream skipper manifest --name foo
+
+---
+# Source: log.yml
+apiVersion: skipper.spring.io/v1
+kind: SpringCloudDeployerApplication
+metadata:
+  name: log
+spec:
+  resource: docker:springcloudstream/log-sink-rabbit
+  version: 1.1.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: log
+    spring.cloud.stream.metrics.key: foo.log.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.input.group: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: sink
+    spring.cloud.stream.bindings.input.destination: foo.time
+  deploymentProperties:
+    spring.cloud.deployer.indexed: true
+    spring.cloud.deployer.group: foo
+
+---
+# Source: time.yml
+apiVersion: skipper.spring.io/v1
+kind: SpringCloudDeployerApplication
+metadata:
+  name: time
+spec:
+  resource: docker:springcloudstream/time-source-rabbit
+  version: 1.2.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: time
+    spring.cloud.stream.metrics.key: foo.time.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.output.producer.requiredGroups: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.stream.bindings.output.destination: foo.time
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: source
+  deploymentProperties:
+    spring.cloud.deployer.group: foo
+----
++
+
+. Let's update `log-sink` from 1.1.0.RELEASE to 1.2.0.RELEASE
+
++
+[source,console,options=nowrap]
+----
+dataflow:>stream skipper update --name foo --properties version.log=1.2.0.RELEASE
+Update request has been sent for stream 'foo'
+----
++
+
+. List pods.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl get all
+NAME                              READY     STATUS        RESTARTS   AGE
+po/foo-log-v1-0-2k4r8             1/1       Terminating   0          3m
+po/foo-log-v2-0-fjnlt             0/1       Running       0          9s
+po/foo-time-v1-qhdqq              1/1       Running       0          3m
+po/mysql-777890292-z0dsw          1/1       Running       0          51m
+po/rabbitmq-317767540-2qzrr       1/1       Running       0          51m
+po/redis-4054078334-37m0l         1/1       Running       0          51m
+po/scdf-server-2734071167-bjd3g   1/1       Running       0          14m
+po/skipper-2408247821-50z31       1/1       Running       0          16m
+
+...
+...
+----
++
+
+[NOTE]
+====
+Notice that there are two versions of the `log-sink` applications. The `po/foo-log-v1-0-2k4r8` pod is going down and the
+newly spawned `po/foo-log-v2-0-fjnlt` pod is bootstrapping.  The version number is incremented and  the version-number
+(`v2`) is included in the new application name.
+====
+
+. Once the new pod is up and running, let's verify the logs.
+
++
+[source,console,options=nowrap]
+----
+$ kubectl -f po/foo-log-v2-0-fjnlt
+...
+...
+2017-10-30 23:24:30.016  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:30
+2017-10-30 23:24:31.017  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:31
+2017-10-30 23:24:32.018  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:32
+----
++
+
+. Let's look at the updated package manifest persisted in Skipper. We should now be seeing `log-sink` at 1.2.0.RELEASE.
+
++
+[source,yml,options=nowrap]
+----
+dataflow:>stream skipper manifest --name foo
+
+---
+# Source: log.yml
+apiVersion: skipper.spring.io/v1
+kind: SpringCloudDeployerApplication
+metadata:
+  name: log
+spec:
+  resource: docker:springcloudstream/log-sink-rabbit
+  version: 1.2.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: log
+    spring.cloud.stream.metrics.key: foo.log.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.input.group: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: sink
+    spring.cloud.stream.bindings.input.destination: foo.time
+  deploymentProperties:
+    spring.cloud.deployer.indexed: true
+    spring.cloud.deployer.group: foo
+    spring.cloud.deployer.count: 1
+
+---
+# Source: time.yml
+apiVersion: skipper.spring.io/v1
+kind: SpringCloudDeployerApplication
+metadata:
+  name: time
+spec:
+  resource: docker:springcloudstream/time-source-rabbit
+  version: 1.2.0.RELEASE
+  applicationProperties:
+    spring.metrics.export.triggers.application.includes: integration**
+    spring.cloud.dataflow.stream.app.label: time
+    spring.cloud.stream.metrics.key: foo.time.${spring.cloud.application.guid}
+    spring.cloud.stream.bindings.output.producer.requiredGroups: foo
+    spring.cloud.stream.metrics.properties: spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*
+    spring.cloud.stream.bindings.applicationMetrics.destination: metrics
+    spring.cloud.stream.bindings.output.destination: foo.time
+    spring.cloud.dataflow.stream.name: foo
+    spring.cloud.dataflow.stream.app.type: source
+  deploymentProperties:
+    spring.cloud.deployer.group: foo
+----
++
+
+. Verify stream history for the latest updates.
+
++
+[source,console,options=nowrap]
+----
+dataflow:>stream skipper history --name foo
+╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
+║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
+╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
+║2      │Mon Oct 30 16:21:55 PDT 2017│DEPLOYED│foo         │1.0.0          │Upgrade complete║
+║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
+╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
+----
++
+
+. Rolling-back to the previous version is just a command away.
+
++
+[source,console,options=nowrap]
+----
+dataflow:>stream skipper rollback --name foo
+Rollback request has been sent for the stream 'foo'
+
+...
+...
+
+dataflow:>stream skipper history --name foo
+╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
+║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
+╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
+║3      │Mon Oct 30 16:22:51 PDT 2017│DEPLOYED│foo         │1.0.0          │Upgrade complete║
+║2      │Mon Oct 30 16:21:55 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
+║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
+╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
+----
