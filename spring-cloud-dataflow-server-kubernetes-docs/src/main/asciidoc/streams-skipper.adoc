@@ -23,13 +23,11 @@ Verify the registered platforms in Skipper.
 [source,console,options=nowrap]
 ----
 dataflow:>stream skipper platform-list
-╔════════╤══════════╤══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║  Name  │   Type   │                                                                 Description                                                                  ║
-╠════════╪══════════╪══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
-║minikube│kubernetes│master url = [https://kubernetes.default.svc/], namespace = [default], api version = [v1]                                                     ║
-║default │local     │ShutdownTimeout = [30], EnvVarsToInherit = [TMP,LANG,LANGUAGE,LC_.*,PATH], JavaCmd = [/usr/lib/jvm/java-1.8-openjdk/jre/bin/java],            ║
-║        │          │WorkingDirectoriesRoot = [/tmp], DeleteFilesOnExit = [true]                                                                                   ║
-╚════════╧══════════╧══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+╔════════╤══════════╤════════════════════════════════════════════════════════════════════════════════════════════════╗
+║  Name  │   Type   │                                      Description                                               ║
+╠════════╪══════════╪════════════════════════════════════════════════════════════════════════════════════════════════╣
+║minikube│kubernetes│master url = [https://kubernetes.default.svc/], namespace = [default], api version = [v1]       ║
+╚════════╧══════════╧════════════════════════════════════════════════════════════════════════════════════════════════╝
 ----
 
 Let's start with deploying a stream with the `time-source` pointing to 1.2.0.RELEASE and `log-sink` pointing

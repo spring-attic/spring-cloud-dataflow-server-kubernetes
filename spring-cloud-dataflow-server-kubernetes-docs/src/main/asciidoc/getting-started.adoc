@@ -7,17 +7,17 @@ Pipelines consist of Spring Boot apps, built using the Spring Cloud Stream or Sp
 
 This project provides support for using Spring Cloud Data Flow with Kubernetes as the runtime for these pipelines with apps packaged as Docker images.
 
-== Deploying the Spring Cloud Data Flow server on Kubernetes
+== Installation
 
-In this section we will deploy the Spring Cloud Data Flow Server to a Kubernetes cluster.
-Operationalizing Spring Cloud Data Flow depends on a few services and their availability.
-For example, we need an RDBMS service for the app registry, stream, and task repositories. 
+In this section we will install the Spring Cloud Data Flow Server on a Kubernetes cluster.
+Spring Cloud Data Flow depends on a few services and their availability.
+For example, we need an RDBMS service for the app registry, stream/task repositories and task management.
 For streaming pipelines, we also need a transport option such as Apache Kafka or Rabbit MQ. 
 In addition to this, we need a Redis service if the analytics features are in use.
 
 [IMPORTANT]
 ====
-This guide describes setting up an environment for testing Spring Cloud Data Flow on Google Container Engine and is not meant to be a definitive guide for setting up a production environment. Feel free to adjust the suggestions to fit your test set-up. Please remember that a production environment requires much more consideration for persistent storage of message queues, high availability, security etc.
+This guide describes setting up an environment for testing Spring Cloud Data Flow on Google Kubernetes Engine and is not meant to be a definitive guide for setting up a production environment. Feel free to adjust the suggestions to fit your test set-up. Please remember that a production environment requires much more consideration for persistent storage of message queues, high availability, security etc.
 ====
 
 [NOTE]
@@ -36,18 +36,18 @@ dataflow:>app register --type source --name time --uri docker://springcloudstrea
 but any app registered with a Maven, HTTP or File resource for the executable jar (using a `--uri` property prefixed with `maven://`, `http://` or `file://`) is *_not supported_*.
 ====
 
-=== Create a Kubernetes cluster.
+=== Create a Kubernetes cluster
 
 The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the Right Solution] guide lets you choose among many options so you can pick one that you are most comfortable using.
 
-All our testing is done using the https://cloud.google.com/container-engine/[Google Container Engine] that is part of the Google Cloud Platform. That is a also the target platform for this section. We have also successfully deployed using https://kubernetes.io/docs/getting-started-guides/minikube/[Minikube] and we will note where you need to adjust for deploying on Minikube.
+All our testing is done using the https://cloud.google.com/kubernetes-engine/[Google Kubernetes Engine] that is part of the Google Cloud Platform. That is a also the target platform for this section. We have also successfully deployed using https://kubernetes.io/docs/getting-started-guides/minikube/[Minikube] and we will note where you need to adjust for deploying on Minikube.
 
 NOTE: When starting Minikube you should allocate some extra resources since we will be deploying several services. We have used `minikube start --cpus=4 --memory=4096` to start.
 
 The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 
 
-=== Deploying Spring Cloud Data Flow on Kubernetes using configuration files
+=== Deploying using kubectl
 
 . Get the Kubernetes configuration files.
 +
@@ -60,7 +60,7 @@ $ cd spring-cloud-dataflow-server-kubernetes
 $ git checkout {github-tag}
 ----
 +
-. Create a Rabbit MQ service on the Kubernetes cluster.
+. Deploy Rabbit MQ.
 +
 The Rabbit MQ service will be used for messaging between modules in the stream.  You could also use Kafka, but, in order to simplify, we only show the Rabbit MQ configurations in this guide.
 +
@@ -72,7 +72,7 @@ $ kubectl create -f src/kubernetes/rabbitmq/
 +
 You can use the command `kubectl get all -l app=rabbitmq` to verify that the deployment, pod and service resources are running. Use the command `kubectl delete all -l app=rabbitmq` to clean up afterwards.
 +
-. Create a MySQL service on the Kubernetes cluster.
+. Deploy MySQL.
 +
 We are using MySQL for this guide, but you could use Postgres or H2 database instead. We include JDBC drivers for all three of these databases, you would just have to adjust the database URL and driver class name settings.
 +
@@ -85,7 +85,7 @@ $ kubectl create -f src/kubernetes/mysql/
 ```
 You can use the command `kubectl get all -l app=mysql` to verify that the deployment, pod and service resources are running. Use the command `kubectl delete all,pvc,secrets -l app=mysql` to clean up afterwards.
 +
-. Create a Redis service on the Kubernetes cluster.
+. Deploy Redis.
 +
 The Redis service will be used for the analytics functionality. Run the following commands to start the Redis service:
 +
@@ -97,7 +97,7 @@ NOTE: If you don't need the analytics functionality you can turn this feature of
 +
 You can use the command `kubectl get all -l app=redis` to verify that the deployment, pod and service resources are running. Use the command `kubectl delete all -l app=redis` to clean up afterwards.
 +
-. Deploy the Metrics Collector on the Kubernetes cluster.
+. Deploy the Metrics Collector.
 +
 The Metrics Collector will provide message rates for all deployed stream apps. These message rates will be visible in the Dashboard UI. Run the following commands to start the Metrics Collector:
 + 
@@ -108,7 +108,14 @@ $ kubectl create -f src/kubernetes/metrics/metrics-svc.yaml
 +
 You can use the command `kubectl get all -l app=metrics` to verify that the deployment, pod and service resources are running. Use the command `kubectl delete all -l app=metrics` to clean up afterwards.
 +
-. Update configuration files with values needed to connect to the required services.
+. Deploy Skipper
++
+This is an optional step.  Deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] if you want the added features of upgrading and rolling back Streams since Data Flow delegates to Skipper for those features.
+For more details, review the link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
+for a complete overview and the feature capabilities.
+See the section <<getting-started-deploy-skipper>> for details.
++
+. Deploy the Data Flow Server.
 +
 IMPORTANT: You should specify the version of the Spring Cloud Data Flow server that you want to deploy.
 +
@@ -130,12 +137,7 @@ The ConfigMap settings are specified in the `src/kubernetes/server/server-config
 +
 NOTE: We are now configuring the Data Flow server with file based security and the default user is 'user' with a password of 'password'. Feel free to change this in the `src/kubernetes/server/server-config-rabbit.yaml` file.
 +
-We haven't tuned the memory use of the OOTB apps yet, so to be on the safe side we are increasing the memory for the pods by providing the following environment variable in the `src/kubernetes/server/server-deployment.yaml` file:
-+
-```
-        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
-          value: 640Mi
-```
+NOTE: The default memory for the pods is set to 1024Mi.  Update the value in the `src/kubernetes/server/server-deployment.yaml` file if you expect most of your apps to require more memory.
 +
 . Deploy the Spring Cloud Data Flow Server for Kubernetes using the Docker image and the configuration settings.
 +
@@ -163,9 +165,129 @@ $ minikube service --url scdf-server
 http://192.168.99.100:31991
 ```
 
-=== Deploying Spring Cloud Data Flow on Kubernetes using Helm
+[[getting-started-deploy-skipper]]
+=== Deploy Skipper
+
+This is an optional step.  Deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] if you want the added features of upgrading and rolling back Streams since Data Flow delegates to Skipper for those features.
+
+The Deployment resource for Skipper is shown below:
+
+[source,yaml]
+----
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: skipper
+  labels:
+    app: skipper
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: skipper
+    spec:
+      containers:
+      - name: skipper
+        image: springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 1.0
+            memory: 1024Mi
+          requests:
+            cpu: 0.5
+            memory: 640Mi
+        env:
+        - name: SPRING_APPLICATION_JSON
+          value: "{\"spring.cloud.skipper.server.enable.local.platform\" : false, \"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" : \"SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}\",\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.memory\" : \"1024Mi\",\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.createDeployment\" : true}"
+----
+
+[NOTE]
+====
+Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#platforms[platforms], 
+so it is important to define the "accounts" based on the project preferences. In the above YAML file, the accounts map 
+to `minikube` as the platform. This can be modified, and of course, you can have any number of platform definitions. 
+More details are in Spring Cloud Skipper reference guide.
+====
+
+[NOTE]
+====
+If you'd like to change the version of Skipper server, you can do so by updating the image from `springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT`
+to a desired docker tag.
+====
+
+[NOTE]
+====
+If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware, you must change 
+the value for 
+
+[source,yaml,options=nowrap]
+----
+"{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" :
+\"SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=${KAFKA_SERVICE_HOST}:${KAFKA_SERVICE_PORT},
+SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=${KAFKA_ZK_SERVICE_HOST}:${KAFKA_ZK_SERVICE_PORT}\"}"
+----
+
+====
+
+The resource for the Skipper service is shown below:
+
+[source,yaml,options=nowrap]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: skipper
+  labels:
+    app: skipper
+spec:
+  # If you are running k8s on a local dev box or using minikube, you can use type NodePort instead
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 7577 # port used by 'skpr' (i.e., 7577)
+  selector:
+    app: skipper
+----
+
+Run the following commands to start Skipper as the companion server for Spring Cloud Data Flow:
+
+```
+$ kubectl create -f src/kubernetes/skipper/skipper-deployment.yaml
+$ kubectl create -f src/kubernetes/skipper/skipper-svc.yaml
+```
+
+You can use the command `kubectl get all -l app=skipper` to verify that the deployment, pod and service resources are running. 
+Use the command `kubectl delete all -l app=skipper` to clean up afterwards.
+
+Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address assigned to `scdf-server`, we will use that 
+later to connect from the shell.
+
+```
+$ kubectl get svc
+NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
+skipper      10.103.246.83    130.211.203.247   80/TCP     4m
+```
+So the URL you need to use is in this case is: http://130.211.203.247
+
+If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. 
+You need to use the NodePort assigned for the `skipper` service. Use this command to look up the URL to use:
+
+```
+$ minikube service --url skipper
+http://192.168.99.100:32060
+```
+
+== Helm Installation
 
 Spring Cloud DataFlow offers a https://helm.sh/[Helm] Chart for deploying the Spring Cloud Data Flow server and its required services to a Kubernetes Cluster.
+
+
+NOTE: The helm chart is currenlty only available for the 1.2 GA version of Data Flow for Kubernetes.
+
 The following instructions cover how to initialize `Helm` and install Spring Cloud Data Flow on a Kubernetes cluster.
 
 . Installing Helm
@@ -310,131 +432,12 @@ helm install --name my-release \
 ----
 ====
 
-[[spring-cloud-skipper-integration]]
-=== Spring Cloud Skipper Integration
 
-Skipper is a tool that allows you to discover Spring Boot applications and manage their lifecycle on multiple Cloud Platforms. 
-You can use Skipper standalone or integrate it with Continuous Integration pipelines to help achieve Continuous Deployment 
-of applications. For more details, review the link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
-for a complete overview and the feature capabilities.
+[[getting-started-deploying-streams]]
+== Deploying Streams
 
-Before we begin setting up Skipper to use with Spring Cloud Data Flow, let's review the basics by understanding foundational 
-design by which the relevant infrastructure is provisioned in Kubernetes. The tailormade 
-link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#tour-kubernetes[three-minute-tour for Kubernetes] 
-walks through the fundamentals.
-
-Next up, we will review the relevant artifacts to provision Spring Cloud Skipper in Kubernetes.
-
-==== Skipper Deployment
-[source,yaml,options=nowrap]
-----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: skipper
-  labels:
-    app: skipper
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: skipper
-    spec:
-      containers:
-      - name: skipper
-        image: springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 80
-        resources:
-          limits:
-            cpu: 1.0
-            memory: 1024Mi
-          requests:
-            cpu: 0.5
-            memory: 640Mi
-        env:
-        - name: SPRING_APPLICATION_JSON
-          value: "{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" : \"SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}\"}"
-----
-
-[NOTE]
-====
-Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#platforms[platforms], 
-so it is important to define the "accounts" based on the project preferences. In the above YAML file, the accounts map 
-to `minikube` as the platform. This can be modified, and of course, you can have any number of platform definitions. 
-More details are in Spring Cloud Skipper reference guide.
-====
-
-[NOTE]
-====
-If you'd like to change the version of Skipper server, you can do so by updating the image from `springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT`
-to a desired docker tag.
-====
-
-[NOTE]
-====
-If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware, you must change 
-the value for 
-
-[source,yaml,options=nowrap]
-----
-"{\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" :
-\"SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=${KAFKA_SERVICE_HOST}:${KAFKA_SERVICE_PORT},
-SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=${KAFKA_ZK_SERVICE_HOST}:${KAFKA_ZK_SERVICE_PORT}\"}"
-----
-
-====
-
-==== Skipper Service
-[source,yaml,options=nowrap]
-----
-apiVersion: v1
-kind: Service
-metadata:
-  name: skipper
-  labels:
-    app: skipper
-spec:
-  # If you are running k8s on a local dev box or using minikube, you can use type NodePort instead
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 7577 # port used by 'skpr' (i.e., 7577)
-  selector:
-    app: skipper
-----
-
-Run the following commands to start Skipper as the companion server for Spring Cloud Data Flow:
-
-```
-$ kubectl create -f src/kubernetes/skipper/skipper-deployment.yaml
-$ kubectl create -f src/kubernetes/skipper/skipper-svc.yaml
-```
-
-You can use the command `kubectl get all -l app=skipper` to verify that the deployment, pod and service resources are running. 
-Use the command `kubectl delete all -l app=skipper` to clean up afterwards.
-
-Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address assigned to `scdf-server`, we will use that 
-later to connect from the shell.
-
-```
-$ kubectl get svc
-NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
-skipper      10.103.246.83    130.211.203.247   80/TCP     4m
-```
-So the URL you need to use is in this case is: http://130.211.203.247
-
-If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. 
-You need to use the NodePort assigned for the `skipper` service. Use this command to look up the URL to use:
-
-```
-$ minikube service --url skipper
-http://192.168.99.100:32060
-```
-
-== Creating and Running Streams on Kubernetes
+[[getting-started-create-stream-without-skipper]]
+=== Create Streams without Skipper
 
 . Download and run the Spring Cloud Data Flow shell.
 +
@@ -532,6 +535,10 @@ kubectl describe pods/ticktock-log-qnk72
 +
 NOTE: If you need to specify any of the app specific configuration properties then you might use "long-form" of them including the app specific prefix like `--jdbc.tableName=TEST_DATA`. This form is *required* if you didn't register the `--metadata-uri` for the Docker based starter apps. In this case you will also not see the configuration properties listed when using the `app info` command or in the Dashboard GUI.
 
+[[getting-started-create-with-skipper]]
+=== Create Streams with Skipper
+Refer to the section <<streams-using-skipper>> for more information.
+
 === Accessing app from outside the cluster
 
 If you need to be able to connect to from outside of the Kubernetes cluster to an app that you deploy, like the `http-source`, then you need to use either an external load balancer for the incoming connections or you need to use a NodePort configuration that will expose a proxy port on each Kubetnetes Node. If your cluster doesn't support external load balancers, like the Minikube, then you must use the NodePort approach. You can use deployment properties for configuring the access. Use  `deployer.http.kubernetes.createLoadBalancer=true` for the app to specify that you want to have a LoadBalancer with an external IP address created for your app's service. For the NodePort configuration use `deployer.http.kubernetes.createNodePort=<port>` where `<port>` should be a number between 30000 and 32767.
@@ -624,7 +631,8 @@ command is:kubectl logs test-log-0-ysiz3
 dataflow:>stream destroy --name test
 ```
 
-== Creating and Launching Tasks on Kubernetes
+
+== Deploying Tasks
 
 . Create a task and launch it
 +
