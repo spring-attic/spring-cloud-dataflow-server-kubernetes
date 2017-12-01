@@ -36,10 +36,10 @@ Let's start with deploying a stream with the `time-source` pointing to 1.2.0.REL
 to 1.1.0.RELEASE. The goal is to rolling upgrade the `log-sink` application to 1.2.0.RELEASE.
 
 ```
-dataflow:>app register --name time --type source --uri docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE
+dataflow:>app register --name time --type source --uri docker:springcloudstream/time-source-rabbit:1.2.0.RELEASE --force
 Successfully registered application 'source:time'
 
-dataflow:>app register --name log --type sink --uri docker:springcloudstream/log-sink-rabbit:1.1.0.RELEASE
+dataflow:>app register --name log --type sink --uri docker:springcloudstream/log-sink-rabbit:1.1.0.RELEASE --force
 Successfully registered application 'sink:log'
 
 dataflow:>app info source:time

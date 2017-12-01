@@ -486,7 +486,7 @@ dataflow:>app register --type sink --name log --uri docker://springcloudstream/l
 you can with the following command. For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 +
 ```
-dataflow:>app import --uri http://bit.ly/stream-applications-rabbit-docker
+dataflow:>app import --uri http://bit.ly/Celsius-GA-stream-applications-rabbit-docker
 ```
 +
 . Deploy a simple stream in the shell

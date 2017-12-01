@@ -38,7 +38,7 @@ spec:
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CREATE_DEPLOYMENT
           value: 'true'
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
-          value: 640Mi
+          value: 1024Mi
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_READINESS_PROBE_DELAY
           value: '120'
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_DELAY
