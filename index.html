@@ -37,43 +37,45 @@ badges:
 
 {% capture billboard_description %}
 
-Spring Cloud Data Flow for Kubernetes is a cloud-native orchestration service for composable 
-data microservices on [Kubernetes](http://kubernetes.io/). With Spring Cloud Data Flow, 
-developers can create and orchestrate data pipelines for common use cases such as data ingest, real-time analytics, and data import/export.
+
+Spring Cloud Data Flow for Cloud Foundry is a toolkit for building data integration and real-time data processing pipelines that are deployed to Cloud Foundry.
+
+<br>
+
+Pipelines consist of [Spring Boot](https://projects.spring.io/spring-boot/) apps, built using the [Spring Cloud Stream](https://cloud.spring.io/spring-cloud-stream/) or [Spring Cloud Task](https://cloud.spring.io/spring-cloud-task/) microservice frameworks. This makes Spring Cloud Data Flow suitable for a range of data processing use cases, from import/export to event streaming and predictive analytics.
 
 {% endcapture %}
 
 {% capture main_content %}
 
-Spring Cloud Data Flow for Kubernetes offers a collection of patterns and best practices for data 
-microservices running as streaming and batch data pipelines in Kubernetes.
+<span id="overview"></span>
 
-## Features
+Spring Cloud Data Flow for Kubernetes deploys data pipelines to Kubernetes.
 
-* Consume streaming and batch data microservices as docker artifacts
-* Create, unit-test, troubleshoot and manage data microservices in isolation
-* Develop using: DSL, Shell, REST-APIs, Dashboard, and Flo
-* Take advantage of Kubernetes value-adds such as metrics, security, logging, health checks, and remote management at each data microservice level
-* Scale stream and batch pipelines through `kubectl cli`
+You can get started with common use cases by selecting from a collection pre-built [stream](http://cloud.spring.io/spring-cloud-stream-app-starters/) and [task/batch](http://cloud.spring.io/spring-cloud-task-app-starters/) starter apps for various data integration and processing scenarios facilitate learning and experimentation.
+
+[Custom](http://docs.spring.io/spring-cloud-dataflow/docs/current-SNAPSHOT/reference/htmlsingle/#custom-applications) stream and task applications, targeting different middleware or data services, can be built using the familiar Spring Boot style programming model.
+
+The [dashboard](http://docs.spring.io/spring-cloud-dataflow/docs/current-SNAPSHOT/reference/htmlsingle/#dashboard-introduction) offers a graphical editor for building new pipelines interactively, as well as views of deployable apps and running apps with metrics.  The dashboard also serves as a administrative managagement console for Tasks.
+
+The Spring Could Data Flow server exposes a [REST API](http://docs.spring.io/spring-cloud-dataflow/docs/current-SNAPSHOT/reference/htmlsingle/#api-guide-overview) for composing and deploying data pipelines. A separate [shell](http://docs.spring.io/spring-cloud-dataflow/docs/current-SNAPSHOT/reference/htmlsingle/#getting-started-deploying-spring-cloud-dataflow) makes it easy to work with the API from an interactive command line.
+
+A [stream DSL](http://docs.spring.io/spring-cloud-dataflow/docs/current-SNAPSHOT/reference/htmlsingle/#_stream_dsl) makes it easy to specify which apps to deploy and how to connect outputs and inputs. A new [composed task DSL](http://docs.spring.io/spring-cloud-dataflow/docs/current-SNAPSHOT/reference/htmlsingle/#_composed_task_dsl) was added in v1.2.  A [Java DSL](https://docs.spring.io/spring-cloud-dataflow/docs/1.3.0.BUILD-SNAPSHOT/reference/htmlsingle/#spring-cloud-dataflow-stream-java-dsl) was added in v1.3
+
 
 <span id="quick-start"></span>
 
-## Quick Start
+## Getting Started
 
-Step 1 - [Download, Configure and Deploy](http://docs.spring.io/spring-cloud-dataflow-server-kubernetes/docs/current-SNAPSHOT/reference/htmlsingle/#_getting_started) Spring Cloud Data Flow's Kubernetes Server and Shell Applications
-
-Step 2 - Create **‘ticktock’** Stream
-```
-dataflow:>stream create --name ticktock --definition "time | log" --deploy
-```
-
-Step 3 - Verify **‘ticktock’** Results using `kubectl logs` command
-
-Step 4 - Launch Dashboard at: http://{SERVER-EXTERNAL-IP}:9393/dashboard
+The getting started section of the [latest GA release](https://docs.spring.io/spring-cloud-dataflow/docs/1.2.3.RELEASE/reference/htmlsingle/#getting-started-system-requirements) or the [latest Milestone release](https://docs.spring.io/spring-cloud-dataflow/docs/1.3.0.M3/reference/htmlsingle/#getting-started) is the best place follow detailed step by step instructions.
 
 {% endcapture %}
 
 {% capture related_resources %}
+
+### Sample Projects
+
+Check out the [Data Flow Samples Documentation](https://docs.spring.io/spring-cloud-dataflow-samples/docs/current/reference/html/) for a dozen samples for common use-cases.
 
 ### Related Projects
 
