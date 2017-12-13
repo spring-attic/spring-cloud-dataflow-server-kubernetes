@@ -138,10 +138,19 @@ The ConfigMap settings are specified in the `src/kubernetes/server/server-config
 NOTE: We are now configuring the Data Flow server with file based security and the default user is 'user' with a password of 'password'. Feel free to change this in the `src/kubernetes/server/server-config-rabbit.yaml` file.
 +
 NOTE: The default memory for the pods is set to 1024Mi.  Update the value in the `src/kubernetes/server/server-deployment.yaml` file if you expect most of your apps to require more memory.
+
+IMPORTANT: The latest releases of kubernetes have enabled https://kubernetes.io/docs/admin/authorization/rbac/[RBAC] on the api-server. If your target platform has RBAC enabled you must ask a `cluster-admin` to create the `roles` and `role-bindings` for you before deploying the dataflow server. They associate the dataflow service account with the roles it needs to be run with.
+```
+$ kubectl create -f src/kubernetes/server/server-roles.yaml
+$ kubectl create -f src/kubernetes/server/server-rolebinding.yaml
+
+```
+
 +
 . Deploy the Spring Cloud Data Flow Server for Kubernetes using the Docker image and the configuration settings.
 +
 ```
+$ kubectl create -f src/kubernetes/server/service-account.yaml
 $ kubectl create -f src/kubernetes/server/server-config-rabbit.yaml
 $ kubectl create -f src/kubernetes/server/server-svc.yaml
 $ kubectl create -f src/kubernetes/server/server-deployment.yaml
