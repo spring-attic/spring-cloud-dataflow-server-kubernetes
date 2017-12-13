@@ -40,7 +40,7 @@ spec:
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
           value: 1024Mi
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_READINESS_PROBE_DELAY
-          value: '120'
+          value: '90'
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_DELAY
           value: '90'
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
@@ -58,3 +58,4 @@ spec:
           # Add Maven repo for metadata artifact resolution plus set metrics destination for all stream apps
         - name: SPRING_APPLICATION_JSON
           value: "{ \"maven\": { \"local-repository\": null, \"remote-repositories\": { \"repo1\": { \"url\": \"https://repo.spring.io/libs-snapshot\"} } }, \"spring.cloud.dataflow.application-properties.stream.spring.cloud.stream.bindings.applicationMetrics.destination\": \"metrics\" }"
+      serviceAccountName: scdf-sa
