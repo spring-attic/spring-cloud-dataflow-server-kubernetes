@@ -732,6 +732,12 @@ This can be achieved by using the `JAVA_TOOL_OPTIONS` environment variable:
 deployer.<app>.kubernetes.environmentVariables=JAVA_TOOL_OPTIONS=-Xmx1024m
 ```
 
+[NOTE]
+The `environmentVariables` property accepts a comma delimited string. If an environment variable contains a value
+which is also a comma delimited string, then it must be enclosed in single quotes, e.g.,
+`spring.cloud.deployer.kubernetes.environmentVariables=spring.cloud.stream.kafka.binder.brokers='somehost:9092,
+anotherhost:9093'`
+
 This overrides the JVM memory setting for the desired <app> (just replace <app> with the name of your app). 
 
 === Liveness and Readiness Probes
