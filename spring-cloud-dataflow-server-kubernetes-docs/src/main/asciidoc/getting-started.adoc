@@ -36,6 +36,12 @@ dataflow:>app register --type source --name time --uri docker://springcloudstrea
 but any app registered with a Maven, HTTP or File resource for the executable jar (using a `--uri` property prefixed with `maven://`, `http://` or `file://`) is *_not supported_*.
 ====
 
+=== Kubernetes Compatibility
+
+The Spring Cloud Data Flow implementation for Kubernetes uses link:https://github.com/spring-cloud/spring-cloud-deployer-kubernetes[Spring Cloud Deployer Kubernetes]
+library for orchestration. Before you begin setting up Kubermetes cluster, refer to the link:https://github.com/spring-cloud/spring-cloud-deployer-kubernetes#kubernetes-compatibility[compatibility-matrix]
+to learn more about the deployer/server compatibility against Kubernetes release versions.
+
 === Create a Kubernetes cluster
 
 The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the Right Solution] guide lets you choose among many options so you can pick one that you are most comfortable using.
@@ -110,10 +116,31 @@ You can use the command `kubectl get all -l app=metrics` to verify that the depl
 +
 . Deploy Skipper
 +
-This is an optional step.  Deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] if you want the added features of upgrading and rolling back Streams since Data Flow delegates to Skipper for those features.
-For more details, review the link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
-for a complete overview and the feature capabilities.
-See the section <<getting-started-deploy-skipper>> for details.
+Optionally, you can deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] to leverage the features of upgrading and
+rolling back Streams since Data Flow delegates to Skipper for those features. For more details, review Spring Cloud Skipper's
+link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
+for a complete overview and its feature capabilities. Also, the <<getting-started-deploy-skipper>> section covers the internals
+in greater detail.
++
+
+[NOTE]
+====
+To use Skipper, you _must_ uncomment the following properties in `src/kubernetes/skipper/skipper-deployment.yaml`.
+
+[source,yaml,options=nowrap]
+----
+
+# - name: SPRING_CLOUD_SKIPPER_CLIENT_URI
+#   value: 'http://${SKIPPER_SERVICE_HOST}/api'
+----
+====
++
+If you intend to use Skipper, run the following commands to start Skipper as the companion server for Spring Cloud Data Flow:
++
+```
+$ kubectl create -f src/kubernetes/skipper/skipper-deployment.yaml
+$ kubectl create -f src/kubernetes/skipper/skipper-svc.yaml
+```
 +
 . Deploy the Data Flow Server.
 +
@@ -164,6 +191,7 @@ Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address 
 $ kubectl get svc
 NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
+skipper      10.103.246.83    130.211.203.247   80/TCP     5m
 ```
 So the URL you need to use is in this case http://130.211.203.246
 +
