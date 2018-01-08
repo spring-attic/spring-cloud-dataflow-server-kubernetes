@@ -116,12 +116,26 @@ You can use the command `kubectl get all -l app=metrics` to verify that the depl
 +
 . Deploy Skipper
 +
-Deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] to leverage the features of upgrading and rolling back Streams since Data Flow delegates to Skipper for those features.
-For more details, review the link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
-for a complete overview and the feature capabilities. Also, the <<getting-started-deploy-skipper>> section covers the internals
+Optionally, you can deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] to leverage the features of upgrading and
+rolling back Streams since Data Flow delegates to Skipper for those features. For more details, review Spring Cloud Skipper's
+link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
+for a complete overview and its feature capabilities. Also, the <<getting-started-deploy-skipper>> section covers the internals
 in greater detail.
 +
-Run the following commands to start Skipper as the companion server for Spring Cloud Data Flow:
+
+[NOTE]
+====
+To use Skipper, you _must_ uncomment the following properties in `src/kubernetes/skipper/skipper-deployment.yaml`.
+
+[source,yaml,options=nowrap]
+----
+
+# - name: SPRING_CLOUD_SKIPPER_CLIENT_URI
+#   value: 'http://${SKIPPER_SERVICE_HOST}/api'
+----
+====
++
+If you intend to use Skipper, run the following commands to start Skipper as the companion server for Spring Cloud Data Flow:
 +
 ```
 $ kubectl create -f src/kubernetes/skipper/skipper-deployment.yaml
