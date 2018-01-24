@@ -153,11 +153,11 @@ The deployment is defined in the `src/kubernetes/server/server-deployment.yaml` 
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:latest    # <1>
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.3.0.RC1    # <1>
         imagePullPolicy: Always
 ----
 +
-<1> change `latest` to the version you would like. This document is based on the `{project-version}` version so the recommended image tag to use for this is `{docker-tag}`.
+<1> change the version as you like. This document is based on the `{project-version}` release.
 +
 The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
 The ConfigMap settings are specified in the `src/kubernetes/server/server-config-rabbit.yaml` file and the secrets are in the `src/kubernetes/mysql/mysql-secrets.yaml` file. If you modified the password for MySQL you should have changed it in the `src/kubernetes/mysql/mysql-secrets.yaml` file. Any secrets have to be provided base64 encoded.
