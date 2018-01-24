@@ -18,11 +18,26 @@ po/skipper-2408247821-50z31       1/1       Running   0          3m
 ...
 ----
 
+To start the Data Flow Shell for the Data Flow server running in `skipper` mode:
+
+[source,bash,subs=attributes]
+----
+$ java -jar spring-cloud-dataflow-shell-{dataflow-project-version}.jar --dataflow.mode=skipper
+----
+If the Data Flow Server and shell are not running on the same host, point the shell to the Data Flow server URL:
+```
+server-unknown:>dataflow config server http://dataflow-server.cfapps.io
+Successfully targeted http://dataflow-server.cfapps.io
+dataflow:>
+```
+Alternatively, pass in the command line option `--dataflow.uri`.  The shell's command line option `--help1 shows what is available.
+
+
 Verify the registered platforms in Skipper.
 
 [source,console,options=nowrap]
 ----
-dataflow:>stream skipper platform-list
+dataflow:>stream platform-list
 ╔════════╤══════════╤════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║  Name  │   Type   │                                      Description                                               ║
 ╠════════╪══════════╪════════════════════════════════════════════════════════════════════════════════════════════════╣
@@ -63,7 +78,7 @@ Created new stream 'foo'
 
 +
 ```
-dataflow:>stream skipper deploy foo --platformName minikube
+dataflow:>stream deploy foo --platformName minikube
 Deployment request has been sent for stream 'foo'
 ```
 +
@@ -113,7 +128,7 @@ $ kubectl -f po/foo-log-v1-0-2k4r8
 +
 [source,console,options=nowrap]
 ----
-dataflow:>stream skipper history --name foo
+dataflow:>stream history --name foo
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
@@ -127,7 +142,7 @@ dataflow:>stream skipper history --name foo
 +
 [source,yml,options=nowrap]
 ----
-dataflow:>stream skipper manifest --name foo
+dataflow:>stream manifest --name foo
 
 ---
 # Source: log.yml
@@ -181,7 +196,7 @@ spec:
 +
 [source,console,options=nowrap]
 ----
-dataflow:>stream skipper update --name foo --properties version.log=1.2.0.RELEASE
+dataflow:>stream update --name foo --properties version.log=1.2.0.RELEASE
 Update request has been sent for stream 'foo'
 ----
 +
@@ -233,7 +248,7 @@ $ kubectl -f po/foo-log-v2-0-fjnlt
 +
 [source,yml,options=nowrap]
 ----
-dataflow:>stream skipper manifest --name foo
+dataflow:>stream manifest --name foo
 
 ---
 # Source: log.yml
@@ -288,7 +303,7 @@ spec:
 +
 [source,console,options=nowrap]
 ----
-dataflow:>stream skipper history --name foo
+dataflow:>stream history --name foo
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
@@ -303,13 +318,13 @@ dataflow:>stream skipper history --name foo
 +
 [source,console,options=nowrap]
 ----
-dataflow:>stream skipper rollback --name foo
+dataflow:>stream rollback --name foo
 Rollback request has been sent for the stream 'foo'
 
 ...
 ...
 
-dataflow:>stream skipper history --name foo
+dataflow:>stream history --name foo
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣

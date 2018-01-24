@@ -125,13 +125,15 @@ in greater detail.
 
 [NOTE]
 ====
-To use Skipper, you _must_ uncomment the following properties in `src/kubernetes/skipper/skipper-deployment.yaml`.
+To use Skipper, you _must_ uncomment the following properties to `src/kubernetes/skipper/skipper-deployment.yaml`. under the `env:` section
 
 [source,yaml,options=nowrap]
 ----
 
-# - name: SPRING_CLOUD_SKIPPER_CLIENT_URI
-#   value: 'http://${SKIPPER_SERVICE_HOST}/api'
+ - name: SPRING_CLOUD_SKIPPER_CLIENT_URI
+   value: 'http://${SKIPPER_SERVICE_HOST}/api'
+ - name: SPRING_CLOUD_DATAFLOW_FEATURES_SKIPPER_ENABLED
+   value: true
 ----
 ====
 +
@@ -226,7 +228,7 @@ spec:
     spec:
       containers:
       - name: skipper
-        image: springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT
+        image: springcloud/spring-cloud-skipper-server:1.0.0.RC4
         imagePullPolicy: Always
         ports:
         - containerPort: 80
