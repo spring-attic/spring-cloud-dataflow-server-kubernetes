@@ -130,7 +130,7 @@ To use Skipper, you _must_ uncomment the following properties to `src/kubernetes
 [source,yaml,options=nowrap]
 ----
 
- - name: SPRING_CLOUD_SKIPPER_CLIENT_URI
+ - name: SPRING_CLOUD_SKIPPER_CLIENT_SERVER_URI
    value: 'http://${SKIPPER_SERVICE_HOST}/api'
  - name: SPRING_CLOUD_DATAFLOW_FEATURES_SKIPPER_ENABLED
    value: true
