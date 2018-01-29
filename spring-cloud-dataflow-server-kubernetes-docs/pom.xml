@@ -66,26 +66,29 @@
 								<project-version>${project.version}</project-version>
 								<project-artifactId>${project.artifactId}</project-artifactId>
 								<version-type-lowercase>${version-type-lowercase}</version-type-lowercase>
+
 								<dataflow-project-version>${spring-cloud-dataflow.version}</dataflow-project-version>
+								<deployer-cloudfoundry-version>${spring-cloud-deployer-cloudfoundry.version}</deployer-cloudfoundry-version>
+								<skipper-version>${spring-cloud-skipper.version}</skipper-version>
 								<dataflow-version-type-lowercase>${dataflow-version-type-lowercase}</dataflow-version-type-lowercase>
+								<skipper-version-type-lowercase>${skipper-version-type-lowercase}</skipper-version-type-lowercase>
+								<dataflow-branch-or-tag>${dataflow-branch-or-tag}</dataflow-branch-or-tag>
+								<dataflow-asciidoc>https://raw.githubusercontent.com/spring-cloud/spring-cloud-dataflow/${dataflow-branch-or-tag}/spring-cloud-dataflow-docs/src/main/asciidoc</dataflow-asciidoc>
+								<deployer-branch-or-tag>${deployer-branch-or-tag}</deployer-branch-or-tag>
+								<skipper-version>${spring-cloud-skipper.version}</skipper-version>
+								<skipper-branch-or-tag>${skipper-branch-or-tag}</skipper-branch-or-tag>
+
+								<!-- The following two are deps of this project and set automatically.-->
+								<!-- Others are loose dependencies, and current-SNAPSHOT typically make sense-->
+								<scdf-core-version>${org.springframework.cloud:spring-cloud-dataflow-core:jar.version}</scdf-core-version>
+								<sct-core-version>${org.springframework.cloud:spring-cloud-task-core:jar.version}</sct-core-version>
+								<scdt-core-version>current-SNAPSHOT</scdt-core-version>
+								<scst-core-version>current-SNAPSHOT</scst-core-version>
+								<scst-starters-core-version>current-SNAPSHOT</scst-starters-core-version>
+								<sct-starters-core-version>current-SNAPSHOT</sct-starters-core-version>
 							</attributes>
 						</configuration>
 						<executions>
-							<execution>
-								<id>generate-docbook</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>process-asciidoc</goal>
-								</goals>
-								<configuration>
-									<sourceDocumentName>index.adoc</sourceDocumentName>
-									<backend>docbook5</backend>
-									<doctype>book</doctype>
-									<attributes>
-										<docinfo>true</docinfo>
-									</attributes>
-								</configuration>
-							</execution>
 							<execution>
 								<id>generate-html5</id>
 								<phase>generate-resources</phase>
@@ -161,50 +164,6 @@
 										<copy todir="${basedir}/target/contents/reference/html/css">
 											<fileset dir="${basedir}/src/main/docbook/css" />
 										</copy>
-									</postProcess>
-								</configuration>
-							</execution>
-							<execution>
-								<id>pdf</id>
-								<goals>
-									<goal>generate-pdf</goal>
-								</goals>
-								<phase>generate-resources</phase>
-								<configuration>
-									<foCustomization>${basedir}/src/main/docbook/xsl/pdf.xsl</foCustomization>
-									<targetDirectory>${basedir}/target/docbook/pdf</targetDirectory>
-									<postProcess>
-										<copy todir="${basedir}/target/contents/reference">
-											<fileset dir="${basedir}/target/docbook">
-												<include name="**/*.pdf" />
-											</fileset>
-										</copy>
-										<move file="${basedir}/target/contents/reference/pdf/index.pdf" tofile="${basedir}/target/contents/reference/pdf/spring-cloud-dataflow-server-kubernetes-reference.pdf" />
-									</postProcess>
-								</configuration>
-							</execution>
-							<execution>
-								<id>epub</id>
-								<goals>
-									<goal>generate-epub3</goal>
-								</goals>
-								<phase>generate-resources</phase>
-								<configuration>
-									<epubCustomization>${basedir}/src/main/docbook/xsl/epub.xsl</epubCustomization>
-									<targetDirectory>${basedir}/target/docbook/epub</targetDirectory>
-									<preProcess>
-										<copy todir="${basedir}/target/docbook/epub/images">
-											<fileset dir="${basedir}/src/main/docbook/images" />
-											<fileset dir="${basedir}/src/main/asciidoc/images" />
-										</copy>
-									</preProcess>
-									<postProcess>
-										<copy todir="${basedir}/target/contents/reference/epub">
-											<fileset dir="${basedir}/target/docbook">
-												<include name="**/*.epub" />
-											</fileset>
-										</copy>
-										<move file="${basedir}/target/contents/reference/epub/index.epub" tofile="${basedir}/target/contents/reference/epub/spring-cloud-dataflow-server-kubernetes-reference.epub" />
 									</postProcess>
 								</configuration>
 							</execution>
@@ -285,6 +244,29 @@
 										<stringutil string="${dataflow-version-type}" property="dataflow-version-type-lowercase">
 											<lowercase />
 										</stringutil>
+
+										<var name="deployer-version-type" value="${spring-cloud-deployer-cloudfoundry.version}" />
+										<propertyregex property="deployer-version-type" override="true" input="${deployer-version-type}" regexp=".*\.(.*)" replace="\1" />
+										<propertyregex property="deployer-version-type" override="true" input="${deployer-version-type}" regexp="(M)\d+" replace="MILESTONE" />
+										<propertyregex property="deployer-version-type" override="true" input="${deployer-version-type}" regexp="(RC)\d+" replace="MILESTONE" />
+										<propertyregex property="deployer-version-type" override="true" input="${deployer-version-type}" regexp="BUILD-(.*)" replace="SNAPSHOT" />
+										<stringutil string="${deployer-version-type}" property="deployer-version-type-lowercase">
+											<lowercase />
+										</stringutil>
+
+										<var name="skipper-version-type" value="${spring-cloud-skipper.version}" />
+										<propertyregex property="skipper-version-type" override="true" input="${skipper-version-type}" regexp=".*\.(.*)" replace="\1" />
+										<propertyregex property="skipper-version-type" override="true" input="${skipper-version-type}" regexp="(M)\d+" replace="MILESTONE" />
+										<propertyregex property="skipper-version-type" override="true" input="${skipper-version-type}" regexp="(RC)\d+" replace="MILESTONE" />
+										<propertyregex property="skipper-version-type" override="true" input="${skipper-version-type}" regexp="BUILD-(.*)" replace="SNAPSHOT" />
+										<stringutil string="${skipper-version-type}" property="skipper-version-type-lowercase">
+											<lowercase />
+										</stringutil>
+
+										<!-- This will use the vX.Y.Z tag for releases, using master for anything else (which is deemed ok, even for maintenance SNAPSHOT) -->
+										<propertyregex property="dataflow-branch-or-tag" override="true" input="${spring-cloud-dataflow.version}" regexp=".*\.(?:M\d+|RC\d+|RELEASE)" select="v\0" defaultValue="master" />
+										<propertyregex property="deployer-branch-or-tag" override="true" input="${spring-cloud-deployer-cloudfoundry.version}" regexp=".*\.(?:M\d+|RC\d+|RELEASE)" select="v\0" defaultValue="master" />
+										<propertyregex property="skipper-branch-or-tag" override="true" input="${spring-cloud-skipper.version}" regexp=".*\.(?:M\d+|RC\d+|RELEASE)" select="v\0" defaultValue="master" />
 									</target>
 								</configuration>
 							</execution>
