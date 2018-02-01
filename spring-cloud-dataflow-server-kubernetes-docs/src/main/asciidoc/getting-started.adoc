@@ -155,7 +155,7 @@ The deployment is defined in the `src/kubernetes/server/server-deployment.yaml` 
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.3.0.RC2   # <1>
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.3.0.RELEASE   # <1>
         imagePullPolicy: Always
 ----
 +
@@ -228,7 +228,7 @@ spec:
     spec:
       containers:
       - name: skipper
-        image: springcloud/spring-cloud-skipper-server:1.0.0.RC4
+        image: springcloud/spring-cloud-skipper-server:1.0.0.RELEASE
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -254,8 +254,7 @@ More details are in Spring Cloud Skipper reference guide.
 
 [NOTE]
 ====
-If you'd like to change the version of Skipper server, you can do so by updating the image from `springcloud/spring-cloud-skipper-server:1.0.0.BUILD-SNAPSHOT`
-to a desired docker tag.
+If you'd like to change the version of Skipper server, you can do so by updating the image from `springcloud/spring-cloud-skipper-server:{skipper-core-version}` to the desired docker tag.
 ====
 
 [NOTE]
