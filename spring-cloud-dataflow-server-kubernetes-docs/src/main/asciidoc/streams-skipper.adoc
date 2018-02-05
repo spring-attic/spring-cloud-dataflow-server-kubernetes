@@ -191,11 +191,14 @@ spec:
 ----
 +
 
-. Let's update `log-sink` from 1.1.0.RELEASE to 1.2.0.RELEASE
+. Let's register `log-sink` application version 1.2.0.RELEASE and update our stream to use it
 
 +
 [source,console,options=nowrap]
 ----
+dataflow:>app register --name log --type sink --uri docker:springcloudstream/log-sink-rabbit:1.2.0.RELEASE --force
+Successfully registered application 'sink:log'
+
 dataflow:>stream update --name foo --properties version.log=1.2.0.RELEASE
 Update request has been sent for stream 'foo'
 ----
