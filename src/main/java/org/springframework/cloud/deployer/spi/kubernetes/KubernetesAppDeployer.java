@@ -46,6 +46,8 @@ import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import okhttp3.Response;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.deployer.spi.app.AppDeployer;
 import org.springframework.cloud.deployer.spi.app.AppStatus;
@@ -83,7 +85,7 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
-
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 
 	@Autowired
 	public KubernetesAppDeployer(KubernetesDeployerProperties properties, KubernetesClient client) {
@@ -380,10 +382,10 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 			statefulSetMap = objectMapper.readValue(ssString, HashMap.class);
 		}
 		catch (JsonProcessingException e) {
-			e.printStackTrace();
+			logger.error("Could not create StatefulSet.", e);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Could not create StatefulSet.", e);
 		}
 
 		Map<String, Object> specMap = (Map) statefulSetMap.get("spec");
