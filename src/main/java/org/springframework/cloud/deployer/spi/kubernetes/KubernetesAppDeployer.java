@@ -76,6 +76,7 @@ import static java.lang.String.format;
  * @author Donovan Muller
  * @author David Turanski
  * @author Ilayaperumal Gopinathan
+ * @author Chris Schaefer
  */
 public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements AppDeployer {
 
@@ -142,14 +143,9 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 				Map<String, String> idMap = createIdMap(appId, request);
 				logger.debug(String.format("Creating Service: %s on {}", appId, externalPort));
 				createService(appId, request, idMap, externalPort);
-				if (properties.isCreateDeployment()) {
-					logger.debug(String.format("Creating Deployment: %s", appId));
-					createDeployment(appId, request, idMap, externalPort);
-				}
-				else {
-					logger.debug(String.format("Creating Replication Controller: %s", appId));
-					createReplicationController(appId, request, idMap, externalPort);
-				}
+
+				logger.debug(String.format("Creating Deployment: %s", appId));
+				createDeployment(appId, request, idMap, externalPort);
 			}
 
 			return appId;
@@ -317,22 +313,6 @@ public class KubernetesAppDeployer extends AbstractKubernetesDeployer implements
 	private int getCountFromRequest(AppDeploymentRequest request) {
 		String countProperty = request.getDeploymentProperties().get(COUNT_PROPERTY_KEY);
 		return (countProperty != null) ? Integer.parseInt(countProperty) : 1;
-	}
-
-	@Deprecated
-	private ReplicationController createReplicationController(String appId, AppDeploymentRequest request,
-		Map<String, String> idMap, int externalPort) {
-
-		int replicas = getCountFromRequest(request);
-
-		ReplicationController rc = new ReplicationControllerBuilder().withNewMetadata().withName(appId)
-			.withLabels(idMap).addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE).endMetadata().withNewSpec()
-			.withReplicas(replicas).withSelector(idMap).withNewTemplate().withNewMetadata().withLabels(idMap)
-			.addToLabels(SPRING_MARKER_KEY, SPRING_MARKER_VALUE).endMetadata()
-			.withSpec(createPodSpec(appId, request, Integer.valueOf(externalPort), false)).endTemplate().endSpec()
-			.build();
-
-		return client.replicationControllers().create(rc);
 	}
 
 	/**

@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
  * @author Mark Fisher
  * @author Donovan Muller
  * @author David Turanski
+ * @author Chris Schaefer
  */
 public class AbstractKubernetesDeployer {
 
@@ -254,10 +255,7 @@ public class AbstractKubernetesDeployer {
 		// Use server property if there is no request setting
 		if (memOverride == null) {
 			if (properties.getLimits().getMemory() != null) {
-				// Non-deprecated value has priority
 				memOverride = properties.getLimits().getMemory();
-			} else {
-				memOverride = properties.getMemory();
 			}
 		}
 
@@ -282,10 +280,7 @@ public class AbstractKubernetesDeployer {
 		// Use server property if there is no request setting
 		if (cpuOverride == null) {
 			if (properties.getLimits().getCpu() != null) {
-				// Non-deprecated value has priority
 				cpuOverride = properties.getLimits().getCpu();
-			} else {
-				cpuOverride = properties.getCpu();
 			}
 		}
 

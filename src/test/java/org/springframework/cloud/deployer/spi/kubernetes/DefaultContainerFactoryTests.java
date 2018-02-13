@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author Will Kennedy
  * @author Donovan Muller
+ * @author Chris Schaefer
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { KubernetesAutoConfiguration.class })
@@ -69,7 +70,7 @@ public class DefaultContainerFactoryTests {
 				resource, props);
 
 		Container container = defaultContainerFactory.create("app-test",
-				appDeploymentRequest, null, null, false);
+				appDeploymentRequest, null, false);
 		assertNotNull(container);
 		assertEquals(3, container.getEnv().size());
 		EnvVar envVar1 = container.getEnv().get(0);
@@ -95,7 +96,7 @@ public class DefaultContainerFactoryTests {
 				resource, props);
 
 		Container container = defaultContainerFactory.create("app-test",
-				appDeploymentRequest, null, null, false);
+				appDeploymentRequest, null, false);
 		assertNotNull(container);
 		assertThat(container.getCommand()).containsExactly("echo", "arg1", "arg2");
 	}
@@ -115,7 +116,7 @@ public class DefaultContainerFactoryTests {
 				resource, props);
 
 		Container container = defaultContainerFactory.create("app-test",
-				appDeploymentRequest, null, null, false);
+				appDeploymentRequest, null, false);
 		assertNotNull(container);
 		List<ContainerPort> containerPorts = container.getPorts();
 		assertNotNull(containerPorts);
@@ -140,7 +141,7 @@ public class DefaultContainerFactoryTests {
 				resource, props);
 
 		//Attempting to create with an invalid integer set for a port should cause an exception to bubble up.
-		defaultContainerFactory.create("app-test", appDeploymentRequest, null, null, false);
+		defaultContainerFactory.create("app-test", appDeploymentRequest, null, false);
 	}
 
 	@Test
@@ -158,7 +159,7 @@ public class DefaultContainerFactoryTests {
 				resource, props);
 
 		Container container = defaultContainerFactory.create("app-test",
-				appDeploymentRequest, null, null, true);
+				appDeploymentRequest, null, true);
 		assertNotNull(container);
 		List<ContainerPort> containerPorts = container.getPorts();
 		assertNotNull(containerPorts);
@@ -187,7 +188,7 @@ public class DefaultContainerFactoryTests {
 		AppDeploymentRequest appDeploymentRequestShell = new AppDeploymentRequest(definition,
 				resource, props);
 		Container containerShell = defaultContainerFactory.create("app-test",
-				appDeploymentRequestShell, null, null, false);
+				appDeploymentRequestShell, null, false);
 		assertNotNull(containerShell);
 		assertTrue(containerShell.getEnv().get(0).getName().equals("FOO_BAR_BAZ"));
 		assertTrue(containerShell.getArgs().size() == 0);
@@ -196,7 +197,7 @@ public class DefaultContainerFactoryTests {
 		AppDeploymentRequest appDeploymentRequestExec = new AppDeploymentRequest(definition,
 				resource, props);
 		Container containerExec = defaultContainerFactory.create("app-test",
-				appDeploymentRequestExec, null, null, false);
+				appDeploymentRequestExec, null, false);
 		assertNotNull(containerExec);
 		assertTrue(containerExec.getEnv().size() == 1);
 		assertTrue(containerExec.getArgs().get(0).equals("--foo.bar.baz=test"));
@@ -205,7 +206,7 @@ public class DefaultContainerFactoryTests {
 		AppDeploymentRequest appDeploymentRequestBoot = new AppDeploymentRequest(definition,
 				resource, props);
 		Container containerBoot = defaultContainerFactory.create("app-test",
-				appDeploymentRequestBoot, null, null, false);
+				appDeploymentRequestBoot, null, false);
 		assertNotNull(containerBoot);
 		assertTrue(containerBoot.getEnv().get(0).getName().equals("SPRING_APPLICATION_JSON"));
 		assertTrue(containerBoot.getEnv().get(0).getValue().equals(new ObjectMapper().writeValueAsString(appProps)));
@@ -229,7 +230,7 @@ public class DefaultContainerFactoryTests {
 					+ "]");
 		AppDeploymentRequest appDeploymentRequest = new AppDeploymentRequest(definition, resource, props);
 
-		Container container = defaultContainerFactory.create("app-test", appDeploymentRequest, null, null, false);
+		Container container = defaultContainerFactory.create("app-test", appDeploymentRequest, null, false);
 
 		assertThat(container.getVolumeMounts()).containsOnly(
 				new VolumeMount("/test/hostPath", "testhostpath", null, null),
@@ -252,7 +253,7 @@ public class DefaultContainerFactoryTests {
 						+ "{name: 'testpvc', mountPath: '/test/pvc/overridden'}, "
 						+ "{name: 'testnfs', mountPath: '/test/nfs/overridden', readOnly: 'true'}"
 					+ "]");
-		container = defaultContainerFactory.create("app-test", appDeploymentRequest, null, null, false);
+		container = defaultContainerFactory.create("app-test", appDeploymentRequest, null, false);
 
 		assertThat(container.getVolumeMounts()).containsOnly(
 				new VolumeMount("/test/hostPath", "testhostpath", false, null),

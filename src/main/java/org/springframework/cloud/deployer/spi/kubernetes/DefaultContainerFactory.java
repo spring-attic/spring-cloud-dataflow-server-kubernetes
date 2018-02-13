@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
  * @author Thomas Risberg
  * @author Donovan Muller
  * @author David Turanski
+ * @author Chris Schaefer
  */
 public class DefaultContainerFactory implements ContainerFactory {
 
@@ -67,6 +68,7 @@ public class DefaultContainerFactory implements ContainerFactory {
 	}
 
 	@Override
+	@Deprecated
 	public Container create(String appId, AppDeploymentRequest request, Integer port, Integer instanceIndex,
 		boolean hostNetwork) {
 		return this.create(appId, request, port, hostNetwork);

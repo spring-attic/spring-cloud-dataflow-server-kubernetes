@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,7 @@ import java.util.UUID;
  * @author Thomas Risberg
  * @author Donovan Muller
  * @Author David Turanski
+ * @author Chris Schaefer
  */
 @SpringBootTest(classes = {KubernetesAutoConfiguration.class}, properties = {
 	"logging.level.org.springframework.cloud.deployer.spi=INFO"
@@ -92,7 +93,6 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	public void testFailedDeploymentWithLoadBalancer() {
 		log.info("Testing {}...", "FailedDeploymentWithLoadBalancer");
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
-		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
 		deployProperties.setCreateLoadBalancer(true);
 		deployProperties.setLivenessProbePeriod(10);
 		deployProperties.setMaxTerminatedErrorRestarts(1);
@@ -124,7 +124,6 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	public void testGoodDeploymentWithLoadBalancer() {
 		log.info("Testing {}...", "GoodDeploymentWithLoadBalancer");
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
-		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
 		deployProperties.setCreateLoadBalancer(true);
 		deployProperties.setMinutesToWaitForLoadBalancer(1);
 		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
@@ -151,7 +150,6 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 	public void testDeploymentWithLoadBalancerHasUrlAndAnnotation() {
 		log.info("Testing {}...", "DeploymentWithLoadBalancerShowsUrl");
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
-		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
 		deployProperties.setCreateLoadBalancer(true);
 		deployProperties.setMinutesToWaitForLoadBalancer(1);
 		ContainerFactory containerFactory = new DefaultContainerFactory(deployProperties);
@@ -196,7 +194,6 @@ public class KubernetesAppDeployerIntegrationTests extends AbstractAppDeployerIn
 		String subPath = randomName();
 		String mountName = "mount";
 		KubernetesDeployerProperties deployProperties = new KubernetesDeployerProperties();
-		deployProperties.setCreateDeployment(originalProperties.isCreateDeployment());
 		deployProperties.setVolumes(Collections.singletonList(new VolumeBuilder()
 				.withHostPath(new HostPathVolumeSource(hostPath))
 				.withName(mountName)

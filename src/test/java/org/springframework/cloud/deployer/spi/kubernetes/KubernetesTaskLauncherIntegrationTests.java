@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@ package org.springframework.cloud.deployer.spi.kubernetes;
 
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,6 +34,7 @@ import org.springframework.core.io.Resource;
  * Integration tests for {@link KubernetesTaskLauncher}.
  *
  * @author Thomas Risberg
+ * @author Chris Schaefer
  */
 @SpringBootTest(classes = {KubernetesAutoConfiguration.class})
 public class KubernetesTaskLauncherIntegrationTests extends AbstractTaskLauncherIntegrationTests {

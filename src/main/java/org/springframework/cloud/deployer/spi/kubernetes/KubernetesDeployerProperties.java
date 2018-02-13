@@ -30,6 +30,7 @@ import io.fabric8.kubernetes.api.model.VolumeMount;
  * @author Donovan Muller
  * @author Ilayaperumal Gopinathan
  * @author Leonardo Diniz
+ * @author Chris Schaefer
  */
 @ConfigurationProperties(prefix = "spring.cloud.deployer.kubernetes")
 public class KubernetesDeployerProperties {
@@ -173,22 +174,6 @@ public class KubernetesDeployerProperties {
 	 */
 	// See http://kubernetes.io/v1.0/docs/user-guide/production-pods.html#liveness-and-readiness-probes-aka-health-checks}
 	private String readinessProbePath = "/info";
-
-	/**
-	 * Memory to allocate for a Pod.
-	 *
-	 * @deprecated Use spring.cloud.deployer.kubernetes.limits.memory
-	 */
-	@Deprecated
-	private String memory = "1024Mi";
-
-	/**
-	 * CPU to allocate for a Pod.
-	 *
-	 * @deprecated Use spring.cloud.deployer.kubernetes.limits.cpu
-	 */
-	@Deprecated
-	private String cpu = "500m";
 
 	/**
 	 * Memory and CPU limits (i.e. maximum needed values) to allocate for a Pod.
@@ -375,7 +360,7 @@ public class KubernetesDeployerProperties {
 	 */
 	@Deprecated
 	public String getMemory() {
-		return memory;
+		return getLimits().getMemory();
 	}
 
 	/**
@@ -383,7 +368,7 @@ public class KubernetesDeployerProperties {
 	 */
 	@Deprecated
 	public void setMemory(String memory) {
-		this.memory = memory;
+		getLimits().setMemory(memory);
 	}
 
 	/**
@@ -391,7 +376,7 @@ public class KubernetesDeployerProperties {
 	 */
 	@Deprecated
 	public String getCpu() {
-		return cpu;
+		return getLimits().getCpu();
 	}
 
 	/**
@@ -399,7 +384,7 @@ public class KubernetesDeployerProperties {
 	 */
 	@Deprecated
 	public void setCpu(String cpu) {
-		this.cpu = cpu;
+		getLimits().setCpu(cpu);
 	}
 
 	public String[] getEnvironmentVariables() {
