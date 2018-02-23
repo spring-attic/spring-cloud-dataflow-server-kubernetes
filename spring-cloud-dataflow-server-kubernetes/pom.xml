@@ -62,8 +62,11 @@
 				<configuration>
 				  <images>
 					<image>
-					  <name>springcloud/${project.artifactId}</name>
+					  <name>springcloud/${project.artifactId}</name>>
 					  <build>
+						<tags>
+							<tag>latest-1.3.x</tag>
+						</tags>
 						<from>java:8-alpine</from>
 						<volumes>
 						  <volume>/tmp</volume>
