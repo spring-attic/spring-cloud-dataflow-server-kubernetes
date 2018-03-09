@@ -82,10 +82,6 @@
 								<!-- Others are loose dependencies, and current-SNAPSHOT typically make sense-->
 								<scdf-core-version>${org.springframework.cloud:spring-cloud-dataflow-core:jar.version}</scdf-core-version>
 								<sct-core-version>${org.springframework.cloud:spring-cloud-task-core:jar.version}</sct-core-version>
-								<scdt-core-version>current-SNAPSHOT</scdt-core-version>
-								<scst-core-version>current-SNAPSHOT</scst-core-version>
-								<scst-starters-core-version>current-SNAPSHOT</scst-starters-core-version>
-								<sct-starters-core-version>current-SNAPSHOT</sct-starters-core-version>
 							</attributes>
 						</configuration>
 						<executions>

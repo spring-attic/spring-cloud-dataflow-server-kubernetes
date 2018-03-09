@@ -12,7 +12,7 @@ This project provides support for using Spring Cloud Data Flow with Kubernetes a
 In this section we will install the Spring Cloud Data Flow Server on a Kubernetes cluster.
 Spring Cloud Data Flow depends on a few services and their availability.
 For example, we need an RDBMS service for the app registry, stream/task repositories and task management.
-For streaming pipelines, we also need a transport option such as Apache Kafka or Rabbit MQ. 
+For streaming pipelines, we also need a transport option such as Apache Kafka or Rabbit MQ.
 In addition to this, we need a Redis service if the analytics features are in use.
 
 [IMPORTANT]
@@ -22,7 +22,7 @@ This guide describes setting up an environment for testing Spring Cloud Data Flo
 
 [NOTE]
 ====
-Currently, only apps registered with a `--uri` property pointing to a Docker resource are supported by the Data Flow Server for Kubernetes. 
+Currently, only apps registered with a `--uri` property pointing to a Docker resource are supported by the Data Flow Server for Kubernetes.
 
 Note that we do support Maven resources for the `--metadata-uri` property.
 
@@ -58,7 +58,7 @@ The rest of this getting started guide assumes that you have a working Kubernete
 . Get the Kubernetes configuration files.
 +
 There are sample deployment and service YAML files in the https://github.com/{github-repo}[https://github.com/{github-repo}] repository that you can use as a starting point. They have the required metadata set for service discovery by the different apps and services deployed. To check out the code enter the following commands:
-+ 
++
 [source,console,subs=attributes]
 ----
 $ git clone https://github.com/{github-repo}
@@ -82,7 +82,7 @@ You can use the command `kubectl get all -l app=rabbitmq` to verify that the dep
 +
 We are using MySQL for this guide, but you could use Postgres or H2 database instead. We include JDBC drivers for all three of these databases, you would just have to adjust the database URL and driver class name settings.
 +
-IMPORTANT: You can modify the password in the `src/kubernetes/mysql/mysql-deployment.yaml` files if you prefer to be more secure. If you do modify the password you will also have to provide it base64 encoded in the `src/kubernetes/mysql/mysql-secrets.yaml` file. 
+IMPORTANT: You can modify the password in the `src/kubernetes/mysql/mysql-deployment.yaml` files if you prefer to be more secure. If you do modify the password you will also have to provide it base64 encoded in the `src/kubernetes/mysql/mysql-secrets.yaml` file.
 +
 Run the following commands to start the MySQL service:
 +
@@ -106,7 +106,7 @@ You can use the command `kubectl get all -l app=redis` to verify that the deploy
 . Deploy the Metrics Collector.
 +
 The Metrics Collector will provide message rates for all deployed stream apps. These message rates will be visible in the Dashboard UI. Run the following commands to start the Metrics Collector:
-+ 
++
 ```
 $ kubectl create -f src/kubernetes/metrics/metrics-deployment-rabbit.yaml
 $ kubectl create -f src/kubernetes/metrics/metrics-svc.yaml
@@ -155,7 +155,7 @@ The deployment is defined in the `src/kubernetes/server/server-deployment.yaml` 
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:latest   # <1>
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.4.0.RC1   # <1>
         imagePullPolicy: Always
 ----
 +
@@ -228,7 +228,7 @@ spec:
     spec:
       containers:
       - name: skipper
-        image: springcloud/spring-cloud-skipper-server:latest
+        image: springcloud/spring-cloud-skipper-server:1.0.1.RELEASE
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -246,9 +246,9 @@ spec:
 
 [NOTE]
 ====
-Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#platforms[platforms], 
-so it is important to define the "accounts" based on the project preferences. In the above YAML file, the accounts map 
-to `minikube` as the platform. This can be modified, and of course, you can have any number of platform definitions. 
+Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#platforms[platforms],
+so it is important to define the "accounts" based on the project preferences. In the above YAML file, the accounts map
+to `minikube` as the platform. This can be modified, and of course, you can have any number of platform definitions.
 More details are in Spring Cloud Skipper reference guide.
 ====
 
@@ -259,8 +259,8 @@ If you'd like to change the version of Skipper server, you can do so by updating
 
 [NOTE]
 ====
-If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware, you must change 
-the value for 
+If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware, you must change
+the value for
 
 [source,yaml,options=nowrap]
 ----
@@ -298,10 +298,10 @@ $ kubectl create -f src/kubernetes/skipper/skipper-deployment.yaml
 $ kubectl create -f src/kubernetes/skipper/skipper-svc.yaml
 ```
 
-You can use the command `kubectl get all -l app=skipper` to verify that the deployment, pod and service resources are running. 
+You can use the command `kubectl get all -l app=skipper` to verify that the deployment, pod and service resources are running.
 Use the command `kubectl delete all -l app=skipper` to clean up afterwards.
 
-Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address assigned to `scdf-server`, we will use that 
+Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address assigned to `scdf-server`, we will use that
 later to connect from the shell.
 
 ```
@@ -311,7 +311,7 @@ skipper      10.103.246.83    130.211.203.247   80/TCP     4m
 ```
 So the URL you need to use is in this case is: http://130.211.203.247
 
-If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. 
+If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`.
 You need to use the NodePort assigned for the `skipper` service. Use this command to look up the URL to use:
 
 ```
@@ -523,7 +523,7 @@ dataflow:>app register --type source --name time --uri docker://springcloudstrea
 dataflow:>app register --type sink --name log --uri docker://springcloudstream/log-sink-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:{scst-starters-core-version}
 ```
 +
-. Alternatively, if you would like to register all out-of-the-box stream applications built with the Rabbit binder in bulk, 
+. Alternatively, if you would like to register all out-of-the-box stream applications built with the Rabbit binder in bulk,
 you can with the following command. For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 +
 ```
@@ -693,7 +693,7 @@ dataflow:>task list
 ║task1    │timestamp      │running    ║
 ╚═════════╧═══════════════╧═══════════╝
 
-dataflow:>task execution list 
+dataflow:>task execution list
 ╔═════════╤══╤════════════════════════════╤════════════════════════════╤═════════╗
 ║Task Name│ID│         Start Time         │          End Time          │Exit Code║
 ╠═════════╪══╪════════════════════════════╪════════════════════════════╪═════════╣
@@ -762,7 +762,7 @@ The settings we have used so far only affect the settings for the container, the
 
 === Environment Variables
 
-To influence the environment settings for a given app, you can take advantage of the `spring.cloud.deployer.kubernetes.environmentVariables` deployer property. 
+To influence the environment settings for a given app, you can take advantage of the `spring.cloud.deployer.kubernetes.environmentVariables` deployer property.
 For example, a common requirement in production settings is to influence the JVM memory arguments.
 This can be achieved by using the `JAVA_TOOL_OPTIONS` environment variable:
 
@@ -776,7 +776,7 @@ which is also a comma delimited string, then it must be enclosed in single quote
 `spring.cloud.deployer.kubernetes.environmentVariables=spring.cloud.stream.kafka.binder.brokers='somehost:9092,
 anotherhost:9093'`
 
-This overrides the JVM memory setting for the desired <app> (just replace <app> with the name of your app). 
+This overrides the JVM memory setting for the desired <app> (just replace <app> with the name of your app).
 
 === Liveness and Readiness Probes
 
