@@ -321,16 +321,16 @@ http://192.168.99.100:32060
 
 == Helm Installation
 
-Spring Cloud DataFlow offers a https://helm.sh/[Helm] Chart for deploying the Spring Cloud Data Flow server and its required services to a Kubernetes Cluster.
+Spring Cloud DataFlow offers a https://hub.kubeapps.com/charts/incubator/spring-cloud-data-flow[Helm Chart] for deploying
+the Spring Cloud Data Flow server and its required services to a Kubernetes Cluster.
 
-
-NOTE: The helm chart is currenlty only available for the 1.2 GA version of Data Flow for Kubernetes.
+NOTE: The helm chart is available since the 1.2 GA release of Spring Cloud Data Flow for Kubernetes.
 
 The following instructions cover how to initialize `Helm` and install Spring Cloud Data Flow on a Kubernetes cluster.
 
 . Installing Helm
 +
-`Helm` is comprised of 2 components: one is the client (Helm) the other is the server (Tiller).
+`Helm` is comprised of two components: one is the client (Helm) the other is the server (Tiller).
 The `Helm` client is run on your local machine and can be installed using the following instructions found
 https://github.com/kubernetes/helm/blob/master/README.md#install[here].
 If Tiller has not been installed on your cluster, execute the following `Helm` client command:
@@ -358,7 +358,7 @@ helm install --name my-release incubator/spring-cloud-data-flow
 +
 [NOTE]
 ====
-If you are running on a cluster without a load balancer, such as Minikube, then you should override the service type to use NodePort.
+If you are running on a Kubernetes cluster without a load balancer, such as in Minikube, then you should override the service type to use NodePort.
 Add the `--set server.service.type=NodePort` override:
 
 [source,console]
@@ -368,8 +368,21 @@ helm install --name my-release --set server.service.type=NodePort \
 ----
 ====
 +
-If you wish specify a different version of Spring Cloud Data Flow besides the
-current release, you can set the `server.version` as shown below:
+[NOTE]
+====
+If you are running on a Kubernetes cluster without RBAC, such as in minikube, then you should override `rbac.create` to `false`. By default, it is set to `true` based on best practices.
+Add the `--set rbac.create=false` override:
+
+[source,console]
+----
+helm install --name my-release --set server.service.type=NodePort \
+    --set rbac.create=false \
+    incubator/spring-cloud-data-flow
+----
+====
++
+If you wish to specify a different version of Spring Cloud Data Flow besides the
+current GA release, you can set the `server.version` as shown below:
 +
 ```
 helm install --name my-release incubator/spring-cloud-data-flow --set server.version=<version-you-want>
@@ -380,45 +393,53 @@ NOTE: To see all of the settings that can be configured on the Spring Cloud Data
 
 You should see the following output:
 +
-```
+[source,console,options=nowrap]
+----
 NAME:   my-release
-LAST DEPLOYED: Tue Oct  3 10:33:50 2017
+LAST DEPLOYED: Sat Mar 10 11:33:29 2018
 NAMESPACE: default
 STATUS: DEPLOYED
 
 RESOURCES:
+==> v1/Secret
+NAME                  TYPE    DATA  AGE
+my-release-mysql      Opaque  2     1s
+my-release-data-flow  Opaque  2     1s
+my-release-redis      Opaque  1     1s
+my-release-rabbitmq   Opaque  2     1s
+
 ==> v1/ConfigMap
-NAME                         DATA  AGE
-my-release-data-flow-server  1     2s
+NAME                          DATA  AGE
+my-release-data-flow-server   1     1s
+my-release-data-flow-skipper  1     1s
 
 ==> v1/PersistentVolumeClaim
-NAME                 STATUS   VOLUME    CAPACITY  ACCESSMODES  STORAGECLASS  AGE
-my-release-mysql     Pending  standard  2s
-my-release-rabbitmq  Pending  standard  2s
-my-release-redis     Pending  standard  2s
+NAME                 STATUS   VOLUME                                    CAPACITY  ACCESSMODES  STORAGECLASS  AGE
+my-release-rabbitmq  Bound    pvc-e9ed7f55-2499-11e8-886f-08002799df04  8Gi       RWO          standard      1s
+my-release-mysql     Pending  standard                                  1s
+my-release-redis     Pending  standard                                  1s
+
+==> v1/ServiceAccount
+NAME                  SECRETS  AGE
+my-release-data-flow  1        1s
 
 ==> v1/Service
-NAME                          CLUSTER-IP     EXTERNAL-IP  PORT(S)                                AGE
-my-release-mysql              10.59.247.118  <none>       3306/TCP                               2s
-my-release-rabbitmq           10.59.249.211  <none>       4369/TCP,5672/TCP,25672/TCP,15672/TCP  2s
-my-release-redis              10.59.242.108  <none>       6379/TCP                               2s
-my-release-data-flow-metrics  10.59.247.121  <none>       80/TCP                                 2s
-my-release-data-flow-server   10.59.249.224  <pending>    80:30859/TCP                           2s
+NAME                          CLUSTER-IP      EXTERNAL-IP  PORT(S)                                AGE
+my-release-mysql              10.110.98.253   <none>       3306/TCP                               1s
+my-release-data-flow-server   10.105.216.155  <pending>    80:32626/TCP                           1s
+my-release-redis              10.111.63.33    <none>       6379/TCP                               1s
+my-release-data-flow-metrics  10.107.157.1    <none>       80/TCP                                 1s
+my-release-rabbitmq           10.106.76.215   <none>       4369/TCP,5672/TCP,25672/TCP,15672/TCP  1s
+my-release-data-flow-skipper  10.100.28.64    <none>       80/TCP                                 1s
 
 ==> v1beta1/Deployment
 NAME                          DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
-my-release-mysql              1        1        1           0          2s
-my-release-rabbitmq           1        1        1           0          2s
-my-release-redis              1        1        1           0          2s
-my-release-data-flow-metrics  1        1        1           0          2s
+my-release-mysql              1        1        1           0          1s
+my-release-rabbitmq           1        1        1           0          1s
+my-release-data-flow-metrics  1        1        1           0          1s
+my-release-data-flow-skipper  1        1        1           0          1s
+my-release-redis              1        1        1           0          1s
 my-release-data-flow-server   1        1        1           0          1s
-
-==> v1/Secret
-NAME                  TYPE    DATA  AGE
-my-release-mysql      Opaque  2     2s
-my-release-rabbitmq   Opaque  2     2s
-my-release-redis      Opaque  1     2s
-my-release-data-flow  Opaque  2     2s
 
 
 NOTES:
@@ -427,7 +448,7 @@ NOTES:
            You can watch the status of the server by running 'kubectl get svc -w my-release-data-flow-server'
   export SERVICE_IP=$(kubectl get svc --namespace default my-release-data-flow-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
   echo http://$SERVICE_IP:80
-```
+----
 +
 You have just created a new release in the default namespace of your Kubernetes cluster.
 The notes section gives instructions for connecting to the newly installed server.
@@ -527,7 +548,7 @@ dataflow:>app register --type sink --name log --uri docker://springcloudstream/l
 you can with the following command. For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 +
 ```
-dataflow:>app import --uri http://bit.ly/Celsius-GA-stream-applications-rabbit-docker
+dataflow:>app import --uri http://bit.ly/Celsius-SR1-stream-applications-rabbit-docker
 ```
 +
 . Deploy a simple stream in the shell
