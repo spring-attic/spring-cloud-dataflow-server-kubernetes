@@ -389,8 +389,24 @@ helm install --name my-release incubator/spring-cloud-data-flow --set server.ver
 ```
 +
 NOTE: To see all of the settings that can be configured on the Spring Cloud Data Flow chart, check out the https://github.com/kubernetes/charts/tree/master/incubator/spring-cloud-data-flow/README.md[README].
-+
 
++
+[NOTE]
+====
+Here's Spring Cloud Data Flow's Kubernetes version compatibility with the respective Helm Chart releases.
+
+[source,console]
+----
+| SCDF-K8S-Server Version \ Chart Version | 0.1.0 | 0.2.0 |0.3.0 (future)|
+|-----------------------------------------|-------|-------|--------------|
+|1.2.x                                    |✓      |✕      |✕            |
+|1.3.x                                    |✕      |✓      |✕            |
+|1.4.x                                    |✕      |✕      |✓            |
+|------------------------------------------------------------------------|
+----
+====
+
++
 You should see the following output:
 +
 [source,console,options=nowrap]
