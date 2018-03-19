@@ -155,7 +155,7 @@ The deployment is defined in the `src/kubernetes/server/server-deployment.yaml` 
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.4.0.RC1   # <1>
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.4.0.RELEASE   # <1>
         imagePullPolicy: Always
 ----
 +
