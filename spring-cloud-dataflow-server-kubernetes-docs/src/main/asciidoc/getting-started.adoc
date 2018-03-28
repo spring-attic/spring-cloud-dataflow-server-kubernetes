@@ -136,7 +136,7 @@ The deployment is defined in the `src/kubernetes/skipper/skipper-deployment.yaml
 +
 <1> You may change the version as you like.
 +
-NOTE: Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#platforms[platforms],
+NOTE: Skipper includes the concept of link:https://docs.spring.io/spring-cloud-skipper/docs/current/reference/htmlsingle/#using-platforms[platforms],
 so it is important to define the "accounts" based on the project preferences. In the above YAML file, the accounts map
 to `minikube` as the platform. This can be modified, and of course, you can have any number of platform definitions.
 More details are in Spring Cloud Skipper reference guide.
@@ -144,7 +144,7 @@ More details are in Spring Cloud Skipper reference guide.
 
 [NOTE]
 ====
-If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware, you must change
+If you'd like to orchestrate stream processing pipelines with Apache Kafka as the messaging middleware using Skipper, you must change
 the values in the `SPRING_APPLICATION_JSON` environment variable:
 
 [source,yaml,options=nowrap]
