@@ -250,6 +250,20 @@ Data Flow Server properties that are common across all of the Data Flow Server i
 
 ```
 
+=== Private Docker Registry
+
+Docker images can be pulled from a private registry on global basis. First a Secret must be created in the cluster. Follow the https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/[Pull an Image from a Private Registry] guide to create the Secret.
+
+Once the Secret is created, use the `SPRING_CLOUD_DEPLOYER_KUBERNETES_IMAGE_PULL_SECRET` env variable to set the Secret to use, for example:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_IMAGE_PULL_SECRET
+          value: mysecret
+```
+
+Replacing `mysecret` with the name of the Secret you created earlier.
+
 [[configuration-monitoring-management]]
 == Monitoring and Management
 

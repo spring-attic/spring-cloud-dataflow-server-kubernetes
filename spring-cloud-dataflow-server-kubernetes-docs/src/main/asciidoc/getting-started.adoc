@@ -747,3 +747,15 @@ deployer.<app>.kubernetes.livenessProbePeriod=20
 
 Similarly, swap _liveness_ for _readiness_ to override the default readiness settings.
 
+=== Private Docker Registry
+
+Docker images can be pulled from a private registry on a per app basis. First a Secret must be created in the cluster. Follow the https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/[Pull an Image from a Private Registry] guide to create the Secret.
+
+Once the Secret is created, use the `imagePullSecret` property to set the Secret to use, for example:
+
+```
+deployer.<app>.kubernetes.imagePullSecret=mysecret
+```
+
+Replacing `<app>` with the name of your app and `mysecret` with the name of the Secret you created earlier.
+
