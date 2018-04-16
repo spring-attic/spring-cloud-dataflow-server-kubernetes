@@ -735,17 +735,30 @@ This overrides the JVM memory setting for the desired <app> (just replace <app> 
 
 === Liveness and Readiness Probes
 
-The _liveness_ and _readiness_ probes are using the _paths_ `\health` and `\info` respectively. They use a _delay_ of 10 for both and a _period_ of 60 and 10 respectively. You can chage these defaults when you deploy by using deployer properties.
+The _liveness_ and _readiness_ probes are using the _paths_ `/health` and `/info` respectively. They use a _delay_ of 10 for both and a _period_ of 60 and 10 respectively. You can chage these defaults when you deploy by using deployer properties.
 
 Here is an example changing the _liveness_ probe (just replace <app> with the name of your app):
 
 ```
-deployer.<app>.kubernetes.livenessProbePath=/info
+deployer.<app>.kubernetes.livenessProbePath=/health
 deployer.<app>.kubernetes.livenessProbeDelay=120
 deployer.<app>.kubernetes.livenessProbePeriod=20
 ```
 
 Similarly, swap _liveness_ for _readiness_ to override the default readiness settings.
+
+[NOTE]
+====
+If your application is using Spring Boot 2.x+, all endpoints have been moved under `/actuator` by default. Here is an example of configuring Spring Boot 2.x+ _liveness_ and _readiness_ endpoint paths (just replace <app> with the name of your app):
+
+```
+deployer.<app>.kubernetes.livenessProbePath=/actuator/health
+deployer.<app>.kubernetes.readinessProbePath=/actuator/info
+```
+
+If desired, see the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide#base-path[Spring Boot 2.0 Migration Guide] for more information and how to restore the Spring Boot 1.x base path behavior.
+
+====
 
 === Private Docker Registry
 
