@@ -30,7 +30,7 @@ E.g. the below app registration is valid:
 
 [source,console,subs=attributes]
 ----
-dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:{scst-starters-core-version}
+dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-rabbit:{docker-time-source-rabbit-version} --metadata-uri maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:{docker-time-source-rabbit-version}
 ----
 
 but any app registered with a Maven, HTTP or File resource for the executable jar (using a `--uri` property prefixed with `maven://`, `http://` or `file://`) is *_not supported_*.
@@ -130,7 +130,7 @@ The deployment is defined in the `src/kubernetes/skipper/skipper-deployment.yaml
     spec:
       containers:
       - name: skipper
-        image: springcloud/spring-cloud-skipper-server:1.0.1.RELEASE   # <1>
+        image: springcloud/spring-cloud-skipper-server:1.0.2.RELEASE   # <1>
         imagePullPolicy: Always
 ----
 +
@@ -175,7 +175,7 @@ The deployment is defined in the `src/kubernetes/server/server-deployment.yaml` 
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:latest   # <1>
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.5.0.M1   # <1>
         imagePullPolicy: Always
 ----
 +
@@ -474,8 +474,8 @@ dataflow:>
 +
 [subs=attributes]
 ```
-dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:{scst-starters-core-version}
-dataflow:>app register --type sink --name log --uri docker://springcloudstream/log-sink-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:{scst-starters-core-version}
+dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-rabbit:{docker-time-source-rabbit-version} --metadata-uri maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:{docker-time-source-rabbit-version}
+dataflow:>app register --type sink --name log --uri docker://springcloudstream/log-sink-rabbit:{docker-log-sink-rabbit-version} --metadata-uri maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:{docker-log-sink-rabbit-version}
 ```
 +
 . Alternatively, if you would like to register all out-of-the-box stream applications built with the Rabbit binder in bulk,
@@ -540,7 +540,7 @@ If you need to be able to connect to from outside of the Kubernetes cluster to a
 +
 [subs=attributes]
 ```
-dataflow:>app register --type source --name http --uri docker:springcloudstream/http-source-rabbit:{scst-starters-core-version} --metadata-uri maven://org.springframework.cloud.stream.app:http-source-rabbit:jar:metadata:{scst-starters-core-version}
+dataflow:>app register --type source --name http --uri docker//springcloudstream/http-source-rabbit:{docker-http-source-rabbit-version} --metadata-uri maven://org.springframework.cloud.stream.app:http-source-rabbit:jar:metadata:{docker-http-source-rabbit-version}
 ```
 +
 . Create the `http | log` stream without deploying it using the following command:
@@ -633,7 +633,7 @@ Let's register the `timestamp` task app and create a simple task definition and 
 +
 [subs=attributes]
 ```
-dataflow:>app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:{sct-starters-core-version} --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:{sct-starters-core-version}
+dataflow:>app register --type task --name timestamp --uri docker:springcloudtask/timestamp-task:{docker-timestamp-task-version} --metadata-uri maven://org.springframework.cloud.task.app:timestamp-task:jar:metadata:{docker-timestamp-task-version}
 dataflow:>task create task1 --definition "timestamp"
 dataflow:>task launch task1
 ```
