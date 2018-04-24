@@ -735,7 +735,7 @@ This overrides the JVM memory setting for the desired <app> (just replace <app> 
 
 === Liveness and Readiness Probes
 
-The _liveness_ and _readiness_ probes are using the _paths_ `/health` and `/info` respectively. They use a _delay_ of 10 for both and a _period_ of 60 and 10 respectively. You can chage these defaults when you deploy the stream by using deployer properties.
+The _liveness_ and _readiness_ probes are using the _paths_ `/health` and `/info` respectively. They use a _delay_ of 10 for both and a _period_ of 60 and 10 respectively. You can change these defaults when you deploy the stream by using deployer properties.
 
 Here is an example changing the _liveness_ probe (just replace <app> with the name of your app):
 
@@ -746,6 +746,13 @@ deployer.<app>.kubernetes.livenessProbePeriod=20
 ```
 
 Similarly, swap _liveness_ for _readiness_ to override the default readiness settings.
+
+By default, port 8080 is used as the probe port. You can change the defaults for both _liveness_ and _readiness_ probe ports by using deployer properties, for example:
+
+```
+deployer.<app>.kubernetes.readinessProbePort=7000
+deployer.<app>.kubernetes.livenessProbePort=7000
+```
 
 [NOTE]
 ====
