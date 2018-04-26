@@ -779,3 +779,18 @@ deployer.<app>.kubernetes.imagePullSecret=mysecret
 
 Replacing `<app>` with the name of your app and `mysecret` with the name of the Secret you created earlier.
 
+=== Annotations
+
+Annotations can be added to Kubernetes objects on a per app basis. The supported object types are pod `Deployment`, `Service` and `Job`. Annotations are defined in a `key:value` format allowing for multiple annotations separated by a comma. For more information and use cases on annotations see https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/[Annotations].
+
+Applications can be configured as such:
+
+[options=nowrap]
+```
+deployer.<app>.kubernetes.podAnnotations=annotationName:annotationValue
+deployer.<app>.kubernetes.serviceAnnotations=annotationName:annotationValue,annotationName2:annotationValue2
+deployer.<app>.kubernetes.jobAnnotations=annotationName:annotationValue
+```
+
+Replacing `<app>` with the name of your app and the value of your annotation(s).
+
