@@ -762,3 +762,27 @@ If desired, see the https://github.com/spring-projects/spring-boot/wiki/Spring-B
 ====
 
 =======
+
+=== Entry Point Style
+
+An Entry Point Style affects how application properties are passed to the container to be deployed. Currently there are three supported styles:
+
+* `exec` - The default Entry Point Style and passes all application properties as command line arguments
+* `shell` - Passes all application properties as environment variables
+* `boot` - Creates an environment variable `SPRING_APPLICATION_JSON` containing a JSON representation of all application properties
+
+Applications can be configured as such:
+
+[options=nowrap]
+```
+deployer.<app>.kubernetes.entryPointStyle=<Entry Point Style>
+```
+
+Replacing `<app>` with the name of your app and the desired Entry Point Style.
+
+Choosing an Entry Point Style of either `exec` or `shell` corresponds to how the `ENTRYPOINT` syntax is defined in the containers `Dockerfile`. For more information and uses cases on `exec` vs `shell` see the https://docs.docker.com/engine/reference/builder/#entrypoint[ENTRYPOINT] section of the Docker documentation.
+
+Using the Entry Point Style of `boot` corresponds to using the `exec` style `ENTRYPOINT`. Command line arguments from the deployment request are passed to the container, with the addition of application properties mapped into the `SPRING_APPLICATION_JSON` environment variable rather than command line arguments.
+
+[NOTE]
+When using the `boot` Entry Point Style, the `deployer.<app>.kubernetes.environmentVariables` property must not contain `SPRING_APPLICATION_JSON`.
