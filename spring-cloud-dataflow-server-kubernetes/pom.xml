@@ -65,7 +65,6 @@
 					  <name>springcloud/${project.artifactId}</name>
 					  <build>
 						  <tags>
-							  <tag>latest</tag>
 							  <tag>${project.version}</tag>
 						  </tags>
 						<from>java:8-alpine</from>
