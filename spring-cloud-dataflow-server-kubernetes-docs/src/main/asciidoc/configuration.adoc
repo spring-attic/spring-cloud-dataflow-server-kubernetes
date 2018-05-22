@@ -402,3 +402,171 @@ dataflow:>task execution cleanup --id 1
 Request to clean up resources for task execution 1 has been submitted
 ----
 
+== Debug Support
+
+Debugging the Spring Cloud Data Flow Kubernetes Server and included components such as the https://github.com/spring-cloud/spring-cloud-deployer-kubernetes[Spring Cloud Kubernetes Deployer] is supported through the https://docs.oracle.com/javase/8/docs/technotes/guides/jpda/jdwp-spec.html[Java Debug Wire Protocol (JDWP)]. This section will outline an approach to manually enable debugging and another that uses configuration files provided with Spring Cloud Data Flow Server Kubernetes to "patch" a running deployment.
+
+NOTE: JDWP itself does not use any authentication. This section assumes debugging is being done on a local development environment such as Minikube and guidance on securing the debug port is not provided.
+
+=== Enabling Debugging Manually
+
+To manually enable JDWP, first edit `src/kubernetes/server/server-deployment.yaml` and add an additional `containerPort` entry under `spec.template.spec.containers.ports` with a value of `5005`. Additionally add the environment variable https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html#tooloptions[`JAVA_TOOL_OPTIONS`] under `spec.template.spec.containers.env` as shown below:
+
+```
+spec:
+  ...
+  template:
+    ...
+    spec:
+      containers:
+      - name: scdf-server
+        ...
+        ports:
+        ...
+		- containerPort: 5005
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+```
+
+NOTE: Port 5005 is used in this example, but it can be any number that does not conflict with another port. The chosen port number must also be the same for the added `containerPort` value along with the `address` parameter of the `JAVA_TOOL_OPTIONS` `-agentlib` flag as shown above.
+
+The Spring Cloud Data Flow Kubernetes Server can now be started as normal. Once the server is up, changes from above can be verified on the `scdf-server` deployment:
+
+[source,shell]
+----
+$ kubectl describe deployment/scdf-server
+...
+...
+Pod Template:
+  ...
+  Containers:
+   scdf-server:
+    ...
+    Ports:       80/TCP, 5005/TCP
+    ...
+    Environment:
+      JAVA_TOOL_OPTIONS:  -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+	  ...
+----
+
+With the server started and JDWP enabled, access to the port needs to be configured. In this example we will use the https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/[`port-forward`] subcommand of `kubectl`. Exposing a local port to our debug target using `port-forward` can be done as follows:
+
+[source,shell]
+----
+$ kubectl get pod -l app=scdf-server
+NAME                           READY     STATUS    RESTARTS   AGE
+scdf-server-5b7cfd86f7-d8mj4   1/1       Running   0          10m
+$ kubectl port-forward scdf-server-5b7cfd86f7-d8mj4 5005:5005
+Forwarding from 127.0.0.1:5005 -> 5005
+Forwarding from [::1]:5005 -> 5005
+----
+
+A debugger may now be attached by pointing it to `127.0.0.1` as the host and `5005` as the port. The `port-forward` subcommand will remain running until killed with for example, `CTRL+c`.
+
+Debugging support can be removed by reverting the changes to `src/kubernetes/server/server-deployment.yaml`. The reverted changes will be picked up on the next deployment of the Spring Cloud Data Flow Kubernetes Server. Manually adding debug support to the configuration comes in useful when debugging should be enabled by default each time the server is deployed.
+
+=== Enabling Debugging with Patching
+
+Rather than manually changing the `server-deployment.yaml`, created Kubernetes Objects can be "patched" in place. For convenience patch files are included that provide the same configuration as the manual approach. To enable debugging by patching, enter the following:
+
+[source,shell]
+----
+$ kubectl patch deployment scdf-server -p "$(cat src/kubernetes/server/server-deployment-debug.yaml)"
+----
+
+Running this command will automatically add the `containerPort` attribute and the `JAVA_TOOL_OPTIONS` environment variable. Changes to the `scdf-server` deployment can be verified by running the following command:
+
+[source,shell]
+----
+$ kubectl describe deployment/scdf-server
+...
+...
+Pod Template:
+  ...
+  Containers:
+   scdf-server:
+    ...
+    Ports:       5005/TCP, 80/TCP
+    ...
+    Environment:
+      JAVA_TOOL_OPTIONS:  -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+	  ...
+----
+
+To enable access to the debug port, rather than using the `port-forward` subcommand of `kubectl`, another option would be to patch the `scdf-server` Kubernetes Service Object. Patching this object can be done as follows:
+
+First ensure the `scdf-server` Kubernetes Service Object has the proper configuration.
+
+[source,shell]
+----
+$ kubectl describe service/scdf-server
+----
+
+If the output contains the text `<unset>`, for example:
+
+```
+Port:                     <unset>  80/TCP
+TargetPort:               80/TCP
+NodePort:                 <unset>  30784/TCP
+```
+
+Patch the service to add a name for this port:
+
+[source,shell]
+----
+$ kubectl patch service scdf-server -p "$(cat src/kubernetes/server/server-svc.yaml)"
+----
+
+NOTE: A port name should only be missing if the target cluster had been created prior to debug functionality being added. Since multiple ports are being added to the `scdf-server` Kubernetes Service Object, each needs to have their own name.
+
+Now add the debug port:
+
+[source,shell]
+----
+$ kubectl patch service scdf-server -p "$(cat src/kubernetes/server/server-svc-debug.yaml)"
+----
+
+To verify the mapping:
+
+[source,shell]
+----
+$ kubectl describe service scdf-server
+Name:                     scdf-server
+...
+...
+Port:                     scdf-server-jdwp  5005/TCP
+TargetPort:               5005/TCP
+NodePort:                 scdf-server-jdwp  31339/TCP
+...
+...
+Port:                     scdf-server  80/TCP
+TargetPort:               80/TCP
+NodePort:                 scdf-server  30883/TCP
+...
+...
+----
+
+In the output, its shown that that container port 5005 has been mapped to the NodePort of 31339. To get the IP address of the Minikube node enter the following:
+
+[source,shell]
+----
+$ minikube ip
+192.168.99.100
+----
+
+With this information a debug connection can now be created using a host of 192.168.99.100 and a port of 31339.
+
+To disable JDWP, the following commands can be used:
+
+[source,shell]
+----
+$ kubectl rollout undo deployment/scdf-server
+$ kubectl patch service scdf-server --type json -p='[{"op": "remove", "path": "/spec/ports/0"}]'
+----
+
+The Kubernetes Deployment Object is rolled back to its state prior before being patched. The Kubernetes Service Object is then patched with a `remove` operation to remove port 5005 from the `containerPorts` list.
+
+NOTE: `kubectl rollout undo` will force the pod to restart. Patching the Kubernetes Service Object will not recreate the service and the port mapping to the `scdf-server` deployment will remain the same.
+
+See https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-back-a-deployment[Rolling Back a Deployment] for more information on deployment rollbacks including managing history and https://kubernetes.io/docs/tasks/run-application/update-api-object-kubectl-patch/[Update API Objects in Place Using kubectl Patch] for more information on patching.

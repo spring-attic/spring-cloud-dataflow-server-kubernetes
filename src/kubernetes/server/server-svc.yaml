@@ -9,5 +9,6 @@ spec:
   type: LoadBalancer
   ports:
     - port: 80
+      name: scdf-server
   selector:
     app: scdf-server
