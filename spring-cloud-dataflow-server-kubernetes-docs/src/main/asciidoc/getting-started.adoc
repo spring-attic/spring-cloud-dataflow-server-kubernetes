@@ -767,6 +767,46 @@ If desired, see the https://github.com/spring-projects/spring-boot/wiki/Spring-B
 
 ====
 
+Probe endpoints that are secured can be accessed by using credentials stored in a https://kubernetes.io/docs/concepts/configuration/secret/[Kubernetes secret]. An existing Secret can be used providing the credentials are contained under the "credentials" key name of the Secret's `data` block. Probe authentication can be configured on a per application basis. When enabled, it is applied to both the _liveness_ and _readiness_ probe endpoints using the same credentials and authentication type. Currently only `Basic` authentication is supported. A new secret can be created as follows:
+
+Basic authentication encodes a username and password as a base64 string in the format of `username:password`. First generate the base64 string with the credentials used to access the secured probe endpoints, for example:
+
+[source,shell]
+----
+$ echo -n "user:pass" | base64
+dXNlcjpwYXNz
+$
+----
+
+Replacing `user` and `pass` with the appropriate values. With the encoded credentials, create a file for example `myprobesecret.yml` with the following contents:
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myprobesecret
+type: Opaque
+data:
+  credentials: GENERATED_BASE64_STRING
+```
+
+Replacing `GENERATED_BASE64_STRING` with the base64 encoded value generated above. Now create the Secret using `kubectl`:
+
+[source,shell]
+----
+$ kubectl create -f ./myprobesecret.yml
+secret "myprobesecret" created
+$
+----
+
+Then set the following deployer properties to use authentication when accessing probe endpoints:
+
+```
+deployer.<app>.kubernetes.probeCredentialsSecret=myprobesecret
+```
+
+Replacing <app> with the name of the application to apply authentication to.
+
 === Private Docker Registry
 
 Docker images can be pulled from a private registry on a per app basis. First a Secret must be created in the cluster. Follow the https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/[Pull an Image from a Private Registry] guide to create the Secret.
