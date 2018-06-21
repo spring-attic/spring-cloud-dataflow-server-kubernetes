@@ -264,6 +264,26 @@ Once the Secret is created, use the `SPRING_CLOUD_DEPLOYER_KUBERNETES_IMAGE_PULL
 
 Replacing `mysecret` with the name of the Secret you created earlier.
 
+=== Deployment Service Account
+
+A Service Account to use can be configured for all deployed applications. An existing Service Account can be used, or a new one can be created. One way to create a service account is by using `kubectl`, for example:
+
+[source,shell]
+----
+$ kubectl create serviceaccount myserviceaccountname
+serviceaccount "myserviceaccountname" created
+----
+
+With the Service Account name, set the `SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_SERVICE_ACCOUNT_NAME` env variable, for example:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_SERVICE_ACCOUNT_NAME
+          value: myserviceaccountname
+```
+
+NOTE: A Service Account name defined on a per application basis takes precedence over this configuration setting.
+
 [[configuration-monitoring-management]]
 == Monitoring and Management
 

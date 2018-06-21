@@ -817,3 +817,25 @@ Using the Entry Point Style of `boot` corresponds to using the `exec` style `ENT
 
 [NOTE]
 When using the `boot` Entry Point Style, the `deployer.<app>.kubernetes.environmentVariables` property must not contain `SPRING_APPLICATION_JSON`.
+
+=== Deployment Service Account
+
+A Service Account for application deployments can be configured on a per app basis. An existing Service Account can be used, or a new one can be created. One way to create a service account is by using `kubectl`, for example:
+
+[source,shell]
+----
+$ kubectl create serviceaccount myserviceaccountname
+serviceaccount "myserviceaccountname" created
+----
+
+Then applications can be configured as such:
+
+[options=nowrap]
+```
+deployer.<app>.kubernetes.deploymentServiceAccountName=myserviceaccountname
+```
+
+Replacing <app> with the name of your app to be deployed using the provided Service Account name.
+
+NOTE: A Service Account name defined on a per application basis take precedence over a configured server `SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_SERVICE_ACCOUNT_NAME` environment variable.
+
