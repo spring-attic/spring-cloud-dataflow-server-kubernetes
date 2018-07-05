@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: metrics
-        image: springcloud/metrics-collector-kafka-10:1.0.0.RELEASE
+        image: springcloud/metrics-collector-kafka:2.0.0.RELEASE
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -27,9 +27,9 @@ spec:
         env:
         - name: SERVER_PORT
           value: '80'
-        - name: SECURITY_BASIC_ENABLED
-          value: 'false'
         - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
           value: '${KAFKA_SERVICE_HOST}:${KAFKA_SERVICE_PORT}'
         - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES
           value: '${KAFKA_ZK_SERVICE_HOST}:${KAFKA_ZK_SERVICE_PORT}'
+        - name: SPRING_AUTOCONFIGURE_EXCLUDE
+          value: 'org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration'
