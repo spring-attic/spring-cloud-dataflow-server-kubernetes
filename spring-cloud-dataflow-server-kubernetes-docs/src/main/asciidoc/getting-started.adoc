@@ -130,7 +130,7 @@ The deployment is defined in the `src/kubernetes/skipper/skipper-deployment.yaml
     spec:
       containers:
       - name: skipper
-        image: springcloud/spring-cloud-skipper-server:1.0.5.RELEASE   # <1>
+        image: springcloud/spring-cloud-skipper-server:1.0.7.RELEASE   # <1>
         imagePullPolicy: Always
 ----
 +
@@ -175,7 +175,7 @@ The deployment is defined in the `src/kubernetes/server/server-deployment.yaml` 
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.6.0.BUILD-SNAPSHOT   # <1>
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.6.0.M1   # <1>
         imagePullPolicy: Always
 ----
 +
@@ -482,7 +482,7 @@ dataflow:>app register --type sink --name log --uri docker://springcloudstream/l
 you can with the following command. For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 +
 ```
-dataflow:>app import --uri https://bit.ly/Celsius-SR2-stream-applications-rabbit-docker
+dataflow:>app import --uri http://bit.ly/Darwin-GA-stream-applications-rabbit-maven
 ```
 +
 . Deploy a simple stream in the shell
