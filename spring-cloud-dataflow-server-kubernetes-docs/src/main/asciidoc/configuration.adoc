@@ -284,6 +284,24 @@ With the Service Account name, set the `SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYM
 
 NOTE: A Service Account name defined on a per application basis takes precedence over this configuration setting.
 
+=== Image Pull Policy
+
+An Image Pull Policy defines when a Docker image should be pulled to the local registry. Currently there are three supported policies:
+
+* `IfNotPresent` - The default policy, which will not pull an image if it already exists
+* `Always` - Always pulls the image regardless if it already exists or not
+* `Never` - Never pull an image, only use an image that already exists
+
+An Image Pull Policy can be configured for all deployed applications, for example:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_IMAGE_PULL_POLICY
+          value: Always
+```
+
+NOTE: An Image Pull Policy defined on a per application basis while deploying the stream or task takes precedence over this configuration setting.
+
 [[configuration-monitoring-management]]
 == Monitoring and Management
 
