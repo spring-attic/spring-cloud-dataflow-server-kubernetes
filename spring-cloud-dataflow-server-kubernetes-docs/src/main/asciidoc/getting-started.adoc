@@ -879,3 +879,20 @@ Replacing <app> with the name of your app to be deployed using the provided Serv
 
 NOTE: A Service Account name defined on a per application basis take precedence over a configured server `SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_SERVICE_ACCOUNT_NAME` environment variable.
 
+=== Image Pull Policy
+
+An Image Pull Policy defines when a Docker image should be pulled to the local registry. Currently there are three supported policies:
+
+* `IfNotPresent` - The default policy, which will not pull an image if it already exists
+* `Always` - Always pulls the image regardless if it already exists or not
+* `Never` - Never pull an image, only use an image that already exists
+
+Applications can be individually configured as such:
+
+[options=nowrap]
+```
+deployer.<app>.kubernetes.imagePullPolicy=Always
+```
+
+Replacing `<app>` with the name of your app and the desired Image Pull Policy.
+
