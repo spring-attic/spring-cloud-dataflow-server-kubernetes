@@ -300,7 +300,7 @@ An Image Pull Policy can be configured for all deployed applications, for exampl
           value: Always
 ```
 
-NOTE: An Image Pull Policy defined on a per application basis takes precedence over this configuration setting.
+NOTE: An Image Pull Policy defined on a per application basis while deploying the stream or task takes precedence over this configuration setting.
 
 [[configuration-monitoring-management]]
 == Monitoring and Management
