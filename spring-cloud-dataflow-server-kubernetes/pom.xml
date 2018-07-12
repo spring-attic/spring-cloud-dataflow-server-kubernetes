@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-dataflow-server-kubernetes-parent</artifactId>
-		<version>1.6.0.BUILD-SNAPSHOT</version>
+		<version>1.6.0.M2</version>
 	</parent>
 	<properties>
 		<start-class>org.springframework.cloud.dataflow.server.kubernetes.KubernetesDataFlowServer</start-class>
@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-dataflow-server-kubernetes-autoconfig</artifactId>
-			<version>1.6.0.BUILD-SNAPSHOT</version>
+			<version>1.6.0.M2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
