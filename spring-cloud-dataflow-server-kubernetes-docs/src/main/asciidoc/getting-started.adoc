@@ -663,13 +663,23 @@ dataflow:>task execution list
 dataflow:>task destroy --name task1
 ```
 
-== Application Configuration
+== Application and Server Properties
 
-This section covers how you can customize the deployment of your applications. You can use a number of deployer properties to influence settings for the applications that are deployed.
+This section covers how you can customize the deployment of your applications. You can use a number of properties to influence settings for the applications that are deployed. Properties can be applied on a per application basis or in the server configuration for all deployed applications.
+
+NOTE: Properties set on a per application basis will always take precedence over properties set the server configuration. This allows for the ability to override property values set at the server level.
 
 See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesDeployerProperties.java[KubernetesDeployerProperties] for more of the supported options.
 
-If you would like to override the default values for all apps that you deploy then you should modify the <<index.html#_spring_cloud_deployer_for_kubernetes_properties, Spring Cloud Deployer for Kubernetes Properties>> for the server.
+=== Using Deployments
+
+The deployer uses Replication Controllers by default. To use Deployments instead you can set the following option as part of the container env section in a deployment YAML file. This is now the preferred setting and will be the default in future releases of the deployer.
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CREATE_DEPLOYMENT
+          value: 'true'
+```
 
 === Memory and CPU Settings
 
@@ -690,7 +700,7 @@ You might find that the 512Mi memory limit is too low and to increase it you can
 deployer.<app>.memory=640m
 ```
 
-This property affects bot the Requests and Limits memory value set for the container.
+This property affects both the Requests and Limits memory value set for the container.
 
 If you would like to set the Requests and Limits values separately you would have to use the deployer properties that are specific to the Kubernetes deployer. To set the Limits to 1000m for cpu, 1024Mi for memory and Requests to 800m for cpu, 640Mi for memory you can use the following properties:
 
@@ -713,6 +723,16 @@ That should result in the following container settings being used:
 ```
 
 NOTE: When using the common memory property you should use and `m` suffix for the value while when using the Kubernetes specific properties you should use the Kubernetes `Mi` style suffix.
+
+You can also control the default values to set the `cpu` and `memory` requirements for the pods that are created as part of app deployments. The following can be declared as part of the container env section in a deployment YAML file:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_CPU
+          value: 500m
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_MEMORY
+          value: 640Mi
+```
 
 The settings we have used so far only affect the settings for the container, they do not affect the memory setting for the JVM process in the container. If you would like to set JVM memory settings you can provide an environment variable for this, see the next section for details.
 
@@ -738,12 +758,24 @@ This overrides the JVM memory setting for the desired <app> (just replace <app> 
 
 The _liveness_ and _readiness_ probes are using the _paths_ `/health` and `/info` respectively. They use a _delay_ of 10 for both and a _period_ of 60 and 10 respectively. You can change these defaults when you deploy the stream by using deployer properties.
 
-Here is an example changing the _liveness_ probe (just replace <app> with the name of your app):
+Here is an example changing the _liveness_ probe (just replace <app> with the name of your app) via deployer properties:
 
 ```
 deployer.<app>.kubernetes.livenessProbePath=/health
 deployer.<app>.kubernetes.livenessProbeDelay=120
 deployer.<app>.kubernetes.livenessProbePeriod=20
+```
+
+The same can be declared as part of the container env section in a deployment YAML file:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_PATH
+          value: '/health'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_DELAY
+          value: '120'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_PERIOD
+          value: '20'
 ```
 
 Similarly, swap _liveness_ for _readiness_ to override the default readiness settings.
@@ -753,6 +785,16 @@ By default, port 8080 is used as the probe port. You can change the defaults for
 ```
 deployer.<app>.kubernetes.readinessProbePort=7000
 deployer.<app>.kubernetes.livenessProbePort=7000
+```
+
+As well as in the container env section of a deployment YAML file:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_READINESS_PROBE_PORT
+          value: '7000'
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_LIVENESS_PROBE_PORT
+          value: '7000'
 ```
 
 [NOTE]
@@ -808,6 +850,18 @@ deployer.<app>.kubernetes.probeCredentialsSecret=myprobesecret
 
 Replacing <app> with the name of the application to apply authentication to.
 
+=== Using SPRING_APPLICATION_JSON
+
+Data Flow Server properties that are common across all of the Data Flow Server implementations including the configuration of maven repository settings can be set at the server level in the container env section of a deployment YAML using a `SPRING_APPLICATION_JSON` environment variable as shown:
+
+[options=nowrap]
+```
+        env:
+        - name: SPRING_APPLICATION_JSON
+          value: "{ \"maven\": { \"local-repository\": null, \"remote-repositories\": { \"repo1\": { \"url\": \"https://repo.spring.io/libs-snapshot\"} } } }"
+
+```
+
 === Private Docker Registry
 
 Docker images can be pulled from a private registry on a per app basis. First a Secret must be created in the cluster. Follow the https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/[Pull an Image from a Private Registry] guide to create the Secret.
@@ -819,6 +873,16 @@ deployer.<app>.kubernetes.imagePullSecret=mysecret
 ```
 
 Replacing `<app>` with the name of your app and `mysecret` with the name of the Secret you created earlier.
+
+The image pull secret can also be configured at the server level in the container env section of a deployment YAML, for example:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_IMAGE_PULL_SECRET
+          value: mysecret
+```
+
+Replacing `mysecret` with the name of the Secret you created earlier.
 
 === Annotations
 
@@ -852,6 +916,16 @@ deployer.<app>.kubernetes.entryPointStyle=<Entry Point Style>
 
 Replacing `<app>` with the name of your app and the desired Entry Point Style.
 
+The image pull secret can also be configured at the server level in the container env section of a deployment YAML, for example:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_ENTRY_POINT_STYLE
+          value: entryPointStyle
+```
+
+Replacing `entryPointStye` with the desired Entry Point Style.
+
 Choosing an Entry Point Style of either `exec` or `shell` corresponds to how the `ENTRYPOINT` syntax is defined in the containers `Dockerfile`. For more information and uses cases on `exec` vs `shell` see the https://docs.docker.com/engine/reference/builder/#entrypoint[ENTRYPOINT] section of the Docker documentation.
 
 Using the Entry Point Style of `boot` corresponds to using the `exec` style `ENTRYPOINT`. Command line arguments from the deployment request are passed to the container, with the addition of application properties mapped into the `SPRING_APPLICATION_JSON` environment variable rather than command line arguments.
@@ -861,7 +935,7 @@ When using the `boot` Entry Point Style, the `deployer.<app>.kubernetes.environm
 
 === Deployment Service Account
 
-A Service Account for application deployments can be configured on a per app basis. An existing Service Account can be used, or a new one can be created. One way to create a service account is by using `kubectl`, for example:
+A custom Service Account for application deployments can be configured through properties. An existing Service Account can be used, or a new one can be created. One way to create a service account is by using `kubectl`, for example:
 
 [source,shell]
 ----
@@ -869,7 +943,7 @@ $ kubectl create serviceaccount myserviceaccountname
 serviceaccount "myserviceaccountname" created
 ----
 
-Then applications can be configured as such:
+Then individual applications can be configured as such:
 
 [options=nowrap]
 ```
@@ -878,7 +952,15 @@ deployer.<app>.kubernetes.deploymentServiceAccountName=myserviceaccountname
 
 Replacing <app> with the name of your app to be deployed using the provided Service Account name.
 
-NOTE: A Service Account name defined on a per application basis take precedence over a configured server `SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_SERVICE_ACCOUNT_NAME` environment variable.
+The Service Account Name can also be configured at the server level in the container env section of a deployment YAML, for example:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_SERVICE_ACCOUNT_NAME
+          value: myserviceaccountname
+```
+
+Replacing `myserviceaccountname` with the Service Account Name to be applied to all deployments.
 
 === Image Pull Policy
 
@@ -896,4 +978,14 @@ deployer.<app>.kubernetes.imagePullPolicy=Always
 ```
 
 Replacing `<app>` with the name of your app and the desired Image Pull Policy.
+
+An Image Pull Policy can be configured at the server level in the container env section of a deployment YAML, for example:
+
+```
+        env:
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_IMAGE_PULL_POLICY
+          value: Always
+```
+
+Replacing `Always` with the desired Image Pull Policy.
 
