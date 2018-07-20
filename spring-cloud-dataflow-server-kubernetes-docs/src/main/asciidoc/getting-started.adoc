@@ -667,7 +667,7 @@ dataflow:>task destroy --name task1
 
 This section covers how you can customize the deployment of your applications. You can use a number of properties to influence settings for the applications that are deployed. Properties can be applied on a per application basis or in the server configuration for all deployed applications.
 
-NOTE: Properties set on a per application basis will always take precedence over properties set the server configuration. This allows for the ability to override property values set at the server level.
+NOTE: Properties set on a per application basis will always take precedence over properties set as the server configuration. This allows for the ability to override global server level properties on a per-application basis.
 
 See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master/src/main/java/org/springframework/cloud/deployer/spi/kubernetes/KubernetesDeployerProperties.java[KubernetesDeployerProperties] for more of the supported options.
 
@@ -916,7 +916,7 @@ deployer.<app>.kubernetes.entryPointStyle=<Entry Point Style>
 
 Replacing `<app>` with the name of your app and the desired Entry Point Style.
 
-The image pull secret can also be configured at the server level in the container env section of a deployment YAML, for example:
+The Entry Point Style can also be configured at the server level in the container env section of a deployment YAML, for example:
 
 ```
         env:
