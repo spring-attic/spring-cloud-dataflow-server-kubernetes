@@ -806,7 +806,7 @@ deployer.<app>.kubernetes.livenessProbePath=/actuator/health
 deployer.<app>.kubernetes.readinessProbePath=/actuator/info
 ```
 
-To automatically set both _liveness_ and _readiness_ endpoints per application to the Spring Boot 2.x paths, the following property can be set:
+To automatically set both _liveness_ and _readiness_ endpoints per application to the default Spring Boot 2.x paths, the following property can be set:
 
 ```
 deployer.<app>.kubernetes.bootMajorVersion=2
