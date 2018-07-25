@@ -2,7 +2,7 @@
 = Streams deployed using Skipper
 
 We will proceed with the assumption that Spring Cloud Data Flow, <<getting-started.adoc#spring-cloud-skipper-integration, Spring Cloud Skipper>>, RDBMS, and desired messaging 
-middleware is up and running in minikube.
+middleware is up and running in minikube. In this section we will use RabbitMQ as the messaging middleware. The same concepts and steps apply for Kafka as well, except Kafka based binder Docker images would be used as described in <<getting-started.adoc#getting-started-create-stream-without-skipper, Create Streams without Skipper>>.
 
 [source,console,options=nowrap]
 ----
@@ -76,7 +76,7 @@ Successfully registered application 'source:time'
 dataflow:>app register --type sink --name log --uri docker://springcloudstream/log-sink-rabbit:1.2.0.RELEASE --metadata-uri maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:1.2.0.RELEASE
 Successfully registered application 'sink:log'
 
-dataflow:>app info source:time
+dataflow:>app info time --type source
 Information about source application 'time':
 Version: '1.3.0.RELEASE':
 Default application version: 'true':
@@ -97,7 +97,7 @@ Resource URI: docker://springcloudstream/time-source-rabbit:1.3.0.RELEASE
 ║trigger.date-format           │Format for the date value.    │<none>                        │java.lang.String              ║
 ╚══════════════════════════════╧══════════════════════════════╧══════════════════════════════╧══════════════════════════════╝
 
-dataflow:>app info sink:log
+dataflow:>app info log --type sink
 Information about sink application 'log':
 Version: '1.2.0.RELEASE':
 Default application version: 'true':
