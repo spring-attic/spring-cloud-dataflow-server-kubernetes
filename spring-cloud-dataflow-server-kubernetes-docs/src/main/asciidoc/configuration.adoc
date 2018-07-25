@@ -49,7 +49,7 @@ Here is an example of a snippet from a deployment that sets these environment va
 
 Configuration properties can be passed to the Data Flow Server using Kubernetes https://kubernetes.io/docs/tasks/configure-pod-container/configmap/[ConfigMap] and https://kubernetes.io/docs/concepts/configuration/secret/[Secrets]. 
 
-An example configuration could look like the following where we configure Rabbit MQ, MySQL and Redis as well as basic security settings for the server:
+An example configuration could look like the following where we configure RabbitMQ, MySQL and Redis as well as basic security settings for the server:
 
 [source,yaml]
 ----
@@ -90,7 +90,7 @@ data:
         port: ${REDIS_SERVICE_PORT}
 ----
 
-We assume here that Rabbit MQ is deployed using `rabbitmq` as the service name. For MySQL we assume the service name is `mysql` and for Redis we assume it is `redis`. Kubernetes will publish these services' host and port values as environment variables that we can use when configuring the apps we deploy.
+We assume here that RabbitMQ is deployed using `rabbitmq` as the service name. For MySQL we assume the service name is `mysql` and for Redis we assume it is `redis`. Kubernetes will publish these services' host and port values as environment variables that we can use when configuring the apps we deploy.
 
 We prefer to provide the MySQL connection password in a Secrets file:
 
@@ -171,7 +171,7 @@ We are now securing the server application in the sample configurations file use
 
 This section covers the basic configuration settings we provide in the provided sample configuration, please refer to the  link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/htmlsingle/#configuration-security[core security documentation] for more detailed coverage of the security configuration options for the Spring Cloud Data Flow server and shell.
 
-The security settings in the `src/kubernetes/server/server-config-rabbit.yaml` file are:
+When using RabbitMQ as the transport, the security settings are located in the `src/kubernetes/server/server-config-rabbit.yaml` file and when using Kafka the settings are located in the `src/kubernetes/server/server-config-kafka.yaml` file:
 [source,yaml]
 ----
     security:
