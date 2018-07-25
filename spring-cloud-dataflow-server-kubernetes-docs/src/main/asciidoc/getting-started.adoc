@@ -12,7 +12,7 @@ This project provides support for using Spring Cloud Data Flow with Kubernetes a
 In this section we will install the Spring Cloud Data Flow Server on a Kubernetes cluster.
 Spring Cloud Data Flow depends on a few services and their availability.
 For example, we need an RDBMS service for the app registry, stream/task repositories and task management.
-For streaming pipelines, we also need a transport option such as Apache Kafka or RabbitMQ.
+For streaming pipelines, we also need a messaging middleware option such as Apache Kafka or RabbitMQ.
 In addition to this, we need a Redis service if the analytics features are in use.
 
 [IMPORTANT]
@@ -66,9 +66,9 @@ $ cd spring-cloud-dataflow-server-kubernetes
 $ git checkout {github-tag}
 ----
 
-==== Choosing a Transport
+==== Choosing a Message Broker
 
-For deployed applications to communicate with each other, a transport middleware needs to be selected. The sample deployment and service YAML files provide configurations for RabbitMQ and Kafka. Only one transport needs to be configured.
+For deployed applications to communicate with each other, a message broker needs to be selected. The sample deployment and service YAML files provide configurations for RabbitMQ and Kafka. Only one message broker needs to be configured.
 
 . RabbitMQ
 +
@@ -117,7 +117,7 @@ $ kubectl create -f src/kubernetes/redis/
 +
 [NOTE]
 ====
-If you don't need the analytics functionality you can turn this feature off by changing `SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED` to false in the `src/kubernetes/server/server-deployment.yaml` file. If you don't install the Redis service then you should also remove the Redis configuration settings from the following files depending on your transport of choice:
+If you don't need the analytics functionality you can turn this feature off by changing `SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED` to false in the `src/kubernetes/server/server-deployment.yaml` file. If you don't install the Redis service then you should also remove the Redis configuration settings from the following files depending on your message broker of choice:
 
 * If using RabbitMQ: `src/kubernetes/server/server-config-rabbit.yaml`
 
@@ -130,13 +130,13 @@ You can use the command `kubectl get all -l app=redis` to verify that the deploy
 +
 The Metrics Collector will provide message rates for all deployed stream apps. These message rates will be visible in the Dashboard UI. Run the following commands to start the Metrics Collector:
 +
-* If using RabbitMQ as the transport:
+* If using RabbitMQ:
 +
 ```
 $ kubectl create -f src/kubernetes/metrics/metrics-deployment-rabbit.yaml
 ```
 +
-* If using Kafka as the transport:
+* If using Kafka:
 +
 ```
 $ kubectl create -f src/kubernetes/metrics/metrics-deployment-kafka.yaml
@@ -236,8 +236,7 @@ To use Skipper, you _must_ uncomment the following properties to `src/kubernetes
 The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
 The ConfigMap settings for RabbitMQ are specified in the `src/kubernetes/server/server-config-rabbit.yaml` file and Kafka in the `src/kubernetes/server/server-config-kafka.yaml` file. MySQL secrets are located in the `src/kubernetes/mysql/mysql-secrets.yaml` file. If you modified the password for MySQL you should have changed it in the `src/kubernetes/mysql/mysql-secrets.yaml` file. Any secrets have to be provided base64 encoded.
 +
-NOTE: We are now configuring the Data Flow server with file based
-security and the default user is 'user' with a password of 'password'. Feel free to change this in the `src/kubernetes/server/server-config-rabbit.yaml` file for RabbitMQ and the `src/kubernetes/server/server-config-kafka.yaml` file when using Kafka as the transport.
+NOTE: We are now configuring the Data Flow server with file based security and the default user is 'user' with a password of 'password'. Feel free to change this in the `src/kubernetes/server/server-config-rabbit.yaml` file for RabbitMQ and the `src/kubernetes/server/server-config-kafka.yaml` file when using Kafka.
 +
 NOTE: The default memory for the pods is set to 1024Mi.  Update the value in the `src/kubernetes/server/server-deployment.yaml` file if you expect most of your apps to require more memory.
 +
@@ -251,13 +250,13 @@ $ kubectl create -f src/kubernetes/server/server-rolebinding.yaml
 $ kubectl create -f src/kubernetes/server/service-account.yaml
 ```
 +
-When using RabbitMQ for transport:
+When using RabbitMQ:
 +
 ```
 $ kubectl create -f src/kubernetes/server/server-config-rabbit.yaml
 ```
 +
-When using Kafka for transport:
+When using Kafka:
 +
 ```
 $ kubectl create -f src/kubernetes/server/server-config-kafka.yaml
@@ -528,9 +527,9 @@ Successfully targeted http://130.211.203.246/
 dataflow:>
 ```
 +
-. Register the Docker binder versions of the `time` and `log` apps using the shell.
+. Register the Docker images of the Rabbit binder based `time` and `log` apps using the shell.
 +
-When using RabbitMQ as the transport:
+When using RabbitMQ:
 +
 [subs=attributes]
 ```
@@ -538,7 +537,7 @@ dataflow:>app register --type source --name time --uri docker://springcloudstrea
 dataflow:>app register --type sink --name log --uri docker://springcloudstream/log-sink-rabbit:{docker-log-sink-rabbit-version} --metadata-uri maven://org.springframework.cloud.stream.app:log-sink-rabbit:jar:metadata:{docker-log-sink-rabbit-version}
 ```
 +
-When using Kafka as the transport:
+When using Kafka:
 +
 [subs=attributes]
 ```
@@ -549,13 +548,13 @@ dataflow:>app register --type sink --name log --uri docker://springcloudstream/l
 . Alternatively, if you would like to register all out-of-the-box stream applications for a particular binder in bulk,
 you can use one of the following commands. For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 +
-When using RabbitMQ as the transport:
+When using RabbitMQ:
 +
 ```
 dataflow:>app import --uri http://bit.ly/Celsius-SR3-stream-applications-rabbit-docker
 ```
 +
-When using Kafka as the transport:
+When using Kafka:
 +
 ```
 dataflow:>app import --uri http://bit.ly/Celsius-SR3-stream-applications-kafka-10-docker
@@ -614,14 +613,14 @@ If you need to be able to connect to from outside of the Kubernetes cluster to a
 
 . Register the `http-source`, you can use one of the following commands:
 +
-When using RabbitMQ as the transport:
+When using RabbitMQ:
 +
 [subs=attributes]
 ```
 dataflow:>app register --type source --name http --uri docker//springcloudstream/http-source-rabbit:{docker-http-source-rabbit-version} --metadata-uri maven://org.springframework.cloud.stream.app:http-source-rabbit:jar:metadata:{docker-http-source-rabbit-version}
 ```
 +
-When using Kafka as the transport:
+When using Kafka:
 +
 [subs=attributes]
 ```
