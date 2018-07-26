@@ -26,5 +26,5 @@ spec:
             memory: 640Mi
         env:
         - name: SPRING_APPLICATION_JSON
-          value: "{\"spring.cloud.skipper.server.enableLocalPlatform\" : false, \"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" : \"SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}\",\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.memory\" : \"1024Mi\",\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.createDeployment\" : true}"
+          value: "{\"spring.cloud.skipper.server.enableLocalPlatform\" : false, \"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.environmentVariables\" : \"SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT}\",\"spring.cloud.skipper.server.platform.kubernetes.accounts.minikube.memory\" : \"1024Mi\"}"
       serviceAccountName: scdf-sa
