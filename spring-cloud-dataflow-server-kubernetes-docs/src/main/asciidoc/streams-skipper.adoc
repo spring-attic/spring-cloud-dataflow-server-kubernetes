@@ -1,5 +1,5 @@
 [[streams-using-skipper]]
-== Deploying Streams by Using Skipper
+= Deploying Streams by Using Skipper
 
 This section assumes that Spring Cloud Data Flow, <<getting-started.adoc#spring-cloud-skipper-integration, Spring Cloud Skipper>>, an RDBMS, and your desired messaging  middleware is up and running in minikube. We use RabbitMQ as the messaging middleware. The same concepts and steps apply for Kafka. <<getting-started.adoc#getting-started-create-stream-without-skipper>> describes how to use Kafka-based Docker images.
 
@@ -405,7 +405,7 @@ dataflow:>stream history --name mystream
 ----
 ====
 
-=== Rolling back to a Previous Version
+== Rolling back to a Previous Version
 
 Skipper includes a `rollback` command so that you can roll back to a previous version.
 The following example (with output) shows how to use it:

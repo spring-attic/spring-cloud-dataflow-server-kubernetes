@@ -1,10 +1,10 @@
 [[configuration]]
-== Server Configuration
+= Server Configuration
 
 This section describes how to configure Spring Cloud Data Flow server's features, such as security and which relational database to use.
 
 [[enable-disable-specific-features]]
-=== Feature Toggles
+== Feature Toggles
 
 Data Flow server offers specific set of features that can be enabled or disabled when launching. These features include all the lifecycle operations, REST endpoints (server and client implementations including Shell and the UI) for:
 
@@ -25,7 +25,7 @@ NOTE: Since the analytics feature is enabled by default, the Data Flow server is
 The `/features` REST endpoint provides information on the features that have been enabled and disabled.
 
 [[configuration-general]]
-=== General Configuration
+== General Configuration
 
 The Spring Cloud Data Flow server for Kubernetes uses the Fabric8 https://github.com/fabric8io/spring-cloud-kubernetes[`spring-cloud-kubernetes`] module to process both the ConfigMap and the secrets settings. To enable the ConfigMap support, pass in an environment variable of `SPRING_CLOUD_KUBERNETES_CONFIG_NAME` and set it to the name of the ConfigMap. The same is true for the secrets, where the environment variable is `SPRING_CLOUD_KUBERNETES_SECRETS_NAME`. To use the secrets, you also need to set `SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API` to `true`.
 
@@ -44,7 +44,7 @@ env:
 ----
 ====
 
-==== Using ConfigMap and Secrets
+=== Using ConfigMap and Secrets
 
 You can pass configuration properties to the Data Flow Server by using Kubernetes https://kubernetes.io/docs/tasks/configure-pod-container/configmap/[ConfigMap] and https://kubernetes.io/docs/concepts/configuration/secret/[secrets].
 
@@ -112,7 +112,7 @@ data:
 The password is a base64-encoded value.
 
 [[configuration-rdbms]]
-=== Database Configuration
+== Database Configuration
 
 Spring Cloud Data Flow provides schemas for H2, HSQLDB, MySQL, Oracle, PostgreSQL, DB2, and SQL Server. The appropriate schema is automatically created when the server starts.
 
@@ -173,7 +173,7 @@ You can find migration scripts for specific database types in the https://github
 
 
 [[configuration-security]]
-=== Security
+== Security
 
 This section covers how to secure the server application in the sample configurations file used in <<kubernetes-getting-started>>.
 
@@ -209,7 +209,7 @@ spring:
 Feel free to change user names and passwords to suit and move the definition of user passwords to a Kubernetes secret.
 
 [[configuration-monitoring-management]]
-=== Monitoring and Management
+== Monitoring and Management
 
 We recommend using the `kubectl` command for troubleshooting streams and tasks.
 
@@ -267,7 +267,7 @@ kubectl describe pod ticktock-log-0-qnk72
 ----
 ====
 
-==== Inspecting Server Logs
+=== Inspecting Server Logs
 
 You can access the server logs by using the following command:
 
@@ -279,7 +279,7 @@ kubectl logs <scdf-server-pod-name>
 ----
 ====
 
-==== Streams
+=== Streams
 
 Stream applications are deployed with the stream name followed by the name of the application. For processors and sinks, an instance index is also appended.
 
@@ -319,7 +319,7 @@ kubectl logs -f <app-pod-name>
 ----
 ====
 
-==== Tasks
+=== Tasks
 
 Tasks are launched as bare pods without a replication controller. The pods remain after the tasks complete, which gives you an opportunity to review the logs.
 
@@ -374,13 +374,13 @@ Request to clean up resources for task execution 1 has been submitted
 ----
 ====
 
-=== Debug Support
+== Debug Support
 
 Debugging the Spring Cloud Data Flow Kubernetes Server and included components (such as the https://github.com/spring-cloud/spring-cloud-deployer-kubernetes[Spring Cloud Kubernetes Deployer]) is supported through the https://docs.oracle.com/javase/8/docs/technotes/guides/jpda/jdwp-spec.html[Java Debug Wire Protocol (JDWP)]. This section outlines an approach to manually enable debugging and another approach that uses configuration files provided with Spring Cloud Data Flow Server Kubernetes to "`patch`" a running deployment.
 
 NOTE: JDWP itself does not use any authentication. This section assumes debugging is being done on a local development environment (such as Minikube), so guidance on securing the debug port is not provided.
 
-==== Enabling Debugging Manually
+=== Enabling Debugging Manually
 
 To manually enable JDWP, first edit `src/kubernetes/server/server-deployment.yaml` and add an additional `containerPort` entry under `spec.template.spec.containers.ports` with a value of `5005`. Additionally, add the https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html#tooloptions[`JAVA_TOOL_OPTIONS`] environment variable under `spec.template.spec.containers.env` as the following example shows:
 
@@ -445,7 +445,7 @@ You can now attach a debuggerby pointing it to `127.0.0.1` as the host and `5005
 
 You can remove debugging support by reverting the changes to `src/kubernetes/server/server-deployment.yaml`. The reverted changes are picked up on the next deployment of the Spring Cloud Data Flow Kubernetes Server. Manually adding debug support to the configuration is useful when debugging should be enabled by default each time the server is deployed.
 
-==== Enabling Debugging with Patching
+=== Enabling Debugging with Patching
 
 Rather than manually changing the `server-deployment.yaml`, Kubernetes objects can be "`patched`" in place. For convenience, patch files that provide the same configuration as the manual approach are included. To enable debugging by patching, use the following command:
 
