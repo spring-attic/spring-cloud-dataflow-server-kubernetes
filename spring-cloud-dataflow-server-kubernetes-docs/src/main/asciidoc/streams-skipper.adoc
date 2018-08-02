@@ -1,9 +1,11 @@
 [[streams-using-skipper]]
-= Streams deployed using Skipper
+== Deploying Streams by Using Skipper
 
-We will proceed with the assumption that Spring Cloud Data Flow, <<getting-started.adoc#spring-cloud-skipper-integration, Spring Cloud Skipper>>, RDBMS, and desired messaging 
-middleware is up and running in minikube. In this section we will use RabbitMQ as the messaging middleware. The same concepts and steps apply for Kafka as well, except Kafka based binder Docker images would be used as described in <<getting-started.adoc#getting-started-create-stream-without-skipper, Create Streams without Skipper>>.
+This section assumes that Spring Cloud Data Flow, <<getting-started.adoc#spring-cloud-skipper-integration, Spring Cloud Skipper>>, an RDBMS, and your desired messaging  middleware is up and running in minikube. We use RabbitMQ as the messaging middleware. The same concepts and steps apply for Kafka. <<getting-started.adoc#getting-started-create-stream-without-skipper>> describes how to use Kafka-based Docker images.
 
+Before you get started, you can see what applications are running. The following example (with output) shows how to do so:
+
+====
 [source,console,options=nowrap]
 ----
 $ kubectl get all
@@ -17,44 +19,56 @@ po/skipper-2408247821-50z31       1/1       Running   0          3m
 ...
 ...
 ----
+====
 
-To start the Data Flow Shell for the Data Flow server running in `skipper` mode:
+The following example shows how to start the Data Flow Shell for the Data Flow server running in `skipper` mode:
 
+====
 [source,bash,subs=attributes]
 ----
 $ java -jar spring-cloud-dataflow-shell-{dataflow-project-version}.jar --dataflow.mode=skipper
 ----
-If the Data Flow Server and shell are not running on the same host, point the shell to the Data Flow server URL.
+====
 
-Use the `kubectl get svc scdf-server` command to locate the EXTERNAL_IP address assigned to `scdf-server`, we will use that to connect from the shell.
+If the Data Flow Server and shell do not run on the same host, point the shell to the Data Flow server URL. To do so, you can use the `kubectl get svc scdf-server` command to locate the EXTERNAL-IP address assigned to `scdf-server` and use that to connect from the shell. The following example (with output) shows how to get the external IP address (and other details):
 
-```
-$ kubectl get svc scdf-server
+====
+[source]
+----
+kubectl get svc scdf-server
 NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
-```
-So the URL you need to use is in this case http://130.211.203.246
+----
+====
 
-If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. You need to use the NodePort assigned for the `skipper` service. Use this command to look up the URL to use:
+In the preceding example, the URL to use is http://130.211.203.246
 
-```
+If you use Minikube, you do not have an external load balancer and the EXTERNAL-IP column shows `<pending>`. You need to use the NodePort assigned for the `skipper` service. The following example (with output) shows how to look up the URL to use:
+
+====
+[source]
+----
 $ minikube service --url scdf-server
 http://192.168.99.100:31991
-```
+----
+====
 
-Configure the Data Flow server URI with the following command using the default user and password settings:
+The following example (with output) shows how to configure the Data Flow server URI (with the default user and password settings):
 
+====
 [source,console,options=nowrap]
 ----
 server-unknown:>dataflow config server --username user --password password --uri http://130.211.203.246
 Successfully targeted http://130.211.203.246
 dataflow:>
 ----
-Alternatively, pass in the command line option `--dataflow.uri`.  The shell's command line option `--help` shows what is available.
+====
 
+Alternatively, you can use the `--dataflow.uri` command line option.  The shell's `--help` command line option shows what is available.
 
-Verify the registered platforms in Skipper.
+Then you can verify the registered platforms in Skipper, as the following example (with output) shows:
 
+====
 [source,console,options=nowrap]
 ----
 dataflow:>stream platform-list
@@ -64,10 +78,12 @@ dataflow:>stream platform-list
 ║minikube│kubernetes│master url = [https://kubernetes.default.svc/], namespace = [default], api version = [v1]       ║
 ╚════════╧══════════╧════════════════════════════════════════════════════════════════════════════════════════════════╝
 ----
+====
 
-Let's start with deploying a stream with the `time-source` pointing to 1.3.0.RELEASE and `log-sink` pointing
-to 1.2.0.RELEASE. The goal is to rolling upgrade the `log-sink` application to 1.3.0.RELEASE.
+We start by deploying a stream with the `time-source` pointing to the 1.3.0.RELEASE and `log-sink` pointing
+to the 1.2.0.RELEASE. The goal is to perform a rolling upgrade of the `log-sink` application to 1.3.0.RELEASE. The following mult-step example (with output after each command) shows how to do so:
 
+====
 [source,console,options=nowrap]
 ----
 dataflow:>app register --type source --name time --uri docker://springcloudstream/time-source-rabbit:1.3.0.RELEASE --metadata-uri maven://org.springframework.cloud.stream.app:time-source-rabbit:jar:metadata:1.3.0.RELEASE
@@ -113,41 +129,48 @@ Resource URI: docker://springcloudstream/log-sink-rabbit:1.2.0.RELEASE
 ║                              │as the logged message.        │                              │                              ║
 ╚══════════════════════════════╧══════════════════════════════╧══════════════════════════════╧══════════════════════════════╝
 ----
-
-
-. Create stream.
-
-+
-```
-dataflow:>stream create foo --definition "time | log"
-Created new stream 'foo'
-```
-+
-
-. Deploy stream.
-
-+
-```
-dataflow:>stream deploy foo --platformName minikube
-Deployment request has been sent for stream 'foo'
-```
-+
-
-[NOTE]
-====
-While deploying the stream, we are supplying `--platformName` and that indicates the platform repository (i.e., `minikube`) to
-use when deploying the stream applications via Skipper.
 ====
 
-. List pods.
+The remainder of this chapter describes the process for deploying streams with Skipper.
 
+. Create a stream.
 +
+The following example shows how to create a stream:
++
+====
+[source]
+----
+dataflow:>stream create mystream --definition "time | log"
+Created new stream 'mystream'
+----
+====
+
+. Deploy the stream.
++
+The following example shows how to deploy the stream:
++
+====
+[source]
+----
+dataflow:>stream deploy mysteam --platformName minikube
+Deployment request has been sent for stream 'mystream'
+----
+====
++
+NOTE:While deploying the stream, we supply `--platformName`, which indicates the platform repository (in this case, `minikube`) to
+use when deploying the stream applications with Skipper.
+
+. List the pods.
++
+The following command (with output) shows how to list the pods:
++
+====
 [source,console,options=nowrap]
 ----
 $ kubectl get pods
 NAME                              READY     STATUS    RESTARTS   AGE
-foo-log-v1-0-2k4r8             1/1       Running   0          2m
-foo-time-v1-qhdqq              1/1       Running   0          2m
+mystream-log-v1-0-2k4r8             1/1       Running   0          2m
+mystream-time-v1-qhdqq              1/1       Running   0          2m
 mysql-777890292-z0dsw          1/1       Running   0          49m
 rabbitmq-317767540-2qzrr       1/1       Running   0          49m
 redis-4054078334-37m0l         1/1       Running   0          49m
@@ -157,42 +180,48 @@ skipper-2408247821-50z31       1/1       Running   0          15m
 ...
 ...
 ----
-+
+====
 
-. Verify logs.
-
+. Verify the logs.
 +
+The followig example shows how to make sure that the values you expect appear in the logs:
++
+====
 [source,console,options=nowrap]
 ----
-$ kubectl logs -f foo-log-v1-0-2k4r8
+$ kubectl logs -f mystream-log-v1-0-2k4r8
 ...
 ...
-2017-10-30 22:59:04.966  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:04
-2017-10-30 22:59:05.968  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:05
-2017-10-30 22:59:07.000  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 22:59:06
+2017-10-30 22:59:04.966  INFO 1 --- [ mystream.time.mystream-1] log-sink                                 : 10/30/17 22:59:04
+2017-10-30 22:59:05.968  INFO 1 --- [ mystream.time.mystream-1] log-sink                                 : 10/30/17 22:59:05
+2017-10-30 22:59:07.000  INFO 1 --- [ mystream.time.mystream-1] log-sink                                 : 10/30/17 22:59:06
 ----
-+
+====
 
 . Verify the stream history.
-
 +
+The following example (with output) shows how to display the stream history, so that you can verify its content:
++
+====
 [source,console,options=nowrap]
 ----
-dataflow:>stream history --name foo
+dataflow:>stream history --name mystream
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
-║1      │Mon Oct 30 16:18:28 PDT 2017│DEPLOYED│foo         │1.0.0          │Install complete║
+║1      │Mon Oct 30 16:18:28 PDT 2017│DEPLOYED│mystream    │1.0.0          │Install complete║
 ╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
 ----
-+
+====
 
-. Verify the package manifest. The `log-sink` should be at 1.2.0.RELEASE.
-
+. Verify the package manifest.
 +
+The `log-sink` should be at 1.2.0.RELEASE. The following example (with output) shows how to display the package manifest so that you can ensure the version of the `log-sink` application:
++
+====
 [source,yml,options=nowrap]
 ----
-dataflow:>stream manifest --name foo
+dataflow:>stream manifest --name mystream
 
 ---
 # Source: log.yml
@@ -207,15 +236,15 @@ spec:
   applicationProperties:
     "spring.metrics.export.triggers.application.includes": "integration**"
     "spring.cloud.dataflow.stream.app.label": "log"
-    "spring.cloud.stream.metrics.key": "foo.log.${spring.cloud.application.guid}"
-    "spring.cloud.stream.bindings.input.group": "foo"
+    "spring.cloud.stream.metrics.key": "mystream.log.${spring.cloud.application.guid}"
+    "spring.cloud.stream.bindings.input.group": "mystream"
     "spring.cloud.stream.metrics.properties": "spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*"
     "spring.cloud.stream.bindings.applicationMetrics.destination": "metrics"
-    "spring.cloud.dataflow.stream.name": "foo"
+    "spring.cloud.dataflow.stream.name": "mystream"
     "spring.cloud.dataflow.stream.app.type": "sink"
-    "spring.cloud.stream.bindings.input.destination": "foo.time"
+    "spring.cloud.stream.bindings.input.destination": "mystream.time"
   deploymentProperties:
-    "spring.cloud.deployer.group": "foo"
+    "spring.cloud.deployer.group": "mystream"
 
 ---
 # Source: time.yml
@@ -230,41 +259,46 @@ spec:
   applicationProperties:
     "spring.metrics.export.triggers.application.includes": "integration**"
     "spring.cloud.dataflow.stream.app.label": "time"
-    "spring.cloud.stream.metrics.key": "foo.time.${spring.cloud.application.guid}"
-    "spring.cloud.stream.bindings.output.producer.requiredGroups": "foo"
+    "spring.cloud.stream.metrics.key": "mystream.time.${spring.cloud.application.guid}"
+    "spring.cloud.stream.bindings.output.producer.requiredGroups": "mystream"
     "spring.cloud.stream.metrics.properties": "spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*"
     "spring.cloud.stream.bindings.applicationMetrics.destination": "metrics"
-    "spring.cloud.stream.bindings.output.destination": "foo.time"
-    "spring.cloud.dataflow.stream.name": "foo"
+    "spring.cloud.stream.bindings.output.destination": "mystream.time"
+    "spring.cloud.dataflow.stream.name": "mystream"
     "spring.cloud.dataflow.stream.app.type": "source"
   deploymentProperties:
-    "spring.cloud.deployer.group": "foo"
+    "spring.cloud.deployer.group": "mystream"
 ----
-+
+====
 
-. Let's register `log-sink` application version 1.3.0.RELEASE and update our stream to use it
-
+. Register the `log-sink` application version 1.3.0.RELEASE and update your stream to use it
 +
+The following example (with output after each command) shows how to register the `log-sink` application and update its version:
++
+====
 [source,console,options=nowrap]
 ----
 dataflow:>app register --name log --type sink --uri docker:springcloudstream/log-sink-rabbit:1.3.0.RELEASE --force
 Successfully registered application 'sink:log'
 
-dataflow:>stream update --name foo --properties version.log=1.3.0.RELEASE
-Update request has been sent for stream 'foo'
+dataflow:>stream update --name mystream --properties version.log=1.3.0.RELEASE
+Update request has been sent for stream 'mystream'
 ----
+====
 +
 
-. List pods.
-
+. List the pods again.
 +
+The following example (with output) shows how to list the pods, so that you can see your application in the list:
++
+====
 [source,console,options=nowrap]
 ----
 $ kubectl get pods
 NAME                              READY     STATUS        RESTARTS   AGE
-foo-log-v1-0-2k4r8             1/1       Terminating   0          3m
-foo-log-v2-0-fjnlt             0/1       Running       0          9s
-foo-time-v1-qhdqq              1/1       Running       0          3m
+mystream-log-v1-0-2k4r8        1/1       Terminating   0          3m
+mystream-log-v2-0-fjnlt        0/1       Running       0          9s
+mystream-time-v1-qhdqq         1/1       Running       0          3m
 mysql-777890292-z0dsw          1/1       Running       0          51m
 rabbitmq-317767540-2qzrr       1/1       Running       0          51m
 redis-4054078334-37m0l         1/1       Running       0          51m
@@ -274,35 +308,36 @@ skipper-2408247821-50z31       1/1       Running       0          16m
 ...
 ...
 ----
-+
-
-[NOTE]
 ====
-Notice that there are two versions of the `log-sink` applications. The `foo-log-v1-0-2k4r8` pod is going down and the
-newly spawned `foo-log-v2-0-fjnlt` pod is bootstrapping.  The version number is incremented and  the version-number
+
+NOTE: The list shows two versions of the `log-sink` applications. The `mystream-log-v1-0-2k4r8` pod is going down and the
+newly spawned `mystream-log-v2-0-fjnlt` pod is bootstrapping. The version number is incremented and the version-number
 (`v2`) is included in the new application name.
-====
 
-. Once the new pod is up and running, let's verify the logs.
-
+. Once the new pod is up and running, you can verify the logs.
 +
+The following example shows how to display the logs so that you can verify their content:
++
+====
 [source,console,options=nowrap]
 ----
-$ kubectl logs -f foo-log-v2-0-fjnlt
+$ kubectl logs -f mystream-log-v2-0-fjnlt
 ...
 ...
-2017-10-30 23:24:30.016  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:30
-2017-10-30 23:24:31.017  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:31
-2017-10-30 23:24:32.018  INFO 1 --- [ foo.time.foo-1] log-sink                                 : 10/30/17 23:24:32
+2017-10-30 23:24:30.016  INFO 1 --- [ mystream.time.mystream-1] log-sink                                 : 10/30/17 23:24:30
+2017-10-30 23:24:31.017  INFO 1 --- [ mystream.time.mystream-1] log-sink                                 : 10/30/17 23:24:31
+2017-10-30 23:24:32.018  INFO 1 --- [ mystream.time.mystream-1] log-sink                                 : 10/30/17 23:24:32
 ----
-+
+====
 
-. Let's look at the updated package manifest persisted in Skipper. We should now be seeing `log-sink` at 1.3.0.RELEASE.
-
+. View the updated package manifest persisted in Skipper. You should now see `log-sink` at 1.3.0.RELEASE.
 +
+The following example (with output) shows how to view the updated package manifest:
++
+====
 [source,yml,options=nowrap]
 ----
-dataflow:>stream manifest --name foo
+dataflow:>stream manifest --name mystream
 
 ---
 # Source: log.yml
@@ -317,15 +352,15 @@ spec:
   applicationProperties:
     "spring.metrics.export.triggers.application.includes": "integration**"
     "spring.cloud.dataflow.stream.app.label": "log"
-    "spring.cloud.stream.metrics.key": "foo.log.${spring.cloud.application.guid}"
-    "spring.cloud.stream.bindings.input.group": "foo"
+    "spring.cloud.stream.metrics.key": "mystream.log.${spring.cloud.application.guid}"
+    "spring.cloud.stream.bindings.input.group": "mystream"
     "spring.cloud.stream.metrics.properties": "spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*"
     "spring.cloud.stream.bindings.applicationMetrics.destination": "metrics"
-    "spring.cloud.dataflow.stream.name": "foo"
+    "spring.cloud.dataflow.stream.name": "mystream"
     "spring.cloud.dataflow.stream.app.type": "sink"
-    "spring.cloud.stream.bindings.input.destination": "foo.time"
+    "spring.cloud.stream.bindings.input.destination": "mystream.time"
   deploymentProperties:
-    "spring.cloud.deployer.group": "foo"
+    "spring.cloud.deployer.group": "mystream"
     "spring.cloud.deployer.count": "1"
 
 ---
@@ -341,50 +376,56 @@ spec:
   applicationProperties:
     "spring.metrics.export.triggers.application.includes": "integration**"
     "spring.cloud.dataflow.stream.app.label": "time"
-    "spring.cloud.stream.metrics.key": "foo.time.${spring.cloud.application.guid}"
-    "spring.cloud.stream.bindings.output.producer.requiredGroups": "foo"
+    "spring.cloud.stream.metrics.key": "mystream.time.${spring.cloud.application.guid}"
+    "spring.cloud.stream.bindings.output.producer.requiredGroups": "mystream"
     "spring.cloud.stream.metrics.properties": "spring.application.name,spring.application.index,spring.cloud.application.*,spring.cloud.dataflow.*"
     "spring.cloud.stream.bindings.applicationMetrics.destination": "metrics"
-    "spring.cloud.stream.bindings.output.destination": "foo.time"
-    "spring.cloud.dataflow.stream.name": "foo"
+    "spring.cloud.stream.bindings.output.destination": "mystream.time"
+    "spring.cloud.dataflow.stream.name": "mystream"
     "spring.cloud.dataflow.stream.app.type": "source"
   deploymentProperties:
-    "spring.cloud.deployer.group": "foo"
+    "spring.cloud.deployer.group": "mystream"
 ----
-+
+====
 
 . Verify stream history for the latest updates.
-
 +
+The following example (with output) shows how to display the version history of your stream so that you can verify the version:
++
+====
 [source,console,options=nowrap]
 ----
-dataflow:>stream history --name foo
+dataflow:>stream history --name mystream
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
-║2      │Mon Oct 30 16:21:55 PDT 2017│DEPLOYED│foo         │1.0.0          │Upgrade complete║
-║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
+║2      │Mon Oct 30 16:21:55 PDT 2017│DEPLOYED│mystream    │1.0.0          │Upgrade complete║
+║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │mystream    │1.0.0          │Delete complete ║
 ╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
 ----
-+
+====
 
-. Rolling-back to the previous version is just a command away.
+=== Rolling back to a Previous Version
 
-+
+Skipper includes a `rollback` command so that you can roll back to a previous version.
+The following example (with output) shows how to use it:
+
+====
 [source,console,options=nowrap]
 ----
-dataflow:>stream rollback --name foo
-Rollback request has been sent for the stream 'foo'
+dataflow:>stream rollback --name mystream
+Rollback request has been sent for the stream 'mystream'
 
 ...
 ...
 
-dataflow:>stream history --name foo
+dataflow:>stream history --name mystream
 ╔═══════╤════════════════════════════╤════════╤════════════╤═══════════════╤════════════════╗
 ║Version│        Last updated        │ Status │Package Name│Package Version│  Description   ║
 ╠═══════╪════════════════════════════╪════════╪════════════╪═══════════════╪════════════════╣
-║3      │Mon Oct 30 16:22:51 PDT 2017│DEPLOYED│foo         │1.0.0          │Upgrade complete║
-║2      │Mon Oct 30 16:21:55 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
-║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │foo         │1.0.0          │Delete complete ║
+║3      │Mon Oct 30 16:22:51 PDT 2017│DEPLOYED│mystream    │1.0.0          │Upgrade complete║
+║2      │Mon Oct 30 16:21:55 PDT 2017│DELETED │mystream    │1.0.0          │Delete complete ║
+║1      │Mon Oct 30 16:18:28 PDT 2017│DELETED │mystream    │1.0.0          │Delete complete ║
 ╚═══════╧════════════════════════════╧════════╧════════════╧═══════════════╧════════════════╝
 ----
+====

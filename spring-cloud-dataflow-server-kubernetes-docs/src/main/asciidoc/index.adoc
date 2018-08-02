@@ -1,5 +1,5 @@
 = Spring Cloud Data Flow Server for Kubernetes
-Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Florian Rosenberg, Dave Syer, David Turanski, Janne Valkealahti, Oleg Zhurakousky, Vinicius Carvalho, Chris Schaefer
+Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Florian Rosenberg, Dave Syer, David Turanski, Janne Valkealahti, Oleg Zhurakousky, Vinicius Carvalho, Chris Schaefer, Jay Bryant
 :doctype: book
 :toc: left
 :toclevels: 4
@@ -8,6 +8,7 @@ Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinat
 :icons: font
 :hide-uri-scheme:
 :docinfo: shared
+:sectanchors:
 :attributes: allow-uri-read
 
 :scdf-core-version: {dataflow-project-version}
@@ -44,27 +45,33 @@ Version {project-version}
 
 (C) 2012-2018 Pivotal Software, Inc.
 
-_Copies of this document may be made for your own use and for distribution to
+Copies of this document may be made for your own use and for distribution to
 others, provided that you do not charge any fee for such copies and further
 provided that each copy contains this Copyright Notice, whether distributed in
-print or electronically._
+print or electronically.
 
 endif::backend-html5[]
 
 // ======================================================================================
 
+// Always put a blank line before an Asciidoc include statement. Not doing so can cause trouble.
+
 include::getting-started.adoc[]
 
 include::{dataflow-asciidoc}/applications.adoc[]
+
 include::{dataflow-asciidoc}/architecture.adoc[]
 
 include::configuration.adoc[]
 
 include::{dataflow-asciidoc}/shell.adoc[]
+
 include::{dataflow-asciidoc}/streams.adoc[]
+
 include::streams-skipper.adoc[]
 
 include::{dataflow-asciidoc}/tasks.adoc[]
+
 include::{dataflow-asciidoc}/dashboard.adoc[]
 
 include::api-guide-link.adoc[]
