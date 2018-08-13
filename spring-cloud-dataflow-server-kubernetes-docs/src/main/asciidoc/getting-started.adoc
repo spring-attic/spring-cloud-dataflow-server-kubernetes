@@ -19,7 +19,7 @@ IMPORTANT: This guide describes setting up an environment for testing Spring Clo
 
 [NOTE]
 =====
-Currently, only applications registered with a `--uri` property pointing to a Docker resource are supported by the Data Flow Server for Kubernetes. However, we do support Maven resources for the `--metadata-uri` property. For example, the following application registration is valid:
+Currently, only applications registered with a `--uri` property pointing to a Docker resource are supported by the Data Flow Server for Kubernetes. However, we do support Maven resources for the `--metadata-uri` property, which is used to list the properties supported by each application. For example, the following application registration is valid:
 
 ====
 [source,console,subs=attributes]
@@ -258,7 +258,7 @@ NOTE: We now configure the Data Flow server with file-based security, and the de
 +
 NOTE: The default memory for the pods is 1024Mi. If you expect most of your applications to require more memory, update the value in the `src/kubernetes/server/server-deployment.yaml` file .
 +
-IMPORTANT: The latest releases of Kubernetes have enabled https://kubernetes.io/docs/admin/authorization/rbac/[RBAC] on the api-server. If your target platform has RBAC enabled, you must ask a `cluster-admin` to create the `roles` and `role-bindings` for you before deploying the Data Flow server. They associate the Data Flow service account with the roles it needs to be run with.
+IMPORTANT: Since version 1.9, the latest releases of Kubernetes have enabled https://kubernetes.io/docs/admin/authorization/rbac/[RBAC] on the api-server. If your target platform has RBAC enabled, you must ask a `cluster-admin` to create the `roles` and `role-bindings` for you before deploying the Data Flow server. They associate the Data Flow service account with the roles it needs to be run with.
 +
 To create Role Bindings and Service account:
 +
@@ -343,7 +343,7 @@ NOTE: To verify that the `Tiller` pod is running, use the following command: `ku
 +
 . Installing the Spring Cloud Data Flow Server and required services.
 +
-Before you can run Spring Cloud Data Flow Chart, you need to access the incubator repository.
+Before you can install the Spring Cloud Data Flow Chart, you need to access the incubator repository.
 To add this repository to our `Helm` install, run the following commands:
 +
 ====
@@ -540,7 +540,7 @@ If you want to use Skipper, see <<getting-started-create-with-skipper>>. If not,
 [[getting-started-create-stream-without-skipper]]
 === Create Streams without Skipper
 
-This section describes how to create steams without using Skipper. To do so:
+This section describes how to create streams without using Skipper. To do so:
 
 . Download and run the Spring Cloud Data Flow shell.
 +
@@ -664,7 +664,7 @@ dataflow:>stream destroy --name ticktock
 ----
 ====
 +
-For a useful command to help in troubleshooting issues, such as a container that has a fatal error starting up, add the options `--previous` to view last terminated container log. You can also get more detailed information about the pods by using the `kubctl describe`, as the following example shows:
+To troubleshoot issues such as a container that has a fatal error starting up, add the `--previous` option to view the last terminated container log. You can also get more detailed information about the pods by using the `kubctl describe`, as the following example shows:
 +
 ====
 [source,bash]
@@ -877,7 +877,7 @@ See https://github.com/spring-cloud/spring-cloud-deployer-kubernetes/blob/master
 
 === Using Deployments
 
-The deployer uses replication controllers by default. To use deployments instead, you can set the following option as part of the container `env` section in a deployment YAML file:
+The deployer uses `ReplicationController` by default. To use deployments instead, you can set the following option as part of the container `env` section in a deployment YAML file:
 
 ====
 [source,yaml]
@@ -906,7 +906,7 @@ Requests:
 ----
 ====
 
-You might find that the 512Mi memory limit is too low. To increase it, you can provide a common `spring.cloud.deployer.memory` deployer property, as the following example shows (replace `<app>` with the name of the app for which you wat to set the memory):
+You might find that the 512Mi memory limit is too low. To increase it, you can provide a common `spring.cloud.deployer.memory` deployer property, as the following example shows (replace `<app>` with the name of the app for which you want to set the memory):
 
 ====
 [source]
@@ -917,7 +917,7 @@ deployer.<app>.memory=640m
 
 This property affects both the `Requests` and `Limits` memory value set for the container.
 
-If you want to set the `Requests` and `Limits` values separately, you can use the deployer properties that are specific to the Kubernetes deployer. The following example shows how to set `Limits` to `1000m` for `CPU` and `1024Mi` for memory and `Requests` to `800m` for CPY and `640Mi` for memory:
+If you want to set the `Requests` and `Limits` values separately, you can use the deployer properties that are specific to the Kubernetes deployer. The following example shows how to set `Limits` to `1000m` for `CPU` and `1024Mi` for memory and `Requests` to `800m` for CPU and `640Mi` for memory:
 
 ====
 [source]
@@ -945,7 +945,7 @@ Requests:
 
 NOTE: When using the common memory property, you should use an `m` suffix for the value. When using the Kubernetes-specific properties, you should use the Kubernetes `Mi` style suffix.
 
-You can also control the default values to which to set the `cpu` and `memory` requirements for the pods that are created as part of application deployments. You can declar the following as part of the container `env` section in a deployment YAML file:
+You can also control the default values to which to set the `cpu` and `memory` requirements for the pods that are created as part of application deployments. You can declare the following as part of the container `env` section in a deployment YAML file:
 
 ====
 [source,yaml]

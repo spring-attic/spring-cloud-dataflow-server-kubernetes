@@ -1,7 +1,7 @@
 [[configuration]]
 = Server Configuration
 
-This section describes how to configure Spring Cloud Data Flow server's features, such as security and which relational database to use.
+This section describes how to configure Spring Cloud Data Flow features, such as security and which relational database to use.
 
 [[enable-disable-specific-features]]
 == Feature Toggles
@@ -20,14 +20,14 @@ You can enable or disable these features by setting the following boolean enviro
 
 By default, all the features are enabled.
 
-NOTE: Since the analytics feature is enabled by default, the Data Flow server is expected to have a valid Redis store available as an analytic repository. Consequently, we provide a default implementation of analytics based on Redis. This also means that the Data Flow server's `health` depends on the redis store availability as well. If you do not want to enable HTTP endpoints to read analytics data written to Redis, you can disable the analytics feature by setting the property mentioned earlier to `false`.
+NOTE: Since the analytics feature is enabled by default, the Data Flow server is expected to have a valid Redis store available as an analytics repository. Consequently, we provide a default implementation of analytics based on Redis. This also means that the Data Flow server's `health` depends on the redis store availability as well. If you do not want to enable HTTP endpoints to read analytics data written to Redis, you can disable the analytics feature by setting the property mentioned earlier to `false`.
 
 The `/features` REST endpoint provides information on the features that have been enabled and disabled.
 
 [[configuration-general]]
 == General Configuration
 
-The Spring Cloud Data Flow server for Kubernetes uses the Fabric8 https://github.com/fabric8io/spring-cloud-kubernetes[`spring-cloud-kubernetes`] module to process both the ConfigMap and the secrets settings. To enable the ConfigMap support, pass in an environment variable of `SPRING_CLOUD_KUBERNETES_CONFIG_NAME` and set it to the name of the ConfigMap. The same is true for the secrets, where the environment variable is `SPRING_CLOUD_KUBERNETES_SECRETS_NAME`. To use the secrets, you also need to set `SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API` to `true`.
+The Spring Cloud Data Flow server for Kubernetes uses the https://github.com/fabric8io/spring-cloud-kubernetes[`spring-cloud-kubernetes`] module process both the ConfigMap and the secrets settings. To enable the ConfigMap support, pass in an environment variable of `SPRING_CLOUD_KUBERNETES_CONFIG_NAME` and set it to the name of the ConfigMap. The same is true for the secrets, where the environment variable is `SPRING_CLOUD_KUBERNETES_SECRETS_NAME`. To use the secrets, you also need to set `SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API` to `true`.
 
 The following example shows a snippet from a deployment script that sets these environment variables:
 
@@ -114,10 +114,10 @@ The password is a base64-encoded value.
 [[configuration-rdbms]]
 == Database Configuration
 
-Spring Cloud Data Flow provides schemas for H2, HSQLDB, MySQL, Oracle, PostgreSQL, DB2, and SQL Server. The appropriate schema is automatically created when the server starts.
+Spring Cloud Data Flow provides schemas for H2, HSQLDB, MySQL, Oracle, PostgreSQL, DB2, and SQL Server. The appropriate schema is automatically created when the server starts, provided the right database driver and appropriate credentials are in the classpath.
 
 The JDBC drivers for MySQL (via MariaDB driver), HSQLDB, PostgreSQL, and embedded H2 are available out of the box.
-If you us any other database, you need to put the corresponding JDBC driver jar on the classpath of the server.
+If you use any other database, you need to put the corresponding JDBC driver jar on the classpath of the server.
 
 For instance, if you use MySQL in addition to a password in the secrets file, you could provide the following properties in the ConfigMap:
 
@@ -168,7 +168,6 @@ data:
 ----
 ====
 
-NOTE: The schema for the Spring Cloud Data Flow datastore must be updated when you upgrade from version `1.0.x` to `1.1.x` and from `1.1.x` to `1.2.x`.
 You can find migration scripts for specific database types in the https://github.com/spring-cloud/spring-cloud-task/tree/master/spring-cloud-task-core/src/main/resources/org/springframework/cloud/task/migration[spring-cloud-task] repo.
 
 
@@ -441,7 +440,7 @@ Forwarding from [::1]:5005 -> 5005
 ----
 ====
 
-You can now attach a debuggerby pointing it to `127.0.0.1` as the host and `5005` as the port. The `port-forward` subcommand runs until stopped (by pressing `CTRL+c`, for example).
+You can now attach a debugger by pointing it to `127.0.0.1` as the host and `5005` as the port. The `port-forward` subcommand runs until stopped (by pressing `CTRL+c`, for example).
 
 You can remove debugging support by reverting the changes to `src/kubernetes/server/server-deployment.yaml`. The reverted changes are picked up on the next deployment of the Spring Cloud Data Flow Kubernetes Server. Manually adding debug support to the configuration is useful when debugging should be enabled by default each time the server is deployed.
 

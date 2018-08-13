@@ -81,7 +81,7 @@ dataflow:>stream platform-list
 ====
 
 We start by deploying a stream with the `time-source` pointing to the 1.3.0.RELEASE and `log-sink` pointing
-to the 1.2.0.RELEASE. The goal is to perform a rolling upgrade of the `log-sink` application to 1.3.0.RELEASE. The following mult-step example (with output after each command) shows how to do so:
+to the 1.2.0.RELEASE. The goal is to perform a rolling upgrade of the `log-sink` application to 1.3.0.RELEASE. The following multi-step example (with output after each command) shows how to do so:
 
 ====
 [source,console,options=nowrap]
