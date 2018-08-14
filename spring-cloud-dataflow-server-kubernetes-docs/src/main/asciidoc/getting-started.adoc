@@ -166,7 +166,7 @@ The deployment is defined in the `src/kubernetes/skipper/skipper-deployment.yaml
     spec:
       containers:
       - name: skipper
-        image: springcloud/spring-cloud-skipper-server:1.0.8.RELEASE   # <1>
+        image: springcloud/spring-cloud-skipper-server:1.0.9.RELEASE   # <1>
         imagePullPolicy: Always
 ----
 +
@@ -213,7 +213,7 @@ The deployment is defined in the `src/kubernetes/server/server-deployment.yaml` 
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.6.0.RELEASE   # <1>
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.6.1.RELEASE   # <1>
         imagePullPolicy: Always
 ----
 +

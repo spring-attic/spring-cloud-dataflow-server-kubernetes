@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: scdf-server
-        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.6.0.RELEASE
+        image: springcloud/spring-cloud-dataflow-server-kubernetes:1.6.1.RELEASE
         imagePullPolicy: Always
         ports:
         - containerPort: 80
