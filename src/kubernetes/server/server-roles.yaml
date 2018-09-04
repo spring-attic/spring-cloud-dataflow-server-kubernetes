@@ -11,7 +11,7 @@ rules:
     resources: ["configmaps", "secrets"]
     verbs: ["get", "list", "watch"]
   - apiGroups: ["apps"]
-    resources: ["statefulsets"]
+    resources: ["statefulsets", "deployments"]
     verbs: ["get", "list", "watch", "create", "delete", "update"]
   - apiGroups: ["extensions"]
     resources: ["deployments", "replicasets", "jobs"]
