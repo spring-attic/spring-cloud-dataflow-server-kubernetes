@@ -1274,7 +1274,7 @@ You can configure an image pull policy at the server level in the container `env
 [source]
 ----
         env:
-        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_IMAGE_PULL_POLICY
+        - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_IMAGE_PULL_POLICY
           value: Always
 ----
 =====
