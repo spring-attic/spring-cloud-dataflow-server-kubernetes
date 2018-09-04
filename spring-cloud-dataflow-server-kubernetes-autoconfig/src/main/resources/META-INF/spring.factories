@@ -1,1 +1,3 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.springframework.cloud.dataflow.server.kubernetes.config.KubernetesDataFlowServerAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  org.springframework.cloud.dataflow.server.kubernetes.config.KubernetesDataFlowServerAutoConfiguration,\
+  org.springframework.cloud.dataflow.server.kubernetes.config.KubernetesSchedulerConfiguration
