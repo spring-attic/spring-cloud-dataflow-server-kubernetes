@@ -95,6 +95,7 @@ $ kubectl create -f src/kubernetes/kafka/
 You can use `kubectl get all -l app=kafka` to verify that the deployment, pod, and service resources are running. You can use `kubectl delete all -l app=kafka` to clean up afterwards.
 +
 
+
 [[getting-started-deploy-services-and-data-flow]]
 ==== Deploy Services and Data Flow
 
@@ -360,7 +361,7 @@ To install Spring Cloud Data Flow and its required services, run the following c
 [source,bash]
 ----
 helm install --name my-release incubator/spring-cloud-data-flow
----
+----
 ====
 +
 [NOTE]
@@ -1124,7 +1125,7 @@ You can use a `SPRING_APPLICATION_JSON` environment variable to set Data Flow se
 
 ====
 [source,options=nowrap]
-
+----
 env:
 - name: SPRING_APPLICATION_JSON
   value: "{ \"maven\": { \"local-repository\": null, \"remote-repositories\": { \"repo1\": { \"url\": \"https://repo.spring.io/libs-snapshot\"} } } }"
@@ -1233,6 +1234,7 @@ Then you can configure individual applications as follows:
 ----
 deployer.<app>.kubernetes.deploymentServiceAccountName=myserviceaccountname
 ----
+====
 
 Replace `<app>` with the name of your application and `myserviceaccountname` with your service account name.
 
@@ -1240,7 +1242,7 @@ You can also configure the service account name at the server level in the conta
 
 ====
 [source]
----
+----
 env:
 - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_DEPLOYMENT_SERVICE_ACCOUNT_NAME
   value: myserviceaccountname
@@ -1277,6 +1279,6 @@ You can configure an image pull policy at the server level in the container `env
         - name: SPRING_CLOUD_DEPLOYER_KUBERNETES_IMAGE_PULL_POLICY
           value: Always
 ----
-=====
+====
 
 Replace `Always` with your desired image pull policy.

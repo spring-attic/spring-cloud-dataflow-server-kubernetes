@@ -11,12 +11,14 @@ Data Flow server offers specific set of features that can be enabled or disabled
 * Streams
 * Tasks
 * Analytics
+* Schedules
 
 You can enable or disable these features by setting the following boolean environment variables when launching the Data Flow server:
 
 * `SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED`
 * `SPRING_CLOUD_DATAFLOW_FEATURES_TASKS_ENABLED`
 * `SPRING_CLOUD_DATAFLOW_FEATURES_ANALYTICS_ENABLED`
+* `SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED`
 
 By default, all the features are enabled.
 
@@ -372,6 +374,36 @@ dataflow:>task execution cleanup --id 1
 Request to clean up resources for task execution 1 has been submitted
 ----
 ====
+
+== Scheduling
+
+Scheduling of tasks is enabled by default in the Spring Cloud Data Flow Kubernetes Server. The following environment variables may be declared as part of the container env section of the server deployment YAML file to customize the defaults if needed:
+
+* `SPRING_CLOUD_SCHEDULER_KUBERNETES_IMAGE_PULL_POLICY` - The Image Pull Policy to use when pulling Docker containers. Defaults to `IfNotPresent`.
+* `SPRING_CLOUD_SCHEDULER_KUBERNETES_RESTART_POLICY` - The Restart Policy to use when a container exits. Defaults to `Never`.
+* `SPRING_CLOUD_SCHEDULER_KUBERNETES_ENTRY_POINT_STYLE` - The Entry Point Style to determine how application properties are made available to the container. Defaults to `exec`.
+* `SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED` - Enables or disables the Scheduling support. Defaults to `true`.
+
+An example of customizing each of these in the server deployment YAML would be as follows:
+
+====
+[source]
+----
+env:
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_IMAGE_PULL_POLICY
+  value: 'Always'
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_RESTART_POLICY
+  value: 'OnFailure'
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_ENTRY_POINT_STYLE
+  value: 'shell'
+- name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
+  value: 'false'
+----
+====
+
+See https://github.com/spring-cloud/spring-cloud-scheduler-kubernetes/blob/master/src/main/java/org/springframework/cloud/scheduler/spi/kubernetes/KubernetesSchedulerProperties.java[`KubernetesSchedulerProperties`] for more on the supported options.
+
+For more information on scheduling tasks see <<spring-cloud-dataflow-schedule-launch-tasks>>.
 
 == Debug Support
 
