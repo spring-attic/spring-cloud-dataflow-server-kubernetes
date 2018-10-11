@@ -1282,3 +1282,27 @@ You can configure an image pull policy at the server level in the container `env
 ====
 
 Replace `Always` with your desired image pull policy.
+
+=== Deployment Labels
+
+Custom labels can be set on https://kubernetes.io/docs/concepts/workloads/controllers/deployment/[Deployment] related objects. See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/[Labels] for more information on labels. Labels are specified in `key:value` format.
+
+The following example shows how you can individually configure applications:
+
+====
+[source,options=nowrap]
+----
+deployer.<app>.kubernetes.deploymentLabels=myLabelName:myLabelValue
+----
+====
+
+Replace `<app>` with the name of your application, `myLabelName` with your label name and `myLabelValue` with the value of your label.
+
+Additionally, multiple labels can be applied, for example:
+
+====
+[source,options=nowrap]
+----
+deployer.<app>.kubernetes.deploymentLabels=myLabelName:myLabelValue,myLabelName2:myLabelValue2
+----
+====
