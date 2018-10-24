@@ -413,7 +413,7 @@ env:
 ----
 ====
 
-Replace `entryPointStye` with the desired Entry Point Style.
+Replace `entryPointStyle` with the desired Entry Point Style.
 
 You should choose an Entry Point Style of either `exec` or `shell`, to correspond to how the `ENTRYPOINT` syntax is defined in the container's `Dockerfile`. For more information and uses cases on `exec` vs `shell`, see the https://docs.docker.com/engine/reference/builder/#entrypoint[ENTRYPOINT] section of the Docker documentation.
 
@@ -481,7 +481,7 @@ Replace `Always` with your desired image pull policy.
 
 === Private Docker Registry
 
-Docker images that are private and require authentication can be pulled by configuring a Secret. First, you must create a secret in the cluster. Follow the https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/[Pull an Image from a Private Registry] guide to create the secret.
+Docker images that are private and require authentication can be pulled by configuring a Secret. First, you must create a Secret in the cluster. Follow the https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/[Pull an Image from a Private Registry] guide to create the Secret.
 
 Once you have created the secret, use the `imagePullSecret` property to set the secret to use, as the following example shows:
 
