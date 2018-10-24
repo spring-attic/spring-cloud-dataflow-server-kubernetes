@@ -43,7 +43,7 @@ The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the
 
 All our testing is done with the https://cloud.google.com/kubernetes-engine/[Google Kubernetes Engine] that is part of the Google Cloud Platform. That is also the target platform for this section. We have also successfully deployed with https://kubernetes.io/docs/getting-started-guides/minikube/[Minikube]. We note where you need to adjust for deploying on Minikube.
 
-NOTE: When starting Minikube, you should allocate some extra resources, since we deploy several services. We start with `minikube start --cpus=4 --memory=4096`.
+NOTE: When starting Minikube, you should allocate some extra resources, since we deploy several services. We start with `minikube start --cpus=4 --memory=4096`. Please note that the allocated memory and cpu for the Minikube VM directly gets assigned to the number of applications deployed in a stream/task. The more you add, the more VM resources is required.
 
 The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 
