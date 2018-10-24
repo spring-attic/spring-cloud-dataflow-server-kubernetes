@@ -377,31 +377,184 @@ Request to clean up resources for task execution 1 has been submitted
 
 == Scheduling
 
-Scheduling of tasks is enabled by default in the Spring Cloud Data Flow Kubernetes Server. The following environment variables may be declared as part of the container env section of the server deployment YAML file to customize the defaults if needed:
+This section covers customization of how scheduled tasks are configured. Scheduling of tasks is enabled by default in the Spring Cloud Data Flow Kubernetes Server. Properties are used to influence settings for scheduled tasks and can be configured on a global or per-schedule basis.
 
-* `SPRING_CLOUD_SCHEDULER_KUBERNETES_IMAGE_PULL_POLICY` - The Image Pull Policy to use when pulling Docker containers. Defaults to `IfNotPresent`.
-* `SPRING_CLOUD_SCHEDULER_KUBERNETES_RESTART_POLICY` - The Restart Policy to use when a container exits. Defaults to `Never`.
-* `SPRING_CLOUD_SCHEDULER_KUBERNETES_ENTRY_POINT_STYLE` - The Entry Point Style to determine how application properties are made available to the container. Defaults to `exec`.
-* `SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED` - Enables or disables the Scheduling support. Defaults to `true`.
+NOTE: Unless noted, properties set on a per-schedule basis always take precedence over properties set as the server configuration. This arrangement allows for the ability to override global server level properties for a specific schedule.
 
-An example of customizing each of these in the server deployment YAML would be as follows:
+See https://github.com/spring-cloud/spring-cloud-scheduler-kubernetes/blob/master/src/main/java/org/springframework/cloud/scheduler/spi/kubernetes/KubernetesSchedulerProperties.java[`KubernetesSchedulerProperties`] for more on the supported options.
+
+=== Entry Point Style
+
+An Entry Point Style affects how application properties are passed to the task container to be deployed. Currently, three styles are supported:
+
+* `exec`: (default) Passes all application properties as command line arguments.
+* `shell`: Passes all application properties as environment variables.
+* `boot`: Creates an environment variable called `SPRING_APPLICATION_JSON` that contains a JSON representation of all application properties.
+
+You can configure the entry point style as follows:
+
+====
+[source,options=nowrap]
+----
+scheduler.kubernetes.entryPointStyle=<Entry Point Style>
+----
+====
+
+Replace `<Entry Point Style>` with your desired Entry Point Style.
+
+You can also configure the Entry Point Style at the server level in the container `env` section of a deployment YAML, as the following example shows:
+
+====
+[source]
+----
+env:
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_ENTRY_POINT_STYLE
+  value: entryPointStyle
+----
+====
+
+Replace `entryPointStye` with the desired Entry Point Style.
+
+You should choose an Entry Point Style of either `exec` or `shell`, to correspond to how the `ENTRYPOINT` syntax is defined in the container's `Dockerfile`. For more information and uses cases on `exec` vs `shell`, see the https://docs.docker.com/engine/reference/builder/#entrypoint[ENTRYPOINT] section of the Docker documentation.
+
+Using the `boot` Entry Point Style corresponds to using the `exec` style `ENTRYPOINT`. Command line arguments from the deployment request are passed to the container, with the addition of application properties mapped into the `SPRING_APPLICATION_JSON` environment variable rather than command line arguments.
+
+=== Environment Variables
+
+To influence the environment settings for a given application, you can take advantage of the `spring.cloud.scheduler.kubernetes.environmentVariables` property.
+For example, a common requirement in production settings is to influence the JVM memory arguments.
+You can achieve this by using the `JAVA_TOOL_OPTIONS` environment variable, as the following example shows:
+
+====
+[source]
+----
+scheduler.kubernetes.environmentVariables=JAVA_TOOL_OPTIONS=-Xmx1024m
+----
+====
+
+Additionally you can configure environment variables at the server level in the container `env` section of a deployment YAML, as the following example shows:
+
+NOTE: When specifying environment variables in the server configuration and on a per-schedule basis, environment variables will be merged. This allows for the ability to set common environment variables in the server configuration and more specific at the specific schedule level.
+
+====
+[source]
+----
+env:
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_ENVIRONMENT_VARIABLES
+  value: myVar=myVal
+----
+====
+
+Replace `myVar=myVal` with your desired environment variables.
+
+=== Image Pull Policy
+
+An image pull policy defines when a Docker image should be pulled to the local registry. Currently, three policies are supported:
+
+* `IfNotPresent`: (default) Do not pull an image if it already exists.
+* `Always`: Always pull the image regardless of whether it already exists.
+* `Never`: Never pull an image. Use only an image that already exists.
+
+The following example shows how you can individually configure containers:
+
+====
+[source,options=nowrap]
+----
+scheduler.kubernetes.imagePullPolicy=Always
+----
+====
+
+Replace `Always` with your desired image pull policy.
+
+You can configure an image pull policy at the server level in the container `env` section of a deployment YAML, as the following example shows:
 
 ====
 [source]
 ----
 env:
 - name: SPRING_CLOUD_SCHEDULER_KUBERNETES_IMAGE_PULL_POLICY
-  value: 'Always'
-- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_RESTART_POLICY
-  value: 'OnFailure'
-- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_ENTRY_POINT_STYLE
-  value: 'shell'
-- name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
-  value: 'false'
+  value: Always
 ----
 ====
 
-See https://github.com/spring-cloud/spring-cloud-scheduler-kubernetes/blob/master/src/main/java/org/springframework/cloud/scheduler/spi/kubernetes/KubernetesSchedulerProperties.java[`KubernetesSchedulerProperties`] for more on the supported options.
+Replace `Always` with your desired image pull policy.
+
+=== Private Docker Registry
+
+Docker images that are private and require authentication can be pulled by configuring a Secret. First, you must create a secret in the cluster. Follow the https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/[Pull an Image from a Private Registry] guide to create the secret.
+
+Once you have created the secret, use the `imagePullSecret` property to set the secret to use, as the following example shows:
+
+====
+[source]
+----
+scheduler.kubernetes.imagePullSecret=mysecret
+----
+====
+
+Replace `mysecret` with the name of the secret you created earlier.
+
+You can also configure the image pull secret at the server level in the container `env` section of a deployment YAML, as the following example shows:
+
+====
+[source]
+----
+env:
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_IMAGE_PULL_SECRET
+  value: mysecret
+----
+====
+
+Replace `mysecret` with the name of the secret you created earlier.
+
+=== Namespace
+
+By default the namespace used for scheduled tasks is `default`. This value can be set at the server level configuration in the container `env` section of a deployment YAML, as the following example shows:
+
+====
+[source]
+----
+env:
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_NAMESPACE
+  value: mynamespace
+----
+====
+
+=== Service Account
+
+You can configure a custom service account for scheduled tasks through properties. An existing service account can be used or a new one created. One way to create a service account is by using `kubectl`, as the following example shows:
+
+====
+[source,shell]
+----
+$ kubectl create serviceaccount myserviceaccountname
+serviceaccount "myserviceaccountname" created
+----
+====
+
+Then you can configure the service account to use on a per-schedule basis as follows:
+
+====
+[source,options=nowrap]
+----
+scheduler.kubernetes.taskServiceAccountName=myserviceaccountname
+----
+====
+
+Replace `myserviceaccountname` with your service account name.
+
+You can also configure the service account name at the server level in the container `env` section of a deployment YAML, as the following example shows:
+
+====
+[source]
+----
+env:
+- name: SPRING_CLOUD_SCHEDULER_KUBERNETES_TASK_SERVICE_ACCOUNT_NAME
+  value: myserviceaccountname
+----
+====
+
+Replace `myserviceaccountname` with the service account name to be applied to all deployments.
 
 For more information on scheduling tasks see <<spring-cloud-dataflow-schedule-launch-tasks>>.
 
