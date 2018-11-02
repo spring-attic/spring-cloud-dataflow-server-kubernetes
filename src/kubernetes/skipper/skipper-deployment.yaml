@@ -1,10 +1,13 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: skipper
   labels:
     app: skipper
 spec:
+  selector:
+    matchLabels:
+      app: skipper
   replicas: 1
   template:
     metadata:
