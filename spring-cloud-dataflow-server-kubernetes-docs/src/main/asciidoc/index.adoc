@@ -32,7 +32,7 @@ Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinat
 :docker-time-source-kafka-version: 1.3.1.RELEASE
 :docker-log-sink-kafka-version: 1.3.1.RELEASE
 :docker-timestamp-task-version: 1.3.1.RELEASE
-:skipper-core-version: 1.1.0.RELEASE
+:skipper-core-version: 1.1.2.RELEASE
 
 :spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
 :github-repo: spring-cloud/spring-cloud-dataflow-server-kubernetes
