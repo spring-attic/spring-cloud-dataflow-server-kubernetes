@@ -1,5 +1,5 @@
 = Spring Cloud Data Flow Server for Kubernetes
-Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Florian Rosenberg, Dave Syer, David Turanski, Janne Valkealahti, Oleg Zhurakousky, Vinicius Carvalho, Chris Schaefer, Jay Bryant
+Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinathan, Gunnar Hillert, Mark Pollack, Patrick Peralta, Glenn Renfro, Thomas Risberg, Florian Rosenberg, Dave Syer, David Turanski, Janne Valkealahti, Oleg Zhurakousky, Vinicius Carvalho, Chris Schaefer, Jay Bryant, Christian Tzolov
 :doctype: book
 :toc: left
 :toclevels: 4
@@ -67,8 +67,6 @@ include::configuration.adoc[]
 include::{dataflow-asciidoc}/shell.adoc[]
 
 include::{dataflow-asciidoc}/streams.adoc[]
-
-include::streams-skipper.adoc[]
 
 include::{dataflow-asciidoc}/tasks.adoc[]
 
