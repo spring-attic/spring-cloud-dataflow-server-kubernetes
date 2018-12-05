@@ -37,6 +37,19 @@ The Spring Cloud Data Flow implementation for Kubernetes uses the link:https://g
 library for orchestration. Before you begin setting up a Kubermetes cluster, refer to the link:https://github.com/spring-cloud/spring-cloud-deployer-kubernetes#kubernetes-compatibility[compatibility matrix]
 to learn more about deployer and server compatibility against Kubernetes release versions.
 
+The following outlines the compatibility between Spring Cloud Data Flow for Kubernetes Server and Kubernetes versions:
+
+[source,console]
+----
+| Versions: SCDF K8S Server - K8S Deployer \ Kubernetes | 1.8.x | 1.9.x | 1.10.x |
+|-------------------------------------------------------|-------|-------|--------|
+| Server: 1.4.x - Deployer: 1.3.2                       | ✓     | ✓     | ✓     |
+| Server: 1.5.x - Deployer: 1.3.6                       | ✓     | ✓     | ✓     |
+| Server: 1.6.x - Deployer: 1.3.7                       | ✓     | ✓     | ✓     |
+| Server: 1.7.x - Deployer: 1.3.9                       | ✓     | ✓     | ✓     |
+|--------------------------------------------------------------------------------|
+----
+
 === Create a Kubernetes Cluster
 
 The Kubernetes https://kubernetes.io/docs/setup/pick-right-solution/[Picking the Right Solution] guide lets you choose among many options, so you can pick the one that you are most comfortable using.
