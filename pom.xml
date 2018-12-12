@@ -24,6 +24,7 @@
 		<spring-cloud-kubernetes.version>0.3.0.RELEASE</spring-cloud-kubernetes.version>
 		<spring-cloud-scheduler-kubernetes.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-scheduler-kubernetes.version>
 		<spring-cloud-scheduler-spi.version>1.0.1.RELEASE</spring-cloud-scheduler-spi.version>
+		<kubernetes-client.version>4.0.4</kubernetes-client.version>
 	</properties>
 
 	<dependencyManagement>
@@ -42,6 +43,13 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-kubernetes-config</artifactId>
 				<version>${spring-cloud-kubernetes.version}</version>
+			</dependency>
+			<!-- redefine as the fabric8 version from spring-cloud-kubernetes is taking
+				precedence, remove when updated. -->
+			<dependency>
+				<groupId>io.fabric8</groupId>
+				<artifactId>kubernetes-client</artifactId>
+				<version>${kubernetes-client.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
