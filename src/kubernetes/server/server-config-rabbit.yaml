@@ -20,9 +20,12 @@ data:
                 users:
                   admin: "{noop}admin, ROLE_MANAGE, ROLE_VIEW"
                   user: "{noop}password, ROLE_VIEW, ROLE_CREATE"
-        deployer:
-          kubernetes:
-            environmentVariables: 'SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT},SPRING_REDIS_HOST=${REDIS_SERVICE_HOST},SPRING_REDIS_PORT=${REDIS_SERVICE_PORT}'
+          task:
+            platform:
+              kubernetes:
+                accounts:
+                  default:
+                    environmentVariables: 'SPRING_RABBITMQ_HOST=${RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${RABBITMQ_SERVICE_PORT},SPRING_REDIS_HOST=${REDIS_SERVICE_HOST},SPRING_REDIS_PORT=${REDIS_SERVICE_PORT}'
       datasource:
         url: jdbc:mysql://${MYSQL_SERVICE_HOST}:${MYSQL_SERVICE_PORT}/mysql
         username: root
