@@ -4,6 +4,18 @@ This project provides support for deploying https://github.com/spring-cloud/spri
 
 Please refer to the http://docs.spring.io/spring-cloud-dataflow-server-kubernetes/docs/current-SNAPSHOT/reference/htmlsingle/#_deploying_streams_on_kubernetes[reference documentation] on how to get started.
 
+=== NOTE: Spring Cloud Data Flow v2.0
+
+Beginning with Spring Cloud Data Flow v2.0.0, we have consolidated the Local, Cloud Foundry, and Kubernetes servers into a single server. Instead of building, maintaining, and shipping individual server-implementations, we have consolidated them into a single server, and all the supported https://github.com/spring-cloud/spring-cloud-dataflow#components[platform-specific deployer implementation] libraries are bundled in it.
+
+That would mean, as a user, you don't need to pick different JARs or Docker-images depending on what platform you want to run. 
+
+The other notable benefit to this approach is the ability to configure the single-server with multiple platform backends. The same server can be configured against Local, "n" number of Cloud Foundry `org/space` combinations, and as well against "n" number of Kubernetes clusters and the associated `namespace`. At the time of stream-deployment or task-launches, you would be able to pick-and-choose the platform where you want to orchestrate the deployment. It would further simplify and promote CI/CD practices for data pipelines.
+
+The http://docs.spring.io/spring-cloud-dataflow/docs/2.0.0.BUILD-SNAPSHOT/reference/htmlsingle/#getting-started[getting-started] steps for each platform remains mostly the same. One significant change is how Tasks are configured, as we are opening up the capability for Tasks to be launched across different platforms as well.
+
+We intend to continue to support the Spring Cloud Data Flow's v1.x version for a period of at least a year from the general availability of v2.0 GA release.
+
 === Helm Chart
 
 A https://hub.kubeapps.com/charts/incubator/spring-cloud-data-flow[Helm Chart] is available for deploying
