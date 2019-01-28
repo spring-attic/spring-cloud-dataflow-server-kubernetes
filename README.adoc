@@ -14,7 +14,7 @@ The other notable benefit to this approach is the ability to configure the singl
 
 The http://docs.spring.io/spring-cloud-dataflow/docs/2.0.0.BUILD-SNAPSHOT/reference/htmlsingle/#getting-started[getting-started] steps for each platform remains mostly the same. One significant change is how Tasks are configured, as we are opening up the capability for Tasks to be launched across different platforms as well.
 
-We intend to continue to support the Spring Cloud Data Flow's v1.x version for a period of at least a year from the general availability of v2.0 GA release.
+In summary, please DO NOT use the `master` branch of this repository; switch over to https://github.com/spring-cloud/spring-cloud-dataflow[Spring Cloud Data Flow] v2.0 instead. We intend to continue to support the Spring Cloud Data Flow's v1.x branch of Kubernetes-server for a period of at least a year from the general availability of v2.0 GA release.
 
 === Helm Chart
 
