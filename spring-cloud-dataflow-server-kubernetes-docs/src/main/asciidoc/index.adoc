@@ -34,9 +34,9 @@ Sabby Anandan, Marius Bogoevici, Eric Bottard, Mark Fisher, Ilayaperumal Gopinat
 :docker-timestamp-task-version: 1.3.1.RELEASE
 :skipper-core-version: 1.1.0.RELEASE
 
-:spring-cloud-dataflow-docs: http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
+:spring-cloud-dataflow-docs: https://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference
 :github-repo: spring-cloud/spring-cloud-dataflow-server-kubernetes
-:github-code: http://github.com/{github-repo}
+:github-code: https://github.com/{github-repo}
 :dataflow-asciidoc: https://raw.githubusercontent.com/spring-cloud/spring-cloud-dataflow/{scdf-core-git}/spring-cloud-dataflow-docs/src/main/asciidoc
 
 ifdef::backend-html5[]
