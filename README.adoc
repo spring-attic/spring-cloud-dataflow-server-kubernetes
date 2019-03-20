@@ -1,8 +1,8 @@
-== Spring Cloud Data Flow - Kubernetes image:https://build.spring.io/plugins/servlet/wittified/build-status/SCD-K8S19B15X[Build Status, link=https://build.spring.io/browse/SCD-K8S19B15X] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes.svg?label=ready&title=Ready[Stories in Ready, link=http://waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes.svg?label=In%20Progress&title=In%20Progress[Stories in Progress, link=http://waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes]
+== Spring Cloud Data Flow - Kubernetes image:https://build.spring.io/plugins/servlet/wittified/build-status/SCD-K8S19B15X[Build Status, link=https://build.spring.io/browse/SCD-K8S19B15X] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes.svg?label=ready&title=Ready[Stories in Ready, link=https://waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes.svg?label=In%20Progress&title=In%20Progress[Stories in Progress, link=https://waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes]
 
 This project provides support for deploying https://github.com/spring-cloud/spring-cloud-dataflow[Spring Cloud Data Flow]'s streaming and task/batch data pipelines to Kubernetes. This project builds upon an implementation of Spring Cloud Data Flow’s https://github.com/spring-cloud/spring-cloud-deployer[Deployer SPI] for Kubernetes.
 
-Please refer to the http://docs.spring.io/spring-cloud-dataflow-server-kubernetes/docs/current-SNAPSHOT/reference/htmlsingle/#_deploying_streams_on_kubernetes[reference documentation] on how to get started.
+Please refer to the https://docs.spring.io/spring-cloud-dataflow-server-kubernetes/docs/current-SNAPSHOT/reference/htmlsingle/#_deploying_streams_on_kubernetes[reference documentation] on how to get started.
 
 === NOTE: Spring Cloud Data Flow v2.0
 
@@ -12,7 +12,7 @@ That would mean, as a user, you don't need to pick different JARs or Docker-imag
 
 The other notable benefit to this approach is the ability to configure the single-server with multiple platform backends. The same server can be configured against Local, "n" number of Cloud Foundry `org/space` combinations, and as well against "n" number of Kubernetes clusters and the associated `namespace`. At the time of stream-deployment or task-launches, you would be able to pick-and-choose the platform where you want to orchestrate the deployment. It would further simplify and promote CI/CD practices for data pipelines.
 
-The http://docs.spring.io/spring-cloud-dataflow/docs/2.0.0.BUILD-SNAPSHOT/reference/htmlsingle/#getting-started[getting-started] steps for each platform remains mostly the same. One significant change is how Tasks are configured, as we are opening up the capability for Tasks to be launched across different platforms as well.
+The https://docs.spring.io/spring-cloud-dataflow/docs/2.0.0.BUILD-SNAPSHOT/reference/htmlsingle/#getting-started[getting-started] steps for each platform remains mostly the same. One significant change is how Tasks are configured, as we are opening up the capability for Tasks to be launched across different platforms as well.
 
 In summary, please DO NOT use the `master` branch of this repository; switch over to https://github.com/spring-cloud/spring-cloud-dataflow[Spring Cloud Data Flow] v2.0 instead. We intend to continue to support the Spring Cloud Data Flow's v1.x branch of Kubernetes-server for a period of at least a year from the general availability of v2.0 GA release.
 
