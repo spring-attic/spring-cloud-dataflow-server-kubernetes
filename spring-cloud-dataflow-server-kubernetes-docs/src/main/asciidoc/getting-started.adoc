@@ -343,7 +343,7 @@ NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
 ----
 ====
-The URL you need to use is in this case is `https://130.211.203.246`.
+The URL you need to use is in this case is `http://130.211.203.246`.
 +
 If you use Minikube, you do not have an external load balancer and the `EXTERNAL_IP` shows as `<pending>`.
 You need to use the `NodePort` assigned for the `scdf-server` service. You can use the following command to look up the URL to use:
@@ -352,7 +352,7 @@ You need to use the `NodePort` assigned for the `scdf-server` service. You can u
 [source,bash]
 ----
 $ minikube service --url scdf-server
-https://192.168.99.100:31991
+http://192.168.99.100:31991
 ----
 ====
 
@@ -638,7 +638,7 @@ scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
 ----
 ====
 +
-In the preceding example, the URL to use is https://130.211.203.246
+In the preceding example, the URL to use is http://130.211.203.246
 +
 If you use Minikube, you do not have an external load balancer and the EXTERNAL-IP column shows `<pending>`.
 You need to use the NodePort assigned for the `skipper` service. The following example (with output) shows how to look up the URL to use:
@@ -647,7 +647,7 @@ You need to use the NodePort assigned for the `skipper` service. The following e
 [source]
 ----
 $ minikube service --url scdf-server
-https://192.168.99.100:31991
+http://192.168.99.100:31991
 ----
 ====
 +
@@ -656,8 +656,8 @@ The following example (with output) shows how to configure the Data Flow server 
 ====
 [source,console,options=nowrap]
 ----
-server-unknown:>dataflow config server --username user --password password --uri https://130.211.203.246
-Successfully targeted https://130.211.203.246
+server-unknown:>dataflow config server --username user --password password --uri http://130.211.203.246
+Successfully targeted http://130.211.203.246
 dataflow:>
 ----
 ====
@@ -1183,7 +1183,7 @@ Now you can look up the URL to use with the following command:
 ----
 dataflow:>! minikube service --url test-http
 command is:minikube service --url test-http
-https://192.168.99.100:32123
+http://192.168.99.100:32123
 ----
 ====
 
@@ -1192,7 +1192,7 @@ https://192.168.99.100:32123
 ====
 [source,bash]
 ----
-dataflow:>http post --target https://130.211.200.96:8080 --data "Hello"
+dataflow:>http post --target http://130.211.200.96:8080 --data "Hello"
 ----
 ====
 +
