@@ -169,7 +169,7 @@ Migration scripts for specific database types can be found in the https://github
 
 We are now securing the server application in the sample configurations file used in the <<kubernetes-getting-started,Getting Started section>>.
 
-This section covers the basic configuration settings we provide in the provided sample configuration, please refer to the  link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/htmlsingle/#configuration-security[core security documentation] for more detailed coverage of the security configuration options for the Spring Cloud Data Flow server and shell.
+This section covers the basic configuration settings we provide in the provided sample configuration, please refer to the  link:https://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/htmlsingle/#configuration-security[core security documentation] for more detailed coverage of the security configuration options for the Spring Cloud Data Flow server and shell.
 
 The security settings in the `src/kubernetes/server/server-config-rabbit.yaml` file are:
 [source,yaml]
