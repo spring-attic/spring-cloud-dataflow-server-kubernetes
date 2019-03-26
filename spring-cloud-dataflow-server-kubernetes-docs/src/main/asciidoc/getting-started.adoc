@@ -6,7 +6,7 @@ In this getting started guide, the Data Flow Server is deployed to the Kubernete
 
 . Deploy a Kubernetes cluster.
 + 
-The http://kubernetes.io/docs/getting-started-guides/[Kubernetes Getting Started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
+The https://kubernetes.io/docs/getting-started-guides/[Kubernetes Getting Started guide] lets you choose among many deployment options so you can pick one that you are most comfortable using. We have successfully used the Vagrant option from a downloaded Kubernetes release.
 +
 We have also used the https://github.com/kubernetes/minikube[Minikube] project to run a local Kubernetes cluster for testing.
 +
@@ -76,7 +76,7 @@ zk           10.103.243.29    <none>            2181/TCP   14d
 +
 [subs=attributes]
 ```
-wget http://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework/cloud/spring-cloud-dataflow-shell/{dataflow-project-version}/spring-cloud-dataflow-shell-{dataflow-project-version}.jar
+wget https://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework/cloud/spring-cloud-dataflow-shell/{dataflow-project-version}/spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 
 $ java -jar spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 ```
@@ -99,8 +99,8 @@ Configure the Data Flow server URI with the following command (use the IP addres
 {dataflow-project-version}
 
 Welcome to the Spring Cloud Data Flow shell. For assistance hit TAB or type "help".
-server-unknown:>dataflow config server --uri http://130.211.203.246:9393
-Successfully targeted http://130.211.203.246:9393
+server-unknown:>dataflow config server --uri https://130.211.203.246:9393
+Successfully targeted https://130.211.203.246:9393
 dataflow:>
 ```
 +
@@ -113,10 +113,10 @@ dataflow:>app register --type task --name timestamp --uri docker:springcloudtask
 ```
 +
 . Alternatively, if you would like to register all out-of-the-box stream applications built with the Kafka binder in bulk, 
-you can with the following command. For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
+you can with the following command. For more details, review how to link:https://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 +
 ```
-dataflow:>app import --uri http://bit.ly/stream-applications-kafka-docker
+dataflow:>app import --uri https://bit.ly/stream-applications-kafka-docker
 ```
 +
 . Deploy a simple stream in the shell
@@ -176,7 +176,7 @@ zk           10.103.247.25    <none>           2181/TCP   7m
 Next, post some data to the `test-http` app:
 +
 ```
-dataflow:>http post --target http://130.211.200.96:8080 --data "Hello"
+dataflow:>http post --target https://130.211.200.96:8080 --data "Hello"
 ```
 +
 Finally, look at the logs for the `test-log` pod:
