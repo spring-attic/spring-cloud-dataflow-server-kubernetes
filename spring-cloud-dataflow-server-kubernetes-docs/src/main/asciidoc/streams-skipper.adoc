@@ -41,7 +41,7 @@ scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
 ----
 ====
 
-In the preceding example, the URL to use is http://130.211.203.246
+In the preceding example, the URL to use is https://130.211.203.246
 
 If you use Minikube, you do not have an external load balancer and the EXTERNAL-IP column shows `<pending>`. You need to use the NodePort assigned for the `skipper` service. The following example (with output) shows how to look up the URL to use:
 
@@ -49,7 +49,7 @@ If you use Minikube, you do not have an external load balancer and the EXTERNAL-
 [source]
 ----
 $ minikube service --url scdf-server
-http://192.168.99.100:31991
+https://192.168.99.100:31991
 ----
 ====
 
@@ -58,8 +58,8 @@ The following example (with output) shows how to configure the Data Flow server 
 ====
 [source,console,options=nowrap]
 ----
-server-unknown:>dataflow config server --username user --password password --uri http://130.211.203.246
-Successfully targeted http://130.211.203.246
+server-unknown:>dataflow config server --username user --password password --uri https://130.211.203.246
+Successfully targeted https://130.211.203.246
 dataflow:>
 ----
 ====
