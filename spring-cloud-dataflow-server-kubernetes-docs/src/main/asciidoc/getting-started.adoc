@@ -228,13 +228,13 @@ $ kubectl get svc scdf-server
 NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
 ```
-So the URL you need to use is in this case https://130.211.203.246
+So the URL you need to use is in this case http://130.211.203.246
 +
 If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. You need to use the NodePort assigned for the `scdf-server` service. Use this command to look up the URL to use:
 +
 ```
 $ minikube service --url scdf-server
-https://192.168.99.100:31991
+http://192.168.99.100:31991
 ```
 
 == Helm Installation
@@ -466,8 +466,8 @@ server-unknown:>
 Configure the Data Flow server URI with the following command (use the URL determined above in the previous step) using the default user and password settings:
 +
 ```
-server-unknown:>dataflow config server --username user --password password --uri https://130.211.203.246/
-Successfully targeted https://130.211.203.246/
+server-unknown:>dataflow config server --username user --password password --uri http://130.211.203.246/
+Successfully targeted http://130.211.203.246/
 dataflow:>
 ```
 +
@@ -592,13 +592,13 @@ Now look up the URL to use with the following command:
 ```
 dataflow:>! minikube service --url test-http
 command is:minikube service --url test-http
-https://192.168.99.100:32123
+http://192.168.99.100:32123
 ```
 +
 . Post some data to the `test-http` app either using the EXTERNAL-IP address from above with port 8080 or the URL provided by the minikube command:
 +
 ```
-dataflow:>http post --target https://130.211.200.96:8080 --data "Hello"
+dataflow:>http post --target http://130.211.200.96:8080 --data "Hello"
 ```
 +
 . Finally, look at the logs for the `test-log` pod:
