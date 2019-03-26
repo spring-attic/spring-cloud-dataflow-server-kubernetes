@@ -1,7 +1,7 @@
 [[kubernetes-getting-started]]
 = Getting Started
 
-http://cloud.spring.io/spring-cloud-dataflow/[Spring Cloud Data Flow] is a toolkit for building data integration and real-time data processing pipelines.
+https://cloud.spring.io/spring-cloud-dataflow/[Spring Cloud Data Flow] is a toolkit for building data integration and real-time data processing pipelines.
 
 Pipelines consist of Spring Boot apps, built using the Spring Cloud Stream or Spring Cloud Task microservice frameworks. This makes Spring Cloud Data Flow suitable for a range of data processing use cases, from import/export to event streaming and predictive analytics.
 
@@ -50,7 +50,7 @@ All our testing is done using the https://cloud.google.com/kubernetes-engine/[Go
 
 NOTE: When starting Minikube you should allocate some extra resources since we will be deploying several services. We have used `minikube start --cpus=4 --memory=4096` to start.
 
-The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
+The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: https://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 
 
 === Deploying using kubectl
@@ -152,7 +152,7 @@ You can use the command `kubectl get all -l app=metrics` to verify that the depl
 +
 . Deploy Skipper
 +
-Optionally, you can deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] to leverage the features of upgrading and
+Optionally, you can deploy link:https://cloud.spring.io/spring-cloud-skipper/[Skipper] to leverage the features of upgrading and
 rolling back Streams since Data Flow delegates to Skipper for those features. For more details, review Spring Cloud Skipper's
 link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[reference guide]
 for a complete overview and its feature capabilities.
@@ -233,7 +233,7 @@ To use Skipper, you _must_ uncomment the following properties to `src/kubernetes
 ----
 ====
 +
-The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
+The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster.  We are using environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We are also using the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access Kubernetes https://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and https://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
 The ConfigMap settings for RabbitMQ are specified in the `src/kubernetes/server/server-config-rabbit.yaml` file and Kafka in the `src/kubernetes/server/server-config-kafka.yaml` file. MySQL secrets are located in the `src/kubernetes/mysql/mysql-secrets.yaml` file. If you modified the password for MySQL you should have changed it in the `src/kubernetes/mysql/mysql-secrets.yaml` file. Any secrets have to be provided base64 encoded.
 +
 NOTE: We are now configuring the Data Flow server with file based security and the default user is 'user' with a password of 'password'. Feel free to change this in the `src/kubernetes/server/server-config-rabbit.yaml` file for RabbitMQ and the `src/kubernetes/server/server-config-kafka.yaml` file when using Kafka.
@@ -284,13 +284,13 @@ $ kubectl get svc scdf-server
 NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
 ```
-So the URL you need to use is in this case http://130.211.203.246
+So the URL you need to use is in this case https://130.211.203.246
 +
 If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. You need to use the NodePort assigned for the `scdf-server` service. Use this command to look up the URL to use:
 +
 ```
 $ minikube service --url scdf-server
-http://192.168.99.100:31991
+https://192.168.99.100:31991
 ```
 
 == Helm Installation
@@ -494,7 +494,7 @@ helm install --name my-release \
 +
 [subs=attributes]
 ```
-wget http://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework/cloud/spring-cloud-dataflow-shell/{dataflow-project-version}/spring-cloud-dataflow-shell-{dataflow-project-version}.jar
+wget https://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework/cloud/spring-cloud-dataflow-shell/{dataflow-project-version}/spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 
 $ java -jar spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 ```
@@ -523,8 +523,8 @@ server-unknown:>
 Configure the Data Flow server URI with the following command (use the URL determined above in the previous step) using the default user and password settings:
 +
 ```
-server-unknown:>dataflow config server --username user --password password --uri http://130.211.203.246/
-Successfully targeted http://130.211.203.246/
+server-unknown:>dataflow config server --username user --password password --uri https://130.211.203.246/
+Successfully targeted https://130.211.203.246/
 dataflow:>
 ```
 +
@@ -547,18 +547,18 @@ dataflow:>app register --type sink --name log --uri docker://springcloudstream/l
 ```
 +
 . Alternatively, if you would like to register all out-of-the-box stream applications for a particular binder in bulk,
-you can use one of the following commands. For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
+you can use one of the following commands. For more details, review how to link:https://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 +
 When using RabbitMQ:
 +
 ```
-dataflow:>app import --uri http://bit.ly/Celsius-SR3-stream-applications-rabbit-docker
+dataflow:>app import --uri https://bit.ly/Celsius-SR3-stream-applications-rabbit-docker
 ```
 +
 When using Kafka:
 +
 ```
-dataflow:>app import --uri http://bit.ly/Celsius-SR3-stream-applications-kafka-10-docker
+dataflow:>app import --uri https://bit.ly/Celsius-SR3-stream-applications-kafka-10-docker
 ```
 +
 . Deploy a simple stream in the shell
@@ -676,13 +676,13 @@ Now look up the URL to use with the following command:
 ```
 dataflow:>! minikube service --url test-http
 command is:minikube service --url test-http
-http://192.168.99.100:32123
+https://192.168.99.100:32123
 ```
 +
 . Post some data to the `test-http` app either using the EXTERNAL-IP address from above with port 8080 or the URL provided by the minikube command:
 +
 ```
-dataflow:>http post --target http://130.211.200.96:8080 --data "Hello"
+dataflow:>http post --target https://130.211.200.96:8080 --data "Hello"
 ```
 +
 . Finally, look at the logs for the `test-log` pod:
