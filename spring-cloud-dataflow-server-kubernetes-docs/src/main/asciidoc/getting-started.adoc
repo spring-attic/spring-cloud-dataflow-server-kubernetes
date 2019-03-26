@@ -1,7 +1,7 @@
 [[kubernetes-getting-started]]
 = Getting Started
 
-http://cloud.spring.io/spring-cloud-dataflow/[Spring Cloud Data Flow] is a toolkit for building data integration and real-time data-processing pipelines.
+https://cloud.spring.io/spring-cloud-dataflow/[Spring Cloud Data Flow] is a toolkit for building data integration and real-time data-processing pipelines.
 
 Pipelines consist of Spring Boot apps, built with the Spring Cloud Stream or Spring Cloud Task microservice frameworks. This makes Spring Cloud Data Flow suitable for a range of data-processing use cases, from import-export to event-streaming and predictive analytics.
 
@@ -58,7 +58,7 @@ All our testing is done with the https://cloud.google.com/kubernetes-engine/[Goo
 
 NOTE: When starting Minikube, you should allocate some extra resources, since we deploy several services. We start with `minikube start --cpus=4 --memory=4096`. Please note that the allocated memory and cpu for the Minikube VM directly gets assigned to the number of applications deployed in a stream/task. The more you add, the more VM resources is required.
 
-The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: http://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
+The rest of this getting started guide assumes that you have a working Kubernetes cluster and a `kubectl` command line utility. See the docs for installation instructions: https://kubernetes.io/docs/user-guide/prereqs/[Installing and Setting up kubectl].
 
 === Deploying with `kubectl`
 
@@ -171,7 +171,7 @@ You can use `kubectl get all -l app=metrics` to verify that the deployment, pod,
 +
 . Deploy Skipper (optional, recommended)
 +
-Optionally, you can deploy link:http://cloud.spring.io/spring-cloud-skipper/[Skipper] to leverage the features of upgrading and
+Optionally, you can deploy link:https://cloud.spring.io/spring-cloud-skipper/[Skipper] to leverage the features of upgrading and
 rolling back Streams, since Data Flow delegates to Skipper for those features. For more details, see
 link:https://docs.spring.io/spring-cloud-skipper/docs/{skipper-core-version}/reference/htmlsingle/#overview[Spring Cloud Skipper Reference Guide]
 for a complete overview.
@@ -265,7 +265,7 @@ To use Skipper, you must uncomment the following properties in `src/kubernetes/s
 ====
 =====
 +
-The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster. We use environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We also use the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access the Kubernetes http://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and http://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
+The Data Flow Server uses the https://github.com/fabric8io/kubernetes-client[Fabric8 Java client library] to connect to the Kubernetes cluster. We use environment variables to set the values needed when deploying the Data Flow server to Kubernetes. We also use the https://github.com/fabric8io/spring-cloud-kubernetes[Fabric8 Spring Cloud integration with Kubernetes library] to access the Kubernetes https://kubernetes.io/docs/user-guide/configmap/[ConfigMap] and https://kubernetes.io/docs/user-guide/secrets/[Secrets] settings.
 The ConfigMap settings for RabbitMQ are specified in the `src/kubernetes/server/server-config-rabbit.yaml` file and for Kafka in the `src/kubernetes/server/server-config-kafka.yaml` file. MySQL secrets are located in the `src/kubernetes/mysql/mysql-secrets.yaml` file. If you modified the password for MySQL, you should change it in the `src/kubernetes/mysql/mysql-secrets.yaml` file. Any secrets have to be provided in base64 encoding.
 +
 NOTE: We now configure the Data Flow server with file-based security, and the default user is 'user' with a password of 'password'. You should change these values in `src/kubernetes/server/server-config-rabbit.yaml` for RabbitMQ or `src/kubernetes/server/server-config-kafka.yaml` for Kafka.
@@ -319,7 +319,7 @@ NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
 ----
 ====
-The URL you need to use is in this case is `http://130.211.203.246`.
+The URL you need to use is in this case is `https://130.211.203.246`.
 +
 If you use Minikube, you do not have an external load balancer and the `EXTERNAL_IP` shows as `<pending>`. You need to use the `NodePort` assigned for the `scdf-server` service. You can use the following command to look up the URL to use:
 +
@@ -327,7 +327,7 @@ If you use Minikube, you do not have an external load balancer and the `EXTERNAL
 [source,bash]
 ----
 $ minikube service --url scdf-server
-http://192.168.99.100:31991
+https://192.168.99.100:31991
 ----
 ====
 
@@ -558,7 +558,7 @@ This section describes how to create streams without using Skipper. To do so:
 ====
 [source,bash,subs=attributes]
 ----
-wget http://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework/cloud/spring-cloud-dataflow-shell/{dataflow-project-version}/spring-cloud-dataflow-shell-{dataflow-project-version}.jar
+wget https://repo.spring.io/{dataflow-version-type-lowercase}/org/springframework/cloud/spring-cloud-dataflow-shell/{dataflow-project-version}/spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 
 java -jar spring-cloud-dataflow-shell-{dataflow-project-version}.jar
 ----
@@ -592,8 +592,8 @@ server-unknown:>
 ====
 [source,bash]
 ----
-server-unknown:>dataflow config server --username user --password password --uri http://130.211.203.246/
-Successfully targeted http://130.211.203.246/
+server-unknown:>dataflow config server --username user --password password --uri https://130.211.203.246/
+Successfully targeted https://130.211.203.246/
 dataflow:>
 ----
 ====
@@ -623,10 +623,10 @@ dataflow:>app register --type sink --name log --uri docker://springcloudstream/l
 Alternatively, if you want register all out-of-the-box stream applications for a particular binder in bulk,
 you can use one of the following commands:
 +
-* RabbitMQ: `dataflow:>app import --uri http://bit.ly/Celsius-SR3-stream-applications-rabbit-docker`
-* Kafka: `dataflow:>app import --uri http://bit.ly/Celsius-SR3-stream-applications-kafka-10-docker`
+* RabbitMQ: `dataflow:>app import --uri https://bit.ly/Celsius-SR3-stream-applications-rabbit-docker`
+* Kafka: `dataflow:>app import --uri https://bit.ly/Celsius-SR3-stream-applications-kafka-10-docker`
 +
-For more details, review how to link:http://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
+For more details, review how to link:https://docs.spring.io/spring-cloud-dataflow/docs/{scdf-core-version}/reference/html/spring-cloud-dataflow-register-apps.html[register applications].
 
 . Deploy a simple stream in the shell, bu running the following command:
 +
@@ -790,7 +790,7 @@ Now you can look up the URL to use with the following command:
 ----
 dataflow:>! minikube service --url test-http
 command is:minikube service --url test-http
-http://192.168.99.100:32123
+https://192.168.99.100:32123
 ----
 ====
 
@@ -799,7 +799,7 @@ http://192.168.99.100:32123
 ====
 [source,bash]
 ----
-dataflow:>http post --target http://130.211.200.96:8080 --data "Hello"
+dataflow:>http post --target https://130.211.200.96:8080 --data "Hello"
 ----
 ====
 +
