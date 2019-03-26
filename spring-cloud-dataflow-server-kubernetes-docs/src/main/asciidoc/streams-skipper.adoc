@@ -33,21 +33,21 @@ $ kubectl get svc scdf-server
 NAME         CLUSTER-IP       EXTERNAL-IP       PORT(S)    AGE
 scdf-server  10.103.246.82    130.211.203.246   80/TCP     4m
 ```
-So the URL you need to use is in this case http://130.211.203.246
+So the URL you need to use is in this case https://130.211.203.246
 
 If you are using Minikube then you don't have an external load balancer and the EXTERNAL-IP will show as `<pending>`. You need to use the NodePort assigned for the `skipper` service. Use this command to look up the URL to use:
 
 ```
 $ minikube service --url scdf-server
-http://192.168.99.100:31991
+https://192.168.99.100:31991
 ```
 
 Configure the Data Flow server URI with the following command using the default user and password settings:
 
 [source,console,options=nowrap]
 ----
-server-unknown:>dataflow config server --username user --password password --uri http://130.211.203.246
-Successfully targeted http://130.211.203.246
+server-unknown:>dataflow config server --username user --password password --uri https://130.211.203.246
+Successfully targeted https://130.211.203.246
 dataflow:>
 ----
 Alternatively, pass in the command line option `--dataflow.uri`.  The shell's command line option `--help` shows what is available.
