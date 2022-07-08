@@ -1,3 +1,5 @@
+# spring-cloud-dataflow-server-kubernetes is no longer actively maintained by VMware, Inc.
+
 == Spring Cloud Data Flow - Kubernetes image:https://build.spring.io/plugins/servlet/wittified/build-status/SCD-K8S19B15X[Build Status, link=https://build.spring.io/browse/SCD-K8S19B15X] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes.svg?label=ready&title=Ready[Stories in Ready, link=https://waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes] image:https://badge.waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes.svg?label=In%20Progress&title=In%20Progress[Stories in Progress, link=https://waffle.io/spring-cloud/spring-cloud-dataflow-server-kubernetes]
 
 This project provides support for deploying https://github.com/spring-cloud/spring-cloud-dataflow[Spring Cloud Data Flow]'s streaming and task/batch data pipelines to Kubernetes. This project builds upon an implementation of Spring Cloud Data Flow’s https://github.com/spring-cloud/spring-cloud-deployer[Deployer SPI] for Kubernetes.
